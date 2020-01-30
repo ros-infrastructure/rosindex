@@ -13,11 +13,10 @@ Assumes the following are defined:
 {% endif %}
 
 <div class="list-group list-group-sm {%if horizontal%}list-group-horizontal list-group-justified{%endif%}">
-  <a class="{{list_group_class}}"
-     target="_blank"
-     href="{{ package.data.docs_uri }}"
-     title="View API documentation on docs.ros.org"
-     {% unless package.snapshot.documented %}disabled{% endunless %}>
+  <a class="{{list_group_class}} {% if package.data.docs_uri == '' %}disabled{% endif %}" target="_blank"
+     {% unless package.data.docs_uri == '' %}href="{{ package.data.docs_uri }}"{% endunless %}
+     {% if package.data.docs_uri == '' %}href="javascript:void(0)"{% endif %}
+     title="View API documentation">
        <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
        {%if hide_link_labels%}<br>{%endif%}
        API Docs
