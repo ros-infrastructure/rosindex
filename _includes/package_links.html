@@ -14,8 +14,11 @@ Assumes the following are defined:
 
 <div class="list-group list-group-sm {%if horizontal%}list-group-horizontal list-group-justified{%endif%}">
   <a class="{{list_group_class}} {% if package.data.docs_uri == '' %}disabled{% endif %}" target="_blank"
-     {% unless package.data.docs_uri == '' %}href="{{ package.data.docs_uri }}"{% endunless %}
-     {% if package.data.docs_uri == '' %}href="javascript:void(0)"{% endif %}
+     {% if package.data.docs_uri == '' %}
+     href="javascript:void(0)"
+     {% else %}
+     href="{{ package.data.docs_uri }}"
+     {% endif %}
      title="View API documentation">
        <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
        {%if hide_link_labels%}<br>{%endif%}
