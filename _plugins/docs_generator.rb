@@ -82,13 +82,6 @@ class DocPageGenerator < Jekyll::Generator
           site, parent_page, "doc/#{repo_name}/#{permalink}", content
         )
 
-        documents_index << {
-          'id' => documents_index.length,
-          'url' => document.url,
-          'title' => Nokogiri::HTML(document.data['title']).text,
-          'content' => Nokogiri::HTML(content['body'], &:noent).text
-        } unless site.config['skip_search_index'] if document.data['indexed']
-
         site.pages << document
       end
 
