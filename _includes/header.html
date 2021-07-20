@@ -59,26 +59,6 @@
                   </ul>
                 </li>
 
-                <li class="dropdown disabled">
-                  <button id="dLabel" class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Doc <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    {% for repo in site.docs_repos %}
-                    <li>
-                      <a href="{{site.baseurl}}/doc/{{ repo[0] }}">
-                        {{ repo[1].description }}
-                      </a>
-                    </li>
-                    {% endfor %}
-                    <li class="hidden" class="divider"></li>
-
-                    <li class="hidden"><a href="{{site.baseurl}}/doc/tutorials">Tutorials</a></li>
-                    <li class="hidden"><a href="{{site.baseurl}}/doc/readmes">Readmes</a></li>
-                    <li class="hidden"><a href="{{site.baseurl}}/doc/apis">APIs</a></li>
-                  </ul>
-                </li>
-
                 <li><a class="btn btn-link" href="{{site.baseurl}}/contribute">Contribute</a></li>
                 <li><a class="btn btn-link" href="{{site.baseurl}}/stats">Stats</a></li>
               </ul>
