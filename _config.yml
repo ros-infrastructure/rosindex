@@ -92,6 +92,7 @@ index_old_doc_paths: false
 ros2_distros:
   - 'galactic'
   - 'foxy'
+  - 'rolling'
 
 ros_distros:
   - 'noetic'
