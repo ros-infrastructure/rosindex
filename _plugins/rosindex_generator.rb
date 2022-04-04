@@ -727,7 +727,7 @@ class Indexer < Jekyll::Generator
             scrape_version(site, repo, distro, snapshot, vcs)
           end
         else
-          puts (" --- no version for " << repo.name << " instance: " << repo.id << " distro: " << distro).yellow
+          dputs (" --- no version for " << repo.name << " instance: " << repo.id << " distro: " << distro).yellow
         end
       rescue VCSException => e
         @errors[repo.name] << IndexException.new("Could not find version for distro #{distro}: "+e.msg, repo.id)
