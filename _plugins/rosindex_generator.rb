@@ -1530,9 +1530,6 @@ class Indexer < Jekyll::Generator
       # create default package page
       site.pages << PackagePage.new(site, package_instances)
 
-      # create package page which lists all the instances
-      site.pages << PackageInstancesPage.new(site, package_instances)
-
       # create a page for each package instance
       package_instances.instances.each do |instance_id, instance|
         dputs "Generating page for package " << package_name << " instance " << instance_id << "..."
