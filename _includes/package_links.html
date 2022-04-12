@@ -51,6 +51,7 @@ Assumes the following are defined:
        Wiki
   </a>
   {%endif%}
+  {% comment %}
   <a class="{{list_group_class}}"
      target="_blank" 
      href="http://http404error.github.io/roseco/graph.html?id=ros.json&focus={{page.package_name}}&height=1&depth=2&tred=standard&metagroup=false&colorby=Health&direction=LR"
@@ -60,5 +61,6 @@ Assumes the following are defined:
        {%if hide_link_labels%}<br>{%endif%}
        RosEco
   </a>
+  {% endcomment %}
   {% comment %}<a type="button" class="list-group-item {%if horizontal %}text-center{%endif%} inactive" target="_blank" ><span class="glyphicon glyphicon-fire"></span>{%if hide_link_labels%} CI{%endif%}</a>{% endcomment %}
 </div>
