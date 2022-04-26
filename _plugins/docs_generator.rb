@@ -101,15 +101,6 @@ class DocPageGenerator < Jekyll::Generator
       end
     end
 
-    unless site.config['skip_search_index']
-      puts ("Generating lunr index for documentation pages...").blue
-      reference_field = 'id'
-      indexed_fields = ['title', 'content']
-      site.static_files.push(*precompile_lunr_index(
-        site, documents_index, reference_field, indexed_fields,
-        "search/docs/", site.config['search_index_shards'] || 1
-      ).to_a)
-    end
   end
 
   def generate_edit_url(repo_data, original_filepath)

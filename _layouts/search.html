@@ -35,9 +35,6 @@ layout: default
       <div class="btn-group">
         <button id="deps" type="button" class="search-section-check btn btn-primary">System Dependencies</button>
       </div>
-      <div class="btn-group">
-        <button id="docs" type="button" class="search-section-check btn btn-primary">Documentation</button>
-      </div>
     </div>
   </div>
 
@@ -78,26 +75,6 @@ layout: default
     </div>
     <div id="deps-search-pagination" style="display: none;"
          class="row text-center show-if-deps-found">
-    </div>
-  </div>
-
-  <div id="docs" class="row container-fluid search-section-tab" style="display: none;">
-    <div class="row show-if-searching-docs" style="margin: 10px 0px 10px 0px;">
-      <p class="progress-label">Searching...</p>
-      <div class="progress" style="margin-bottom: 0;">
-        <div id="packages-index-loader-bar" class="m-0 progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" style="width: 100%"></div>
-      </div>
-    </div>
-    <div class="row show-if-docs-found" style="display: none;">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Documentation search results</h3>
-        </div>
-        <div id="docs-search-results" class="panel-body table-responsive"></div>
-      </div>
-    </div>
-    <div id="docs-search-pagination" style="display: none;"
-       class="row text-center show-if-docs-found">
     </div>
   </div>
 
@@ -188,26 +165,6 @@ layout: default
   {{/have_entries}}
   {{^have_entries}}
   <h4>No related system dependencies found.</h4>
-  {{/have_entries}}
-</script>
-{% endraw %}
-
-{% raw %}
-<script id="docs-search-results-template" type="text/mustache">
-  {{#have_entries}}
-  <div class="list-group">
-    {{#entries}}
-    <a href="{{baseurl}}{{url}}" class="list-group-item list-group-item-action flex-column align-items-start">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{title}}</h5>
-      </div>
-      <p class="mb-1">{{{excerpt}}}</p>
-    </a>
-    {{/entries}}
-  </div>
-  {{/have_entries}}
-  {{^have_entries}}
-  <h4>No references in documentation found.</h4>
   {{/have_entries}}
 </script>
 {% endraw %}
@@ -344,66 +301,6 @@ $(function() {
         doHide: function(duration) {
           $('.show-if-deps-found').slideUp(duration);
           return $('.show-if-deps-found').promise();
-        }
-      })
-    }, {
-      partition: {
-        shardsUrl: "/search/docs/shards.json",
-        getData: function(url) {
-          return executor.push(function() {
-            return $.getJSON(url);
-          }, 'docs');
-        },
-        ready: function() {
-          $('.show-if-searching-docs').slideUp(400);
-        }
-      },
-      view: $('#docs-search-pagination').pagedView({
-        pageView: $('#docs-search-results').templateView({
-          template: $('#docs-search-results-template').text(),
-          doPreprocess: function(raw_entries, context) {
-            var excerpt_length = 140;
-            return $.map(raw_entries, function(raw_entry) {
-              var excerpt = raw_entry['content'].slice(0, excerpt_length - 1);
-              if (excerpt_length < raw_entry['content'].length) excerpt += '...';
-              if ('content' in raw_entry['_metadata']) {
-                var content_metadata = raw_entry['_metadata']['content'];
-                if ('position' in content_metadata) {
-                  var match_index = content_metadata['position'][0][0] + 1;
-                  var match_length = content_metadata['position'][0][1];
-                  if (match_length < excerpt_length) {
-                    var start_index = match_index - (excerpt_length - match_length) / 2;
-                    if (start_index < 0) start_index = 0;
-                    var end_index = start_index + excerpt_length;
-                    excerpt = raw_entry['content'].slice(start_index, match_index);
-                    excerpt += '<mark>' + raw_entry['content'].slice(
-                      match_index, match_index + match_length
-                    ) + '</mark>';
-                    excerpt += raw_entry['content'].slice(match_index + match_length, end_index);
-                    if (start_index != 0) excerpt = '...' + excerpt;  
-                    if (end_index < raw_entry['content'].length - 1) excerpt = excerpt + '...';
-                  } else {
-                    excerpt = '<mark>' + raw_entry['content'].slice(
-                      match_index, match_index + match_length
-                    ) + '</mark>';
-                    if (match_index != 0) excerpt = '...' + excerpt;
-                    if (match_index + match_length < raw_entry['content'].length - 1) {
-                      excerpt = excerpt + '...';
-                    }
-                  }
-                }
-              }
-              return $.extend({}, raw_entry, { excerpt: excerpt });
-            })
-          }
-        }),
-        doShow: function(duration) {
-          $('.show-if-docs-found').slideDown(duration);
-          return $('.show-if-docs-found').promise();
-        },
-        doHide: function(duration) {
-          $('.show-if-docs-found').slideUp(duration);
-          return $('.show-if-docs-found').promise();
         }
       })
     }]
