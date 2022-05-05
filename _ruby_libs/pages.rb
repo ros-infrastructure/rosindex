@@ -242,20 +242,6 @@ class PackagePage < Jekyll::Page
   end
 end
 
-class PackageInstancesPage < Jekyll::Page
-  def initialize(site, package_instances)
-    @site = site
-    @base = site.source
-    @dir = File.join('packages',package_instances.name)
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'package_instances.html')
-    self.data['package_instances'] = package_instances
-    self.data['package_name'] = package_instances.name
-  end
-end
-
 class PackageInstancePage < Jekyll::Page
   def initialize(site, package_instances, instance, package_name)
 
