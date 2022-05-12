@@ -506,9 +506,11 @@ class Indexer < Jekyll::Generator
       end
 
       if $ros_distros.include? distro
+        # ROS 1
         docs_uri = "http://docs.ros.org/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/api/#{package_name}/html/"
       else
-        docs_uri = "http://docs.ros2.org/#{distro}/api/#{package_name}/"
+        # ROS 2
+        docs_uri = "http://docs.ros.org/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/p/#{package_name}"
       end
 
       # try to acquire information on the CI status of the package
