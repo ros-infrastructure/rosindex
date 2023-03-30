@@ -56,10 +56,7 @@ WORKDIR $HOME
 COPY Gemfile* .bundle/
 RUN chown -R $user:$user .
 
-# Work around https://bundler.io/blog/2019/05/14/solutions-for-cant-find-gem-bundler-with-executable-bundle.html
-# This is needed until we upgrade to a platform with ruby 2.6.3 or higher
-RUN gem install bundler -v "$(grep -A 1 "BUNDLED WITH" .bundle/Gemfile.lock | tail -n 1)"
-
+RUN gem install bundler
 USER $user
 ENV BUNDLE_PATH=$HOME/.bundle
 ENV BUNDLE_GEMFILE=$HOME/.bundle/Gemfile
