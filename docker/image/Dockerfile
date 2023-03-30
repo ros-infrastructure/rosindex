@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 ARG user=rosindex
 ARG uid=1000
@@ -11,20 +11,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker/image/ros.asc /tmp/ros.asc
-RUN echo "deb http://packages.ros.org/ros/ubuntu bionic main" > \
+RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > \
          /etc/apt/sources.list.d/ros-latest.list
 RUN apt-key add /tmp/ros.asc
-
-RUN echo 'deb http://old-releases.ubuntu.com/ubuntu/ cosmic universe\n' >> \
-        /etc/apt/sources.list
-RUN echo 'Package: *\n\
-Pin: release n=cosmic\n\
-Pin-Priority: -10\n\
-\n\
-Package: pandoc*\n\
-Pin: release n=cosmic\n\
-Pin-Priority: 500\n\
-' > /etc/apt/preferences.d/cosmic.pref
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
