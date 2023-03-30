@@ -9,7 +9,7 @@ kramdown:
 
 profile: true
 
-google_analytics_property_id: 'UA-17821189-2'
+google_analytics_tag_id: 'G-EVD5Z6G6NH'
 
 redcarpet:
   extensions:
