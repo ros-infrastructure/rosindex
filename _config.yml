@@ -90,6 +90,7 @@ index_old_doc_paths: false
 # drop-down list in the distro selector.
 #
 ros2_distros:
+  - 'iron'
   - 'humble'
   - 'foxy'
   - 'rolling'
