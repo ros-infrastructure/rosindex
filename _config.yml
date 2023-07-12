@@ -96,7 +96,6 @@ ros2_distros:
 
 ros_distros:
   - 'noetic'
-  - 'melodic'
 
 old_ros2_distros:
   - 'ardent'
@@ -113,6 +112,7 @@ old_ros_distros:
   - 'indigo'
   - 'hydro'
   - 'kinetic'
+  - 'melodic'
 
 # package list page
 packages_per_page: 200
