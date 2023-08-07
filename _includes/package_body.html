@@ -433,11 +433,11 @@ Assumes distro and package are defined
   <div class="tab-pane" id="{{distro}}-questions">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Recent questions tagged <kbd>{{package.name}}</kbd> at <strong><a href="https://answers.ros.org" target="_blank">answers.ros.org</a></strong></h3>
+        <h3 class="panel-title">Recent questions tagged <kbd>{{package.name}}</kbd> at <strong><a href="https://robotics.stackexchange.com/" target="_blank">Robotics Stack Exchange</a></strong></h3>
       </div>
       <div id="{{distro}}-question-list" class="panel-body" style="display: none;"></div>
       <div id="{{distro}}-no-question-list" class="panel-body" style="display: none;">
-        <p>No questions yet, you can ask one <a href="https://answers.ros.org/questions/ask/?tags={{package.name}},{{distro}}">here</a>.</p>
+        <p>No questions yet, you can ask one <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}+{{distro}}">here</a>.</p>
       </div>
       <div id="{{distro}}-get-question-fail" class="panel-body alert alert-warning" style="display: none;">
         <p>Failed to get question list, you can ticket an issue <a href="https://github.com/ros2/rosindex/issues/new" target="_blank" class="alert-link">here</a> </p>
@@ -450,8 +450,8 @@ Assumes distro and package are defined
 
 <script id="{{distro}}-question-list-template" type="text/html">
   <p>
-    Browse <a href="https://answers.ros.org/questions/scope:all/sort:activity-desc/tags:{{package.name}}/page:1/">recent questions</a>
-    or see the <a href="https://answers.ros.org/questions/scope:all/sort:votes-desc/tags:{{package.name}}/page:1/">higest voted ones</a>.
+    Browse <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}?tab=Newest">recent questions</a>
+    or see the <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}?tab=Votes">higest voted ones</a>.
   </p>
   {% raw %}
   <div class="list-group">
