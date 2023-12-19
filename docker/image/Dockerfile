@@ -56,7 +56,9 @@ WORKDIR $HOME
 COPY Gemfile* .bundle/
 RUN chown -R $user:$user .
 
-RUN gem install bundler
+# Pinned for bundler not supporting older ruby version
+# The last version of bundler (>= 0) to support your Ruby & RubyGems was 2.4.22. Try installing it with `gem install bundler -v 2.4.22`
+RUN gem install bundler -v 2.4.22
 USER $user
 ENV BUNDLE_PATH=$HOME/.bundle
 ENV BUNDLE_GEMFILE=$HOME/.bundle/Gemfile
