@@ -13,7 +13,6 @@ keep_files: [cache, .git]
 rosdep_path: _remotes/rosdep
 rosdistro_paths: [_remotes/rosdistro]
 repos_path: _remotes/rosforks/repos
-attic_file: _remotes/rosforks/attic.yaml
 
 # Indicates which of the repositories tracked in remotes.yml
 # correspond to documentation repos.

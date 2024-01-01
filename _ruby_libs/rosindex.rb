@@ -45,7 +45,7 @@ end
 
 class Repo < Liquid::Drop
   # This represents a remote repository
-  attr_accessor :name, :id, :uri, :accessible, :errors, :purpose, :snapshots, :tags, :type, :status, :local_path, :local_name, :release_manifests, :attic
+  attr_accessor :name, :id, :uri, :accessible, :errors, :purpose, :snapshots, :tags, :type, :status, :local_path, :local_name, :release_manifests
   def initialize(name, type, uri, purpose, checkout_path, id = nil)
     # non-unique identifier for this repo
     @name = name
@@ -87,9 +87,6 @@ class Repo < Liquid::Drop
     # release manifests
     # hash distro -> manifest xml data
     @release_manifests = {}
-
-    # whether this repo is in the attic
-    @attic = false
   end
 end
 
