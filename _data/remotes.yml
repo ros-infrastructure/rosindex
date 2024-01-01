@@ -8,10 +8,6 @@ repositories:
     type: git
     url: https://github.com/ros/rosdistro.git
     version: master
-  rosforks:
-    type: git
-    url: https://github.com/rosindex/rosforks.git
-    version: master
 # List of all non-package specific documentation repositories.
   ros2:
     type: git
