@@ -1305,57 +1305,6 @@ class Indexer < Jekyll::Generator
         end
       end
 
-      # add attic repos
-      attic_filename = site.config['attic_file']
-      attic_data = {}
-      # read in the repo data
-      if File.exists?(attic_filename)
-        attic_data = YAML.load_file(attic_filename)
-      end
-
-      attic_data.each do |repo_name, instances|
-        puts " - Adding repositories for " << repo_name
-
-        # add all the instances
-        instances.each do |id, instance|
-
-          # create a new repo structure for this remote
-          repo = Repo.new(
-            repo_name,
-            instance['type'],
-            instance['uri'],
-            'attic mirror',
-            @checkout_path)
-
-          repo.attic = true
-
-          uri = repo.uri
-
-          dputs " -- Added attic repo for " << repo.name << " instance: " << repo.id << " from uri " << repo.uri.to_s
-
-          # add distro versions for instance
-          $all_distros.each do |distro|
-
-            # get the explicit version identifier for this distro
-            explicit_version = if instance.fetch('distros',{})[distro] then instance['distros'][distro] else nil end
-
-            # add the specific version from this instance
-            repo.snapshots[distro].version = explicit_version
-            repo.snapshots[distro].released = false
-          end
-
-          # store this repo in the unique index
-          # note this will overwrite the mirrored repo
-          @all_repos[repo.id] = repo
-
-          # store this repo in the name index
-          @repo_names[repo.name].instances[repo.id] = repo
-          if instance['default'] or @repo_names[repo.name].default.nil?
-            @repo_names[repo.name].default = repo
-          end
-        end
-      end
-
       puts "Found " << @all_repos.length.to_s << " repositories corresponding to " << @repo_names.length.to_s << " repo identifiers."
     end
 
