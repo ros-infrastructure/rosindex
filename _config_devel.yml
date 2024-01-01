@@ -1,20 +1,20 @@
 # package list page
-packages_per_page: 3
-repos_per_page: 3
+packages_per_page: 5
+repos_per_page: 5
 
 # set the following to a non-zero value for testing (limit the number of indexed repos)
-max_repos: 2
+max_repos: 10
 
 # If true, this begins with an existing db
-use_db_cache: true
+use_db_cache: false
 # If true, this skips finding repos based on the repo sources
-skip_discover: true
+skip_discover: false
 # If true, this skips updating the known repos
-skip_update: true
+skip_update: false
 # If true, this skips scraping the cloned repos
-skip_scrape: true
+skip_scrape: false
 # If true, this skips generating the search index
-skip_search_index: true
+skip_search_index: false
 
 checkout_threads: 1
 

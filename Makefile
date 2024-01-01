@@ -40,6 +40,9 @@ serve:
 serve-devel:
 	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(devel_config_file),$(index_file) --skip-initial-build
 
+test-build: prepare-sources
+	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(devel_config_file),$(index_file)
+
 clean-sources:
 	rm -rf $(plugins_data_dir)
 	rm -rf $(remotes_dir)

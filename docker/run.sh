@@ -8,14 +8,16 @@ SCRIPT_DIR=`dirname $( readlink -m $( type -p $0 ))`
 # ./run.sh make build
 
 COMMAND=''
+INTERACTIVE='-it'
 if [ -z "$1" ]
 then
   COMMAND="bash"
 else
   COMMAND=$@
+  INTERACTIVE=''
 fi
 
 docker run \
   -w /home/`whoami`/rosindex \
   -v $SCRIPT_DIR/..:/home/`whoami`/rosindex:rw \
-  --net=host -ti rosindex/rosindex $COMMAND
+  --net=host $INTERACTIVE rosindex/rosindex $COMMAND
