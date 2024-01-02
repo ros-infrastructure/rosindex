@@ -448,73 +448,9 @@ Assumes distro and package are defined
 
 <script type="text/javascript" src="{{ '/js/package_body_tabs.js' | prepend: site.baseurl }}"></script>
 
-
-<script type="text/javascript" src="{{ '/js/jquery.jfeed.pack.js' | prepend: site.baseurl }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ '/css/prettify.css' | prepend: site.baseurl }}"/>
-<script type="text/javascript" src="{{ '/js/prettify.js' | prepend: site.baseurl }}"></script>
-<script type="text/javascript" src="{{ '/js/mustache.js' | prepend: site.baseurl }}"></script>
-<script type="text/javascript" src="{{ '/js/showdown.min.js' | prepend: site.baseurl }}"></script>
 <script src={{ "/js/contribution_suggestions.js" | prepend: site.baseurl }}></script>
 <script type="text/javascript">
-jQuery.browser = {};
-(function () {
-    jQuery.browser.msie = false;
-    jQuery.browser.version = 0;
-    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-        jQuery.browser.msie = true;
-        jQuery.browser.version = RegExp.$1;
-    }
-})();
 jQuery(function() {
-    jQuery.getFeed({
-        url: "https://answers.ros.org/feeds/rss/?tags={{package.name}}",
-        success: function(feed) {
-            if (feed.items.length > 0) {
-              var converter = new showdown.Converter();
-              var questions = feed.items.slice(0, 10).map(function(question) {
-                  question.description = converter.makeHtml(question.description);
-                  question.id = Math.round(Math.random() * 99999.0);
-                  return question;
-              });
-              var template = jQuery("#question-list-template").text();
-              Mustache.parse(template);
-              var rendered = Mustache.render(template, {questions: questions});
-              jQuery("#{{distro}}-question-list").html(rendered);
-              jQuery("#{{distro}}-question-list pre").addClass("prettyprint");
-              jQuery("#{{distro}}-question-list img").each(function() {
-                if (jQuery(this).attr("src").startsWith("/upfiles")) {
-                   jQuery(this).attr("src", "https://answers.ros.org" + jQuery(this).attr("src"));
-                }
-              });
-              jQuery("#{{distro}}-question-list .question-description").each(function() {
-                jQuery(this).click( function() {
-                  if (jQuery(this).hasClass("question-description-collapsed")) {
-                    window.open(jQuery(this).attr("title"));
-                  }
-                })
-              });
-              jQuery("#{{distro}}-question-list .question-description-toggle").each(function() {
-                jQuery(this).click( function() {
-                  if (jQuery(this).prev().hasClass("question-description-collapsed")) {
-                    jQuery(this).html("Show less");
-                  } else {
-                    jQuery(this).html("Show more");
-                  }
-                  jQuery(this).prev().toggleClass( "question-description-collapsed", 1000 );
-                })
-              });
-              jQuery("#{{distro}}-question-list").show();
-              PR.prettyPrint();
-            } else {
-              jQuery("#{{distro}}-no-question-list").show();
-            }
-            jQuery("#{{distro}}-questions-count").text(feed.items.length);
-        },
-        error: function(res, err) {
-          console.error("Failed to get feed:", err)
-          jQuery("#{{distro}}-get-question-fail").show();
-        }
-    });
     // Update the count on the links to the contribution suggestions
     updateContributionSuggestionsCountOnPackage('{{package.repo.uri}}');
 });

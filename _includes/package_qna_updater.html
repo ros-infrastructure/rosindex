@@ -1,0 +1,100 @@
+{% comment %} Template for Q&A content {% endcomment %}
+<script id="question-list-template" type="text/html">
+  <p>
+    Browse <a href="https://answers.ros.org/questions/scope:all/sort:activity-desc/tags:{{package.name}}/page:1/">recent questions</a>
+    or see the <a href="https://answers.ros.org/questions/scope:all/sort:votes-desc/tags:{{package.name}}/page:1/">higest voted ones</a>.
+  </p>
+  {% raw %}
+  <div class="list-group">
+    {{#questions}}
+    <div class="list-group-item mb-1">
+      <a href="{{link}}">
+        <h4 class="w-75 float-left">{{title}}</h4>
+        <small class="w-25">{{updated}}</small>
+      </a>
+      <hr>
+      <div class="question-description question-description-collapsed" id="question-description-{{id}}" title="{{link}}">
+        {{&description}}
+      </div>
+      <a class="question-description-toggle" id="question-description-{{id}}-toggle">Show more</a>
+      <a class="question-link"  target="_blank" href="{{link}}">View on answers.ros.org</a>
+    </div>
+    {{/questions}}
+  </div>
+  {% endraw %}
+</script>
+
+<script type="text/javascript" src="{{ '/js/jquery.jfeed.pack.js' | prepend: site.baseurl }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ '/css/prettify.css' | prepend: site.baseurl }}"/>
+<script type="text/javascript" src="{{ '/js/prettify.js' | prepend: site.baseurl }}"></script>
+<script type="text/javascript" src="{{ '/js/mustache.js' | prepend: site.baseurl }}"></script>
+<script type="text/javascript" src="{{ '/js/showdown.min.js' | prepend: site.baseurl }}"></script>
+<script src={{ "/js/contribution_suggestions.js" | prepend: site.baseurl }}></script>
+<script type="text/javascript">
+jQuery.browser = {};
+(function () {
+    jQuery.browser.msie = false;
+    jQuery.browser.version = 0;
+    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+        jQuery.browser.msie = true;
+        jQuery.browser.version = RegExp.$1;
+    }
+})();
+jQuery(function() {
+    jQuery.getFeed({
+        url: "https://answers.ros.org/feeds/rss/?tags={{package.name}}",
+        success: function(feed) {
+            {% for distro in page.all_distros %}
+            if (feed.items.length > 0) {
+              var converter = new showdown.Converter();
+              var questions = feed.items.slice(0, 10).map(function(question) {
+                  question.description = converter.makeHtml(question.description);
+                  question.id = Math.round(Math.random() * 99999.0);
+                  return question;
+              });
+              var template = jQuery("#question-list-template").text();
+              Mustache.parse(template);
+              var rendered = Mustache.render(template, {questions: questions});
+              jQuery("#{{distro}}-question-list").html(rendered);
+              jQuery("#{{distro}}-question-list pre").addClass("prettyprint");
+              jQuery("#{{distro}}-question-list img").each(function() {
+                if (jQuery(this).attr("src").startsWith("/upfiles")) {
+                   jQuery(this).attr("src", "https://answers.ros.org" + jQuery(this).attr("src"));
+                }
+              });
+              jQuery("#{{distro}}-question-list .question-description").each(function() {
+                jQuery(this).click( function() {
+                  if (jQuery(this).hasClass("question-description-collapsed")) {
+                    window.open(jQuery(this).attr("title"));
+                  }
+                })
+              });
+              jQuery("#{{distro}}-question-list .question-description-toggle").each(function() {
+                jQuery(this).click( function() {
+                  if (jQuery(this).prev().hasClass("question-description-collapsed")) {
+                    jQuery(this).html("Show less");
+                  } else {
+                    jQuery(this).html("Show more");
+                  }
+                  jQuery(this).prev().toggleClass( "question-description-collapsed", 1000 );
+                })
+              });
+              jQuery("#{{distro}}-question-list").show();
+              PR.prettyPrint();
+            } else {python
+              jQuery("#{{distro}}-no-question-list").show();
+            }
+            jQuery("#{{distro}}-questions-count").text(feed.items.length);
+            {% endfor %}
+          },
+          error: function(res, err) {
+            {% for distro in page.all_distros %}
+            console.error("Failed to get feed for {{distro}}:", err)
+            jQuery("#{{distro}}-get-question-fail").show();
+            {% endfor %}
+          }
+          
+    });
+
+  });
+</script>

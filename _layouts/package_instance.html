@@ -54,6 +54,8 @@ layout: default
   </div>
 {% endfor %}
 
+{% include package_qna_updater.html %}
+
 <script type="text/javascript">
   $(document).ready(function() {
     setupDistroSwitch("{{ page.default_distro }}");
