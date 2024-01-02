@@ -448,30 +448,6 @@ Assumes distro and package are defined
 
 <script type="text/javascript" src="{{ '/js/package_body_tabs.js' | prepend: site.baseurl }}"></script>
 
-<script id="{{distro}}-question-list-template" type="text/html">
-  <p>
-    Browse <a href="https://answers.ros.org/questions/scope:all/sort:activity-desc/tags:{{package.name}}/page:1/">recent questions</a>
-    or see the <a href="https://answers.ros.org/questions/scope:all/sort:votes-desc/tags:{{package.name}}/page:1/">higest voted ones</a>.
-  </p>
-  {% raw %}
-  <div class="list-group">
-    {{#questions}}
-    <div class="list-group-item mb-1">
-      <a href="{{link}}">
-        <h4 class="w-75 float-left">{{title}}</h4>
-        <small class="w-25">{{updated}}</small>
-      </a>
-      <hr>
-      <div class="question-description question-description-collapsed" id="question-description-{{id}}" title="{{link}}">
-        {{&description}}
-      </div>
-      <a class="question-description-toggle" id="question-description-{{id}}-toggle">Show more</a>
-      <a class="question-link"  target="_blank" href="{{link}}">View on answers.ros.org</a>
-    </div>
-    {{/questions}}
-  </div>
-  {% endraw %}
-</script>
 
 <script type="text/javascript" src="{{ '/js/jquery.jfeed.pack.js' | prepend: site.baseurl }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ '/css/prettify.css' | prepend: site.baseurl }}"/>
@@ -500,7 +476,7 @@ jQuery(function() {
                   question.id = Math.round(Math.random() * 99999.0);
                   return question;
               });
-              var template = jQuery("#{{distro}}-question-list-template").text();
+              var template = jQuery("#question-list-template").text();
               Mustache.parse(template);
               var rendered = Mustache.render(template, {questions: questions});
               jQuery("#{{distro}}-question-list").html(rendered);
