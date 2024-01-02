@@ -13,17 +13,22 @@ Assumes the following are defined:
 {% endif %}
 
 <div class="list-group list-group-sm {%if horizontal%}list-group-horizontal list-group-justified{%endif%}">
-  <a class="{{list_group_class}} {% if package.data.docs_uri == '' %}disabled{% endif %}" target="_blank"
-     {% if package.data.docs_uri == '' %}
-     href="javascript:void(0)"
-     {% else %}
-     href="{{ package.data.docs_uri }}"
-     {% endif %}
+  {% if package.data.docs_uri == '' %}
+  <div class="{{list_group_class}} disabled" 
      title="View API documentation">
        <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
        {%if hide_link_labels%}<br>{%endif%}
        API Docs
+  </div>
+  {% else %} 
+  <a class="{{list_group_class}}" target="_blank"
+    href="{{ package.data.docs_uri }}"
+    title="View API documentation">
+      <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
+      {%if hide_link_labels%}<br>{%endif%}
+      API Docs
   </a>
+{% endif %}
   <a class="{{list_group_class}}"
      target="_blank"
      href="{{ package.data.browse_uri }}"
