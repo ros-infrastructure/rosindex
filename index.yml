@@ -12,9 +12,3 @@ keep_files: [cache, .git]
 # Sources
 rosdep_path: _remotes/rosdep
 rosdistro_paths: [_remotes/rosdistro]
-
-# Indicates which of the repositories tracked in remotes.yml
-# correspond to documentation repos.
-docs_repos:
-  ros2:
-    description: "ROS 2 Overview"

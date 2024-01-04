@@ -179,44 +179,6 @@ class DepListPage < Jekyll::Page
   end
 end
 
-class DocPage < Jekyll::Page
-  def initialize(site, parent_page, path, data)
-    @site = site
-    @base = site.source
-    @dir  = "#{path}"
-    @name = "index.html"
-    self.process(@name)
-    self.data ||= {}
-    self.content = data['body']
-    self.data['layout'] = "doc"
-    self.data['title'] = data['title']
-    self.data['edit_url'] = data['edit_url']
-    self.data['indexed'] = data['indexed_page']
-    self.data['canonical_url'] = data['canonical_url']
-    self.data['css_uris'] = data['css_uris']
-    self.data['script_uris'] = data['script_uris']
-
-    self.data['child_pages'] = []
-    self.data['indexed_child_pages'] = []
-    self.data['ancestor_pages'] = []
-    self.data['root_page'] = self
-    if not parent_page.nil?
-      self.data['ancestor_pages'] =
-        parent_page.data['ancestor_pages'] + [parent_page]
-      self.data['root_page'] = parent_page.data['root_page']
-      parent_page.add_child_page(self)
-    end
-  end
-
-  def add_child_page(page)
-    self.data['child_pages'] << page
-    if page.data['indexed']
-      self.data['indexed_child_pages'] << page
-    end
-  end
-
-end
-
 class PackagePage < Jekyll::Page
   def initialize(site, package_instances)
     @site = site

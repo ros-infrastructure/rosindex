@@ -32,7 +32,6 @@ RUN apt-get update && \
         openssl \
         pandoc \
         pkg-config \
-        python3-pip \
         python3-vcstool \
         ruby \
         ruby-dev \
@@ -40,8 +39,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN gem install bundle
-RUN pip3 install --upgrade setuptools pip
-RUN pip3 install sphinx sphinx-reredirects gitpython
 
 RUN ln -s `which nodejs` /usr/local/bin/node
 
