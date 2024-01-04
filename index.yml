@@ -12,5 +12,3 @@ keep_files: [cache, .git]
 # Sources
 rosdep_path: _remotes/rosdep
 rosdistro_paths: [_remotes/rosdistro]
-repos_path: _remotes/rosforks/repos
-attic_file: _remotes/rosforks/attic.yaml
