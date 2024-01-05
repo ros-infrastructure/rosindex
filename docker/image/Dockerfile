@@ -39,6 +39,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN gem install bundle
+RUN pip3 install --upgrade setuptools pip
+# For uploading
+RUN pip3 install gitpython
 
 RUN ln -s `which nodejs` /usr/local/bin/node
 
