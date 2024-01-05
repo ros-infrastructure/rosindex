@@ -32,6 +32,7 @@ RUN apt-get update && \
         openssl \
         pandoc \
         pkg-config \
+        python3-pip \
         python3-vcstool \
         ruby \
         ruby-dev \
