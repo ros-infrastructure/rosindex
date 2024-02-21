@@ -146,7 +146,7 @@ class GIT < VCS
     return @r.last_commit.time.strftime('%F')
   end
 
-  def get_version(distro, explicit_version = nil)
+  def get_version(explicit_version)
 
     # remote head
     if explicit_version == 'REMOTE_HEAD'
@@ -205,15 +205,9 @@ class GIT < VCS
       # NOTE: no longer need to check remote names #if branch.remote_name != repo.id then next end
 
       #dputs " -- examining branch " << branch.name << " trunc: " << branch_name << " from remote: " << branch.remote_name
-      #puts " - should have " << distro << " version " << explicit_version.to_s
 
-      # save the branch as the version if it matches either the explicit
-      # version or the distro name
-      if explicit_version
-        if branch_name == explicit_version
-          return branch, branch_name
-        end
-      elsif branch_name.include? distro
+      # save the branch as the version if it matches the explicit version
+      if explicit_version && branch_name == explicit_version
         return branch, branch_name
       end
     end
@@ -222,12 +216,8 @@ class GIT < VCS
     @r.tags.each do |tag|
       tag_name = tag.name
 
-      # save the tag if it matches either the explicit version or the distro name
-      if explicit_version
-        if tag_name == explicit_version
-          return tag, tag_name
-        end
-      elsif tag_name.include? distro
+      # save the tag if it matches the explicit version
+      if explicit_version && tag_name == explicit_version
         return tag, tag_name
       end
     end
@@ -289,7 +279,7 @@ class HG < VCS
     end
   end
 
-  def get_version(distro, explicit_version = nil)
+  def get_version(explicit_version)
     # get remote head
     if explicit_version == 'REMOTE_HEAD'
       return 'default', 'default'
@@ -300,13 +290,8 @@ class HG < VCS
       # get the branch shortname
       branch_name = branch.name
 
-      # save the branch as the version if it matches either the explicit
-      # version or the distro name
-      if explicit_version
-        if branch_name == explicit_version
-          return branch.name, branch_name
-        end
-      elsif branch_name.include? distro
+      # save the branch as the version if it matches the explicit version
+      if explicit_version && branch_name == explicit_version
         return branch.name, branch_name
       end
     end
@@ -315,12 +300,8 @@ class HG < VCS
     @r.tags.all.each do |tag|
       tag_name = tag.name
 
-      # save the tag if it matches either the explicit version or the distro name
-      if explicit_version
-        if tag_name == explicit_version
-          return tag.name, tag_name
-        end
-      elsif tag_name.include? distro
+      # save the tag if it matches the explicit version
+      if explicit_version && tag_name == explicit_version
         return tag.name, tag_name
       end
     end
@@ -354,7 +335,7 @@ class GITSVN < GIT
     super(local_path, uri)
   end
 
-  def get_version(distro, explicit_version = nil)
+  def get_version(explicit_version)
     if explicit_version == 'REMOTE_HEAD'
       return @r.branches['master'], 'master' # super(distro, explicit_version = 'master')
     else

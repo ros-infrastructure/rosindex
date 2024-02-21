@@ -711,7 +711,7 @@ class Indexer < Jekyll::Generator
         unless explicit_version.nil?
           dputs (" Looking for explicit version #{explicit_version}").green
         end
-        version, snapshot.version = vcs.get_version(distro, explicit_version)
+        version, snapshot.version = vcs.get_version(explicit_version)
 
         # scrape the data (packages etc)
         if version
@@ -1082,7 +1082,7 @@ class Indexer < Jekyll::Generator
                       end
 
                       # get the tracks file
-                      ['master','bloom'].each do |branch_name|
+                      ['master','bloom', 'main'].each do |branch_name|
                         branch, _ = release_vcs.get_version(branch_name)
 
                         if branch.nil? then next end
