@@ -1082,7 +1082,7 @@ class Indexer < Jekyll::Generator
                       end
 
                       # get the tracks file
-                      ['master','bloom', 'main'].each do |branch_name|
+                      ['master','bloom'].each do |branch_name|
                         branch, _ = release_vcs.get_version(branch_name)
 
                         if branch.nil? then next end
