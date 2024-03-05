@@ -79,7 +79,7 @@ class Repo < Liquid::Drop
 
     # hash distro -> RepoSnapshot
     # each entry in this hash represents the preferred version for a given distro in this repo
-    @snapshots = Hash[$all_distros.collect { |d| [d, RepoSnapshot.new(nil, d, false, false)] }]
+    @snapshots = {}
 
     # tags from all versions
     @tags = []
