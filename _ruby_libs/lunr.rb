@@ -16,6 +16,7 @@ def precompile_lunr_index(site, index, ref, fields, output_dir, shard_count = 1)
   FileUtils.mkdir_p(site.dest) unless File.directory?(site.dest)
   FileUtils.mkdir_p(output_dirpath) unless File.directory?(output_dirpath)
   shard_size = index.length / shard_count
+  if shard_size == 0 then shard_size = 1 end
 
   Enumerator.new do |enum| 
     shards = index.each_slice(shard_size).with_index.collect do |index_slice, i|
