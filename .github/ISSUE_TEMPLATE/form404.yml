@@ -1,0 +1,32 @@
+name: Broken Link Report
+description: File a broken link report
+title: "Broken Link:"
+labels: ["bug"]
+projects: ["ros-infrastructure/rosindex"]
+body:
+
+  - type: input
+    id: 404page
+    attributes:
+      label: 404 Page URL
+      description: Page that you were trying to access
+      placeholder: https://index.ros.org/404
+    validations:
+      required: true
+
+  - type: input
+    id: referer
+    attributes:
+      label: Referrer URL
+      description: Page that you were on when you clicked the link and got a 404
+      placeholder: https://index.ros.org/
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: If any additional information is needed, please provide it here.
+    validations:
+      required: false
