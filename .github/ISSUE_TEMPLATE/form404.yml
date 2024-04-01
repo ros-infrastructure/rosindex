@@ -9,8 +9,8 @@ body:
     id: 404page
     attributes:
       label: 404 Page URL
-      description: Page that you were trying to access
-      placeholder: https://index.ros.org/404
+      description: If this isn't autodetected it means you have to fill it in yourself
+      placeholder: FAILED TO AUTOMATICALLY DETECT 404 PAGE URL PLEASE FILL
     validations:
       required: true
 
@@ -18,8 +18,8 @@ body:
     id: referer
     attributes:
       label: Referrer URL
-      description: Page that you were on when you clicked the link and got a 404
-      placeholder: https://index.ros.org/
+      description: If this isn't autodetected it means you have to fill it in yourself
+      placeholder: FAILED TO AUTOMATICALLY DETECT REFERRER URL PLEASE FILL
     validations:
       required: true
 
