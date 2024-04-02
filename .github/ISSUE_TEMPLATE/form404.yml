@@ -9,8 +9,8 @@ body:
     id: 404page
     attributes:
       label: 404 Page URL
-      description: If this isn't autodetected it means you have to fill it in yourself
-      placeholder: FAILED TO AUTOMATICALLY DETECT 404 PAGE URL PLEASE FILL
+      description: Enter the url of the page that doesn't exist
+      placeholder: Failed to automatically detect 404 page. Please enter url here.
     validations:
       required: true
 
@@ -18,8 +18,8 @@ body:
     id: referer
     attributes:
       label: Referrer URL
-      description: If this isn't autodetected it means you have to fill it in yourself
-      placeholder: FAILED TO AUTOMATICALLY DETECT REFERRER URL PLEASE FILL
+      description: Enter the URL of the referring page which has the wrong link.
+      placeholder: Automatic detection of the referrer page failed, please enter it here.
     validations:
       required: true
 
@@ -27,6 +27,6 @@ body:
     id: description
     attributes:
       label: Description
-      placeholder: If any additional information is needed, please provide it here.
+      placeholder: Please describe where the link is that you followed if it might not be obvious on the referring page. If any additional information is needed, please provide it here too.
     validations:
       required: false
