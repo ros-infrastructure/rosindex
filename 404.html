@@ -61,7 +61,7 @@ title: "404: Not Found"
       // Encode the urls
       var title = "title=Broken+Link:" + encodeURIComponent(currentUrl);
       var currentUrl_encoded = "404page=" + encodeURIComponent(currentUrl);
-      var referrerUrl_encoded = "referer=" + encodeURIComponent(referrerUrl);
+      var referrerUrl_encoded = "referrer=" + encodeURIComponent(referrerUrl);
 
       // Update the href
       githubLink += "&" + title + "&" + currentUrl_encoded + "&" + referrerUrl_encoded;
