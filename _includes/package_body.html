@@ -219,7 +219,15 @@ Assumes distro and package are defined
         <h3 class="panel-title">Source Tutorials</h3>
       </div>
       <div class="panel-body">
-        <em>Not currently indexed.</em>
+        <a class="{{list_group_class}}"
+           target="_blank"
+           href="{{ package.data.docs_uri }}/tutorials.html"
+           title="View API tutorials on docs.ros.org"
+           {% unless package.snapshot.documented %}disabled{% endunless %}>
+             <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
+             {%if hide_link_labels%}<br>{%endif%}
+             Source Tuorials
+        </a>
       </div>
     </div>
   </div>
