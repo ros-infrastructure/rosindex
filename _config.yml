@@ -92,6 +92,7 @@ index_old_doc_paths: false
 ros2_distros:
   - 'humble'
   - 'iron'
+  - 'jazzy'
   - 'rolling'
 
 ros_distros:
