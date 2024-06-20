@@ -6,25 +6,27 @@
  * @param {string} list The name of the list tab (eg "help-wanted".
  * @param {array} items The data (JSON) to populate the list from.
  */
-function populateContributeLists(list, items) {
-  // Write the html for the list items.
-  html = '<table class="table table-condensed table-striped"><tbody>';
-  for (var i=0; i < items.length; i++) {
-    var item = items[i];
-    html += '<tr><td><a href="' + item['html_url'] + '">#';
-    html += item['number'] + '</td><td>' + item['title'] + '</a></td></tr>';
-  }
-  html += '</tbody>';
-  $('.contribute-lists-'+list).each(function() {
-    $(this).html(html);
-  });
-  // Update the number of items in the tab header.
-  $('.contribute-lists-'+list+'-count').each(function() {
-    if (items.length <= 99) {
-      $(this).text(items.length);
+function populateContributeLists(list, response) {
+  response.json().then(items => {
+    if (response.ok) {
+      // Write the html for the list items.
+      var html = '<table class="table table-condensed table-striped"><tbody>';
+      for (const item of items) {
+        html += '<tr><td><a href="' + item['html_url'] + '">#';
+        html += item['number'] + '</td><td>' + item['title'] + '</a></td></tr>';
+      }
+      html += '</tbody>';
+      $('.contribute-lists-'+list).each(function() {
+        $(this).html(html);
+      });
+      countText = items.length <= 99 ? items.length : ">99";
     } else {
-      $(this).text(">99");
+      countText = "---"
     }
+    // Update the number of items in the tab header.
+    $('.contribute-lists-'+list+'-count').each(function() {
+      $(this).text(countText)
+    });
   });
 }
 
@@ -48,22 +50,13 @@ function setupContributeLists(repo_uri) {
   // Populate the three tabs of the contribution
   // suggestions list.
   fetch(api_uri + "/issues?state=open&labels=help%20wanted&per_page=100")
-    .then(response => response.json())
-    .then(data => {
-      populateContributeLists('help-wanted', data);
-    })
+    .then(response => populateContributeLists('help-wanted', response))
     .catch(error => console.error(error));
   fetch(api_uri + "/issues?state=open&labels=good%20first%20issue&per_page=100")
-    .then(response => response.json())
-    .then(data => {
-      populateContributeLists('good-first-issue', data);
-    })
+    .then(response => populateContributeLists('good-first-issue', response))
     .catch(error => console.error(error));
   fetch(api_uri + "/pulls?state=open&per_page=100")
-    .then(response => response.json())
-    .then(data => {
-      populateContributeLists('pull-requests', data);
-    })
+    .then(response => populateContributeLists('pull-requests', response))
     .catch(error => console.error(error));
 }
 
