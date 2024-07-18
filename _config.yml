@@ -1,5 +1,5 @@
 # Build settings
-markdown: redcarpet
+markdown: kramdown
 kramdown:
   # use Github Flavored Markdown
   input: GFM
@@ -10,15 +10,6 @@ kramdown:
 profile: true
 
 google_analytics_tag_id: 'G-EVD5Z6G6NH'
-
-redcarpet:
-  extensions:
-    - fenced_code_blocks
-    - autolink
-    - no_intra_emphasis
-    - with_toc_data
-    - html_toc
-    - tables
 
 # OLD from jekyll 2.x
 #highlighter: pygments
