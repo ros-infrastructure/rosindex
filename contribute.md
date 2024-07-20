@@ -27,7 +27,7 @@ responsibility if you add your repository to `rosdistro`.
 If you would like you get your code indexed for documentation, click the
 button below.
 
-<a type="button" href={{ "/contribute/add_repo" | prepend: site.baseurl }} class="btn btn-success">Add a Repository to the Index</a>
+<a type="button" href="{{ "/contribute/add_repo" | prepend: site.baseurl }}" class="btn btn-success">Add a Repository to the Index</a>
 
 ### Releasing Binary Packages
 
@@ -65,7 +65,7 @@ or by reviewing the contributions proposed or submitted by others as <em>pull re
 If you would like some suggestions where your help may be welcomed,
 click the button below.
 
-<a type="button" href={{ "/contribute/suggestions" | prepend: site.baseurl }} class="btn btn-success">Contribution Suggestions</a>
+<a type="button" href="{{ "/contribute/suggestions" | prepend: site.baseurl }}" class="btn btn-success">Contribution Suggestions</a>
 
 ## Opting out of Indexing
 
