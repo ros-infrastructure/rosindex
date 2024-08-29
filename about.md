@@ -22,6 +22,7 @@ For more information see:
 
 * [Design]({{ "/about/design" | prepend: site.baseurl }})
 * [Development]({{ "/about/development" | prepend: site.baseurl }})
+* [Tutorial]({{ "/about/tutorial" | prepend: site.baseurl }})
 
 See [rosindex on GitHub](https://github.com/ros-infrastructure/rosindex) for active development.
 
