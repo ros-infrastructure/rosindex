@@ -209,17 +209,10 @@ Assumes distro and package are defined
             {% endfor %}
           </ul>
           <br>
+        {% else %}
+        <em>This package does not provide any links to tutorials in it's <a href="https://index.ros.org/contribute/metadata/">rosindex metadata</a>.</em>
+        <em>You can check on the <a href="http://wiki.ros.org/{{package.name}}/Tutorials" target="_blank">ROS Wiki Tutorials</a> page for the package.</em>
         {% endif %}
-        <em>See <a href="http://wiki.ros.org/{{package.name}}/Tutorials" target="_blank">ROS Wiki Tutorials</a> for more details.</em>
-      </div>
-    </div>
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Source Tutorials</h3>
-      </div>
-      <div class="panel-body">
-        <em>Not currently indexed.</em>
       </div>
     </div>
   </div>
