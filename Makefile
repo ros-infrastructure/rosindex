@@ -21,6 +21,7 @@ build: prepare-sources
 prepare-sources:
 	mkdir -p $(remotes_dir)
 	vcs import --input $(remotes_file) --force $(remotes_dir)
+	vcs pull $(remotes_dir)
 
 discover: prepare-sources
 	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(index_file),$(discover_config)
