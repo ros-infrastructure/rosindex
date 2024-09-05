@@ -1004,9 +1004,14 @@ class Indexer < Jekyll::Generator
       site.data['common']['platforms'],
       site.data['common']['package_manager_names'].keys)
 
+    debian_file = File.open("_data/debian_packages.json")
+    debian_descriptions = JSON.load(debian_file)
+    debian_file.close()
+ 
     raw_rosdeps.each do |dep_name, dep_data|
       platforms = site.data['common']['platforms']
       manager_set = Set.new(site.data['common']['package_manager_names'])
+      description = ""
 
       platform_data = {}
       platforms.each do |platform_key, platform_details|
@@ -1015,12 +1020,21 @@ class Indexer < Jekyll::Generator
           platform_details['versions'].each do |version_key, version_name|
             platform_data[platform_key][version_key] = resolve_dep(platforms, manager_set, platform_key, version_key, dep_data)
           end
+          if platform_key == 'debian'
+            if platform_data[platform_key].has_key?("bullseye")
+              platform_data[platform_key]["bullseye"].each do |debian_key|
+                if debian_descriptions.has_key?(debian_key)
+                  description = debian_descriptions[debian_key]
+                  break
+                end
+              end
+            end
+          end
         else
           platform_data[platform_key] = resolve_dep(platforms, manager_set, platform_key, 'any_version', dep_data)
         end
       end
-
-      @rosdeps[dep_name] = {'data_per_platform' => platform_data, 'dependants_per_distro' => {}}
+      @rosdeps[dep_name] = {'data_per_platform' => platform_data, 'dependants_per_distro' => {}, 'description' => description}
     end
 
     # get the repositories from the rosdistro files, rosdoc rosinstall files, and other sources

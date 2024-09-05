@@ -463,3 +463,28 @@ a.question-description-toggle {
 a.question-link {
   float: right;
 }
+
+/**
+ * Rotated text header
+ * <th class="rotateL90"><div><span>Column header 1</span></div></th>
+ * https://css-tricks.com/rotated-table-column-headers/
+ */
+
+ th.rotatel90 {
+  /* Something you can count on */
+  height: 70px;
+  white-space: nowrap;
+}
+
+th.rotatel90 > div {
+  transform: 
+    /* Magic Numbers */
+    translate(1px, -5px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotatel90 > div > span {
+  border-bottom: 2px solid #ccc;
+  padding: 5px 10px;
+}
