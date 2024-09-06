@@ -803,7 +803,22 @@ class Indexer < Jekyll::Generator
     return rosdep_data
   end
 
-  def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
+  def generate_sorted_paginated_deps(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
+
+    n_pages = (n_elements / elements_per_page).floor + 1
+
+    (1..n_pages).each do |page_index|
+      p_start = (page_index-1) * elements_per_page
+      elements_sliced = elements_sorted.slice(p_start, elements_per_page)
+      site.pages << page_class.new(site, default_sort_key, n_pages, page_index, elements_sliced)
+      # create page 1 without a page number or key in the url
+      if page_index == 1
+        site.pages << page_class.new(site, default_sort_key, n_pages, page_index, elements_sliced, true)
+      end
+    end
+  end
+
+def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
 
     n_pages = (n_elements / elements_per_page).floor + 1
 
@@ -914,11 +929,6 @@ class Indexer < Jekyll::Generator
     end
 
     return packages_sorted
-  end
-
-  def sort_rosdeps(site)
-    sorted_rosdeps = @rosdeps.sort_by { |name, _| name }
-    return {'name' => Hash[$all_distros.collect {|distro| [distro, sorted_rosdeps]}] }
   end
 
   def write_release_manifests(site, repo, package_name, default)
@@ -1471,16 +1481,19 @@ class Indexer < Jekyll::Generator
     packages_sorted = sort_packages(site)
     generate_sorted_paginated(site, packages_sorted, 'time', @package_names.length, site.config['packages_per_page'], PackageListPage)
 
-    # create rosdep list pages
-    puts ("Generating rosdep list pages...").blue
+    # create rosdep pages
+    puts ("Generating rosdep pages...").blue
 
     @rosdeps.each do |dep_name, full_dep_data|
       site.pages << DepPage.new(site, dep_name, raw_rosdeps[dep_name], full_dep_data)
     end
 
-    rosdeps_sorted = sort_rosdeps(site)
-    generate_sorted_paginated(site, rosdeps_sorted, 'name', @rosdeps.length, site.config['packages_per_page'], DepListPage)
-
+    # create rosdep list pages
+    puts ("Generating rosdep list pages...").blue
+  
+    rosdeps_sorted = @rosdeps.sort_by { |name, _| name }
+    generate_sorted_paginated_deps(site, rosdeps_sorted, 'name', @rosdeps.length, site.config['packages_per_page'], DepListPage)
+  
     # create contribution suggestions list pages
     puts ("Generating contribution suggestions list page...").blue
 
