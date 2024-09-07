@@ -2,101 +2,86 @@
 <script id="question-list-template" type="text/html">
   <p>
     Browse <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}?tab=Newest">recent questions</a>
-    or see the <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}?tab=Votes">higest voted ones</a>.
+    or see the <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}?tab=Votes">highest voted ones</a>.
   </p>
   {% raw %}
-  <div class="list-group">
-    {{#questions}}
-    <div class="list-group-item mb-1">
-      <a href="{{link}}">
-        <h4 class="w-75 float-left">{{title}}</h4>
-        <small class="w-25">{{updated}}</small>
-      </a>
-      <hr>
-      <div class="question-description question-description-collapsed" id="question-description-{{id}}" title="{{link}}">
-        {{&description}}
-      </div>
-      <a class="question-description-toggle" id="question-description-{{id}}-toggle">Show more</a>
-      <a class="question-link"  target="_blank" href="{{link}}">View on Robotics Stack Exchange</a>
-    </div>
-    {{/questions}}
-  </div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Answered?</th>
+        <th scope="col">Created</th>
+        <th scope="col">Active</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#questions}}
+      <tr>
+        <th scope="row"><a href="{{link}}">{{title}}</a><br><small>Tags: {{strtags}}</small></th>
+        <th>{{answered}}</th>
+        <th>{{created}}</th>
+        <th>{{active}}</th>
+      </tr>
+      {{/questions}}
+    </tbody>
+  </table>
+  {{#has_more}}
+  <hr>
+  <h4>Additional questions are available at
+    <a href="https://robotics.stackexchange.com/questions/tagged/{{name}}?tab=Newest">Robotics Stack Exchange</a>
+  </h4>
+  {{/has_more}}
   {% endraw %}
 </script>
 
-<script type="text/javascript" src="{{ '/js/jquery.jfeed.pack.js' | prepend: site.baseurl }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ '/css/prettify.css' | prepend: site.baseurl }}"/>
-<script type="text/javascript" src="{{ '/js/prettify.js' | prepend: site.baseurl }}"></script>
 <script type="text/javascript" src="{{ '/js/mustache.js' | prepend: site.baseurl }}"></script>
-<script type="text/javascript" src="{{ '/js/showdown.min.js' | prepend: site.baseurl }}"></script>
-<script src={{ "/js/contribution_suggestions.js" | prepend: site.baseurl }}></script>
 <script type="text/javascript">
-jQuery.browser = {};
-(function () {
-    jQuery.browser.msie = false;
-    jQuery.browser.version = 0;
-    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-        jQuery.browser.msie = true;
-        jQuery.browser.version = RegExp.$1;
-    }
-})();
-jQuery(function() {
-    jQuery.getFeed({
-        url: "https://robotics.stackexchange.com/feeds/tag/{{package.name}}",
-        success: function(feed) {
-            {% for distro in page.all_distros %}
-            if (feed.items.length > 0) {
-              var converter = new showdown.Converter();
-              var questions = feed.items.slice(0, 10).map(function(question) {
-                  question.description = converter.makeHtml(question.description);
-                  question.id = Math.round(Math.random() * 99999.0);
-                  return question;
-              });
-              var template = jQuery("#question-list-template").text();
-              Mustache.parse(template);
-              var rendered = Mustache.render(template, {questions: questions});
-              jQuery("#{{distro}}-question-list").html(rendered);
-              jQuery("#{{distro}}-question-list pre").addClass("prettyprint");
-            //   TODO(tfoote) Resolve images
-            //   jQuery("#{{distro}}-question-list img").each(function() {
-            //     if (jQuery(this).attr("src").startsWith("/upfiles")) {
-            //        jQuery(this).attr("src", "https://answers.ros.org" + jQuery(this).attr("src"));
-            //     }
-            //   });
-              jQuery("#{{distro}}-question-list .question-description").each(function() {
-                jQuery(this).click( function() {
-                  if (jQuery(this).hasClass("question-description-collapsed")) {
-                    window.open(jQuery(this).attr("title"));
-                  }
-                })
-              });
-              jQuery("#{{distro}}-question-list .question-description-toggle").each(function() {
-                jQuery(this).click( function() {
-                  if (jQuery(this).prev().hasClass("question-description-collapsed")) {
-                    jQuery(this).html("Show less");
-                  } else {
-                    jQuery(this).html("Show more");
-                  }
-                  jQuery(this).prev().toggleClass( "question-description-collapsed", 1000 );
-                })
-              });
-              jQuery("#{{distro}}-question-list").show();
-              PR.prettyPrint();
-            } else {python
-              jQuery("#{{distro}}-no-question-list").show();
-            }
-            jQuery("#{{distro}}-questions-count").text(feed.items.length);
-            {% endfor %}
-          },
-          error: function(res, err) {
-            // TODO(tfoote) resolve 404 errors which are what R.SE gives for non-extant tags, which in this context are just empty lists.
-            {% for distro in page.all_distros %}
-            console.error("Failed to get feed for {{distro}}:", err)
-            jQuery("#{{distro}}-get-question-fail").show();
-            {% endfor %}
+  jQuery(function() {
+    jQuery.getJSON(url="https://api.stackexchange.com/2.3/questions?order=desc&site=robotics" +
+                       "&tagged={{package.name}}&pagesize=50&sort=activity")
+    .done(function(feed) {
+      if (feed.items.length > 0) {
+        var question_count_str = (feed.has_more ? '>' : '') + String(feed.items.length)
+        const questions = feed.items.map(
+          function(question) {
+            question.id = Math.round(Math.random() * 99999.0);
+            question.created = (new Date(question.creation_date * 1000)).toDateString()
+            question.active = (new Date(question.last_activity_date * 1000)).toDateString()
+            question.answered = question.is_answered ? "Yes" : "No"
+            question.strtags = question.tags.join(' ')
+            return question;
+          });
+        const template = jQuery("#question-list-template").text();
+        Mustache.parse(template);
+        var rendered = Mustache.render(
+          template, 
+          { questions: questions,
+            has_more: feed.has_more,
+            name: "{{package.name}}"
           }
-          
+        );
+      }
+      //   TODO(tfoote) Resolve images
+      //   jQuery("#{{distro}}-question-list img").each(function() {
+      //     if (jQuery(this).attr("src").startsWith("/upfiles")) {
+      //        jQuery(this).attr("src", "https://answers.ros.org" + jQuery(this).attr("src"));
+      //     }
+      //   });
+      {% for distro in page.all_distros %}
+      if (feed.items.length > 0) {
+        jQuery("#{{distro}}-question-list").html(rendered);
+        jQuery("#{{distro}}-question-list").show();
+      } else {
+        jQuery("#{{distro}}-no-question-list").show();
+      }
+      jQuery("#{{distro}}-questions-count").text(question_count_str);
+      {% endfor %}
+    })
+    .fail(function(jqxhr, textStatus, error) {
+      console.error("Failed to get question data: " + jqxhr.responseText);
+      {% for distro in page.all_distros %}
+      jQuery("#{{distro}}-get-question-fail").show();
+      {% endfor %}
     });
-
   });
 </script>
