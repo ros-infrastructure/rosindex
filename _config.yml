@@ -20,13 +20,6 @@ redcarpet:
     - html_toc
     - tables
 
-defaults:
-  -
-    scope:
-      path: "doc"
-    values:
-      layout: doc
-
 # OLD from jekyll 2.x
 #highlighter: pygments
 
