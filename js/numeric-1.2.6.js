@@ -1,3 +1,4 @@
+// https://github.com/sloisel/numeric/  MIT License
 "use strict";
 
 var numeric = (typeof exports === "undefined")?(function numeric() {}):(exports);
