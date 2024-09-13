@@ -1593,6 +1593,12 @@ class Indexer < Jekyll::Generator
     # create errors page
     puts "Generating errors page...".blue
     site.pages << ErrorsPage.new(site, @errors)
+
+    # remove symlinks in js to workaround issue #422
+    Dir.glob(File.join(site.dest, 'js', '*.js')) do |filename|
+       File.delete(filename) if File.symlink?(filename)
+    end
+
   end
 
 end
