@@ -1597,6 +1597,8 @@ class Indexer < Jekyll::Generator
     # remove symlinks in js to workaround issue #422
     Dir.glob(File.join(site.dest, 'js', '*.js')) do |filename|
        File.delete(filename) if File.symlink?(filename)
+       # needed for js/venn.js/venn.js
+       FileUtils.rm_rf(filename) if File.directory?(filename)
     end
 
   end

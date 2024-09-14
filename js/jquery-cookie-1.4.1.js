@@ -1,3 +1,4 @@
+// https://raw.githubusercontent.com/carhartl/jquery-cookie/refs/tags/v1.4.1/jquery.cookie.js
 /*!
  * jQuery Cookie Plugin v1.4.1
  * https://github.com/carhartl/jquery-cookie

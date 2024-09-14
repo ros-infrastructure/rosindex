@@ -1,3 +1,4 @@
+// https://github.com/ghiculescu/jekyll-table-of-contents/raw/a3b36c6bc048f1546cf632dcd79d75bb0b8c8911/toc.js
 // https://github.com/ghiculescu/jekyll-table-of-contents
 (function($){
   $.fn.toc = function(options) {
