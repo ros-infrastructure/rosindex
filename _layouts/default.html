@@ -13,13 +13,13 @@
     <link rel="canonical" href="{{ page.canonical_url | replace: 'index.html', '' }}">
     <meta http-equiv="refresh" content="0; url={{ page.canonical_url | replace: 'index.html', '' }}" />
     <script>
-      window.location.href = '{{ page.canonical_url | replace: 'index.html','' }}';
+      window.location.href = "{{ page.canonical_url | replace: 'index.html','' }}";
     </script>
     {% else %}
     <link rel="canonical" href="{{ page.url | replace: 'index.html', '' | prepend: site.baseurl | prepend: site.url }}">
     {% endif %}
     
-    <link rel="icon" sizes="any" type="image/svg+xml" href="/assets/rosindex_logo.svg">
+    <link rel="icon" sizes="any" type="image/svg+xml" href="{{ site.baseurl }}/assets/rosindex_logo.svg">
 
     {% if page.css_uris %}
     {% for css_uri in page.css_uris %}
