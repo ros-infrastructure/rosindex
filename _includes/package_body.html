@@ -229,7 +229,6 @@ Assumes distro and package are defined
               <table class="table table-condensed table-striped">
                 <thead>
                   <th class="text-center">Deps</th>
-                  <th class="text-center"><span class="glyphicon glyphicon-th" title="Package instances"></span></th>
                   <th style="width: 100%">Name</th>
                 </thead>
                 <tbody>
@@ -243,11 +242,6 @@ Assumes distro and package are defined
                           {% assign n_2nd_order_deps = n_2nd_order_pdeps | plus: n_2nd_order_sdeps %}
                           <a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="inactive"{% endif %}>
                             <span class="glyphicon glyphicon-arrow-left" title="Package dependencies"></span>
-                          </a>
-                        </td>
-                        <td class="text-center">
-                          <a href="{{site.baseurl}}/packages/{{p[0]}}" class="label label-{% if n_instances > 1 %}primary{% else %}default{% endif %}">
-                            {{n_instances}}
                           </a>
                         </td>
                         <td><a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}">{{p[0]}}</a></td>
@@ -308,7 +302,6 @@ Assumes distro and package are defined
               <table class="table table-condensed table-striped">
                 <thead>
                   <th>Name</th>
-                  <th>Repo</th>
                   <th class="text-center">Deps</th>
                 </thead>
                 <tbody>
@@ -317,7 +310,6 @@ Assumes distro and package are defined
                     {% for dep_instance in d[1] %}
                     <tr>
                       <td><a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}">{{dep_name}}</a></td>
-                      <td><a href="{{site.baseurl}}/r/{{dep_instance.repo.name}}/{{dep_instance.id}}">{{dep_instance.id}}</a></td>
                       <td class="text-center">
                         {% assign n_2nd_order_deps = dep_instance.package.data.dependants | size %}
                         <a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="inactive"{% endif %}>
