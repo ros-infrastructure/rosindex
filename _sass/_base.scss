@@ -66,6 +66,12 @@ a.inactive {
   text-decoration: none;
 }
 
+// Used in dependencies to denote no further 2nd order dependencies
+a.endoftree {
+  color: #5e00c7;
+  text-decoration: none;
+}
+
 table.table a .glyphicon {
   text-decoration: none;
 }
