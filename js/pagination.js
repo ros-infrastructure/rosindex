@@ -1,1 +1,1 @@
-pagination-2.6.0.min.js
+pagination/pagination-2.6.0.min.js
