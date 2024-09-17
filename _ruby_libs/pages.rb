@@ -263,20 +263,20 @@ class StatsPage < Jekyll::Page
 
     # compute venn diagram model
     distro_counts = Hash[$recent_distros.collect { |d| [d, 0] }]
-    distro_overlaps = Hash[(2..$recent_distros.length).flat_map{|n| (0..$recent_distros.length-1).to_a.combination(n).to_a}.collect { |s| [s, 0] }]
+    distro_overlaps = Hash[(2..$recent_distros.length).flat_map{|n| $recent_distros.combination(n).to_a}.collect { |s| [s, 0] }]
+    puts 'distro_overlaps: ' + distro_overlaps.to_s
 
     package_names.each do |package_name, package_instances|
       overlap = []
       #package_instances.snapshots.reject.with_index{|dr, i| dr[1].nil? || dr[1].version.nil? }
-      package_instances.snapshots.each.with_index do |s,i|
-        puts "s: " + s.to_s
-        if not s[1].nil? and not s[1].version.nil? and not distro_counts[s[0]].nil?
-          overlap << i
-          distro_counts[s[0]] = distro_counts[s[0]] + 1
+      package_instances.snapshots.each do |distro, s|
+        if not s.nil? and not s.version.nil? and not distro_counts[distro].nil?
+          overlap << distro
+          distro_counts[distro] += 1
         end
       end
 
-      dputs package_name.to_s + " " + overlap.to_s
+      puts package_name.to_s + " " + overlap.to_s
 
       package_overlaps = (2..$recent_distros.length).flat_map{|n| overlap.combination(n).to_a}
 
