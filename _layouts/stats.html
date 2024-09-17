@@ -74,7 +74,7 @@ layout: default
 }
 </style>
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3.v6.min.js"></script>
 <script src="{{site.baseurl}}/js/venn.js"></script>
 <script src="{{site.baseurl}}/js/mds.js"></script>
 <script src="{{site.baseurl}}/js/numeric.js"></script>
@@ -113,11 +113,11 @@ d3.selectAll('.venn-circle')
     .style("stroke-width", "2");
 
 d3.selectAll('.venn-area')
-    .on("mousemove", function() {
-        tooltip.style("left", (d3.event.pageX) + "px")
-               .style("top", (d3.event.pageY - 28) + "px");
+    .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX) + "px")
+               .style("top", (event.pageY - 28) + "px");
     })
-    .on("mouseover", function(d, i) {
+    .on("mouseover", function(event, d) {
         var selection = d3.select(this).select("path");
         selection.moveParentToFront()
             .transition()
@@ -127,7 +127,7 @@ d3.selectAll('.venn-area')
         tooltip.transition().style("opacity", .9);
         tooltip.text(d.size + " packages");
     })
-    .on("mouseout", function(d, i) {
+    .on("mouseout", function(event, d) {
         d3.select(this).select("circle").transition()
             .style("fill-opacity", .3)
             .style("stroke-opacity", 0);
@@ -161,8 +161,8 @@ d3.selectAll("path")
         tooltip.transition().style("opacity", 0);
     })
     .on("mousemove", function() {
-        tooltip.style("left", (d3.event.pageX) + "px")
-               .style("top", (d3.event.pageY - 28) + "px");
+        tooltip.style("left", (event.pageX) + "px")
+               .style("top", (event.pageY - 28) + "px");
     })
 </script>
 
@@ -249,22 +249,22 @@ function makeHist(selector, values) {
       .attr("height", function(d) { 
         return height - y(d.length); 
       })
-      .on("mouseover", function(d, i) {
+      .on("mouseover", function(event, d) {
           d3.select(this).transition()
           .style("fill-opacity", .1)
           .style("stroke-opacity", 1);
           tooltip.transition().style("opacity", .9);
           tooltip.text(d.length);
           })
-      .on("mouseout", function(d, i) {
+      .on("mouseout", function(event, d) {
           d3.select(this).transition()
           .style("fill-opacity", 1)
           .style("stroke-opacity", 0);
           tooltip.transition().style("opacity", 0);
       })
-      .on("mousemove", function() {
-          tooltip.style("left", (d3.event.pageX) + "px")
-                 .style("top", (d3.event.pageY - 28) + "px");
+      .on("mousemove", function(event) {
+          tooltip.style("left", (event.pageX) + "px")
+                 .style("top", (event.pageY - 28) + "px");
       });
 
       /*
