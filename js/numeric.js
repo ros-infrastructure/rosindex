@@ -1,1 +1,1 @@
-numeric-1.2.6.js
+numeric/numeric-1.2.6.js

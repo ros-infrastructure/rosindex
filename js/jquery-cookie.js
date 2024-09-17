@@ -1,1 +1,1 @@
-jquery-cookie-1.4.1.js
+jquery-cookie/jquery-cookie-1.4.1.js
