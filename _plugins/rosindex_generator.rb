@@ -27,6 +27,7 @@ require_relative '../_ruby_libs/pages'
 require_relative '../_ruby_libs/asset_parsers'
 require_relative '../_ruby_libs/roswiki'
 require_relative '../_ruby_libs/lunr'
+require_relative '../_ruby_libs/dependency_descriptions'
 
 $fetched_uris = {}
 $debug = false
@@ -1014,9 +1015,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       site.data['common']['platforms'],
       site.data['common']['package_manager_names'].keys)
 
-    debian_file = File.open("_data/debian_packages.json")
-    debian_descriptions = JSON.load(debian_file)
-    debian_file.close()
+    debian_descriptions = get_debian_descriptions()
  
     raw_rosdeps.each do |dep_name, dep_data|
       platforms = site.data['common']['platforms']
