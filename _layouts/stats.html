@@ -187,7 +187,7 @@ function makeHist(selector, values) {
       .domain([1, max_age])
       .range([0, width]);
 
-  // Generate a histogram using twenty uniformly-spaced bins.
+  // Generate a histogram using thirty uniformly-spaced bins.
   var histogram = d3.histogram()
       .domain(x.domain())
       .thresholds(x.ticks(30))
