@@ -7,7 +7,8 @@ require 'pandoc-ruby'
 # Converts RST to Markdown
 def rst_to_md(rst)
   begin
-    return PandocRuby.convert(rst, :from => :rst, :to => :markdown)
+    # For some reason, Pandoc is converting UTF-8 into ASCII which then kills kramdown
+    return PandocRuby.convert(rst, :from => :rst, :to => :markdown).force_encoding(Encoding::UTF_8)
   rescue Exception => e
     return "Could not convert RST to MD: "+e.to_s
   end
