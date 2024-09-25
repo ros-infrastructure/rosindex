@@ -23,6 +23,7 @@ layout: default
                   <a class="unselected-sort-label" href="{{site.baseurl}}/deps/page/1/name">Name</a>
                 {% endif %}
               </th>
+              <th style="text-align: right;">Usage</th>
               <th style="text-align: left;">Description</th>
               {% for platform in site.data.common.platforms %}
                 <th style="text-align:left;" class="rotatel90">
@@ -36,10 +37,12 @@ layout: default
               {% assign dep_name = dep[0] %}
               {% assign dep_details = dep[1].data_per_platform %}
               {% assign dep_description = dep[1].description %}
+              {% assign dep_usage = dep[1].dependants_per_distro | size %}
               <tr>
                 <td>
                   <a href="{{site.baseurl}}/d/{{dep_name}}">{{ dep_name }}</a>
                 </td>
+                <td style="text-align: right;">{{dep_usage}}</td>
                 <td>{{dep_description}}</td>
                 {% for p in site.data.common.platforms %}
                   {% assign platform = p[0] %}
