@@ -10,107 +10,93 @@ layout: default
         <li class="active">System Dependencies</li>
       </ol>
     </div>
-    <div class="row">
-      {% comment %}{% include distro_switch.html %}{% endcomment %}
-    </div>
-    <div class="row">
-      {% comment %}&nbsp;{% endcomment %}
-    </div>
-    {% for distro in page.all_distros %}
-      <div class="row distro distro-{{distro}}">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">System Dependencies </h3></div>
-          <div class="table-responsive">
-            <table class="table table-condensed table-striped table-hover">
-              <thead>
-                <tr>
-                  <th style="text-align: left;">
-                    {% if page.sort_id == 'name' %}
-                      <span class="selected-sort-label">Name</span>
-                    {% else %}
-                      <a class="unselected-sort-label" href="{{site.baseurl}}/deps/page/1/name">Name</a>
-                    {% endif %}
-                  </th>
-                  {% for platform in site.data.platforms %}
-                    <th>
-                    {% comment %}class="rotate45" style="text-align:left;">{% endcomment %}
-                      {{ platform[0] }}
-                    </th>
-                  {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-                {% for dep in page.list[distro] %}
-                  {% assign dep_name = dep[0] %}
-                  {% assign dep_details = dep[1] %}
-                  <tr>
-                    <td>
-                      <a href="{{site.baseurl}}/d/{{dep_name}}">{{ dep_name }}</a>
-                    </td>
-                    {% comment %}<td>{% endcomment %}
-                      {% comment %}{{dep_details}}{% endcomment %}
-                    {% comment %}</td>{% endcomment %}
-                    {% for p in site.data.platforms %}
-                      {% assign platform = p[0] %}
-                      {% assign platform_details = p[1] %}
-                      {% assign versions = platform_details.versions %}
+    <div class="row panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title">System Dependencies </h3></div>
+      <div class="table-responsive">
+        <table class="table table-condensed table-striped table-hover">
+          <thead>
+            <tr>
+              <th style="text-align: left;">
+                {% if page.sort_id == 'name' %}
+                  <span class="selected-sort-label">Name</span>
+                {% else %}
+                  <a class="unselected-sort-label" href="{{site.baseurl}}/deps/page/1/name">Name</a>
+                {% endif %}
+              </th>
+              <th style="text-align: right;">Usage</th>
+              <th style="text-align: left;">Description</th>
+              {% for platform in site.data.common.platforms %}
+                <th style="text-align:left;" class="rotatel90">
+                  <div><span>{{platform[0]}}</span></div>
+                </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for dep in page.list %}
+              {% assign dep_name = dep[0] %}
+              {% assign dep_details = dep[1].data_per_platform %}
+              {% assign dep_description = dep[1].description %}
+              {% assign dep_usage = dep[1].dependants_per_distro | size %}
+              <tr>
+                <td>
+                  <a href="{{site.baseurl}}/d/{{dep_name}}">{{ dep_name }}</a>
+                </td>
+                <td style="text-align: right;">{{dep_usage}}</td>
+                <td>{{dep_description}}</td>
+                {% for p in site.data.common.platforms %}
+                  {% assign platform = p[0] %}
+                  {% assign platform_details = p[1] %}
+                  {% assign versions = platform_details.versions %}
 
 
-                      {% assign found_all = true %}
-                      {% assign found_one = false %}
+                  {% assign found_all = true %}
+                  {% assign found_one = false %}
 
-                      {% assign dep_platform = dep_details[platform] %}
+                  {% assign dep_platform = dep_details[platform] %}
 
-                      {% assign n_versions = versions | size %}
-                      {% if n_versions > 0 %}
-                        {% for v in versions %}
-                          {% assign version_key = v[0] %}
-                          {% assign dep_version = dep_platform[version_key] %}
-                          {% assign n_deps = dep_version | size %}
-                          {% if n_deps > 0 %}
-                            {% assign found_one = true %}
-                          {% else %}
-                            {% assign found_all = false %}
-                          {% endif %}
-                        {% endfor %}
+                  {% assign n_versions = versions | size %}
+                  {% if n_versions > 0 %}
+                    {% for v in versions %}
+                      {% assign version_key = v[0] %}
+                      {% assign dep_version = dep_platform[version_key] %}
+                      {% assign n_deps = dep_version | size %}
+                      {% if n_deps > 0 %}
+                        {% assign found_one = true %}
                       {% else %}
-                        {% assign n_deps = dep_platform | size %}
-                        {% if n_deps > 0 %}
-                          {% assign found_one = true %}
-                        {% else %}
-                          {% assign found_all = false %}
-                        {% endif %}
-                      {% endif %}
-                      {% if found_all %}
-                        <td  title="{{dep_name}} available in all {{platform}} versions" data-toggle="tooltip" data-placement="bottom" class="text-center">
-                          <span class="glyphicon glyphicon-ok"></span>
-                        </td>
-                      {% elsif found_one %}
-                        <td  title="{{dep_name}} available in some {{platform}} versions" data-toggle="tooltip" data-placement="bottom" class="text-center">
-                          <span class="glyphicon glyphicon-minus"></span>
-                        </td>
-                      {% else %}
-                        <td  title="{{dep_name}} not available in any {{platform}} version" data-toggle="tooltip" data-placement="bottom" class="text-center">
-                          <span class="glyphicon glyphicon-none"></span>
-                        </td>
+                        {% assign found_all = false %}
                       {% endif %}
                     {% endfor %}
-                  </tr>
+                  {% else %}
+                    {% assign n_deps = dep_platform | size %}
+                    {% if n_deps > 0 %}
+                      {% assign found_one = true %}
+                    {% else %}
+                      {% assign found_all = false %}
+                    {% endif %}
+                  {% endif %}
+                  {% if found_all %}
+                    <td  title="{{dep_name}} available in all {{platform}} versions" data-toggle="tooltip" data-placement="bottom" class="text-center">
+                      <span class="glyphicon glyphicon-ok"></span>
+                    </td>
+                  {% elsif found_one %}
+                    <td  title="{{dep_name}} available in some {{platform}} versions" data-toggle="tooltip" data-placement="bottom" class="text-center">
+                      <span class="glyphicon glyphicon-minus"></span>
+                    </td>
+                  {% else %}
+                    <td  title="{{dep_name}} not available in any {{platform}} version" data-toggle="tooltip" data-placement="bottom" class="text-center">
+                      <span class="glyphicon glyphicon-none"></span>
+                    </td>
+                  {% endif %}
                 {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-    {% endfor %}
+    </div>
     <div class="row text-center">
       {% include package_pager.html %}
     </div>
   </div>
 </div>
-
-<script type="text/javascript">
-  $(document).ready(function() {
-    setupDistroSwitch("{{ site.distros[0] }}");
-  });
-</script>

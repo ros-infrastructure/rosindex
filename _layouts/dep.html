@@ -19,7 +19,8 @@ layout: default
               {% comment %}<img style="width: 80px;" src="{{ '/assets/repo.png' | prepend: site.baseurl }}">{% endcomment %}
             </td>
             <td>
-              <h3><a style="text-decoration:none;" href="{{site.baseurl}}/d/{{page.dep_name}}">{{page.dep_name}}</a> <small>system dep</small></h3>
+              <h3><a style="text-decoration:none;" href="{{site.baseurl}}/d/{{page.dep_name}}">{{page.dep_name}}</a>
+              <small>   {{page.description}}</small></h3>
             </td>
           </tr>
         </table>
@@ -27,6 +28,31 @@ layout: default
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><h3 class="panel-title">Used in Packages</h3></div>
+  <div class="panel-body table-responsive">
+    <table class="table">
+      <tbody>
+        {% for distro_dependants in page.dependants_per_distro %}
+        {% assign distro = distro_dependants[0] %}
+        {% assign dependants = distro_dependants[1] %}
+        <tr>
+          <th scope="row">{{distro}}</th>
+          <td>
+            {% for dependant in dependants %}
+            <a href="{{site.baseurl}}/p/{{dependant.package.name}}#{{distro}}" class="label label-primary pkg-label">
+              {{dependant.package.name}}
+            </a>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
   </div>
 </div>
 
@@ -107,28 +133,4 @@ layout: default
     </div>
   </div>
 
-  <div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title">Used in Packages</h3></div>
-    <div class="panel-body table-responsive">
-      <table class="table">
-        <tbody>
-          {% for distro_dependants in page.dependants_per_distro %}
-          {% assign distro = distro_dependants[0] %}
-          {% assign dependants = distro_dependants[1] %}
-          <tr>
-            <th scope="row">{{distro}}</th>
-            <td>
-              {% for dependant in dependants %}
-              <a href="{{site.baseurl}}/p/{{dependant.package.name}}#{{distro}}" class="label label-primary pkg-label">
-                {{dependant.package.name}}
-              </a>
-              {% endfor %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-    </div>
-  </div>
 </div>

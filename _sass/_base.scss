@@ -353,8 +353,8 @@ code {
  * Wrapper
  */
 .wrapper {
-    max-width: -webkit-calc(1000px - (0px * 2));
-    max-width:         calc(1000px - (0px * 2));
+    max-width: -webkit-calc(1920px - (0px * 2));
+    max-width:         calc(1920px - (0px * 2));
     margin-right: auto;
     margin-left: auto;
     padding-right: 0px;
@@ -362,8 +362,8 @@ code {
     @extend %clearfix;
 
     @include media-query($on-laptop) {
-        max-width: -webkit-calc(1000px - (0px));
-        max-width:         calc(1000px - (0px));
+        max-width: -webkit-calc(1920px - (0px));
+        max-width:         calc(1920px - (0px));
         padding-right: 0px / 2;
         padding-left: 0px / 2;
     }
@@ -462,4 +462,29 @@ a.question-description-toggle {
 }
 a.question-link {
   float: right;
+}
+
+/**
+ * Rotated text header
+ * <th class="rotateL90"><div><span>Column header 1</span></div></th>
+ * https://css-tricks.com/rotated-table-column-headers/
+ */
+
+ th.rotatel90 {
+  /* Something you can count on */
+  height: 70px;
+  white-space: nowrap;
+}
+
+th.rotatel90 > div {
+  transform: 
+    /* Magic Numbers */
+    translate(1px, -5px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 30px;
+}
+th.rotatel90 > div > span {
+  border-bottom: 2px solid #ccc;
+  padding: 5px 10px;
 }
