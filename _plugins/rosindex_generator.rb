@@ -1029,13 +1029,20 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
           platform_details['versions'].each do |version_key, version_name|
             platform_data[platform_key][version_key] = resolve_dep(platforms, manager_set, platform_key, version_key, dep_data)
           end
-          if platform_key == 'debian'
-            if platform_data[platform_key].has_key?("bullseye")
-              platform_data[platform_key]["bullseye"].each do |debian_key|
+          # Get dep description from debian
+          if platform_key == 'debian' and platform_data[platform_key].has_key?('bullseye')
+            platform_data[platform_key]['bullseye'].each do |debian_key|
+              # zero-length debian_descriptions indicates a failed download
+              if debian_descriptions.length > 0
                 if debian_descriptions.has_key?(debian_key)
                   description = debian_descriptions[debian_key]
                   break
                 end
+              elsif site.config['use_db_cache'] and
+                  @rosdeps.has_key? dep_name and
+                  @rosdeps[dep_name].has_key? 'description'
+                description = @rosdeps[dep_name]['description']
+                break
               end
             end
           end

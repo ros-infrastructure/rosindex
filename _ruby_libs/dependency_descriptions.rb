@@ -18,10 +18,30 @@ require 'uri'
 DEBIAN_URL = 'https://packages.debian.org/stable/allpackages?format=txt.gz'
 
 def get_debian_descriptions()
-    content_unicode = Net::HTTP.get(URI(DEBIAN_URL))
-    # The package file seems to have unicode that confuses ruby. Just force to ascii.
-    content = content_unicode.encode("US-ASCII", invalid: :replace, undef: :replace)
+    content_unicode = nil
+    retry_delay = [0, 10, 60]
+    retry_delay.each_with_index do |delay, idx|
+        if delay != 0 then sleep(delay) end
+        begin
+            content_unicode = Net::HTTP.get(URI(DEBIAN_URL))
+            break
+        rescue StandardError => error
+            puts 'WARNING: Debian packages description download error: #{error}'
+            if idx < retry_delay.length - 1
+                puts 'Retrying debian description download'
+                next
+            else
+                puts 'Failing debian description download'
+            end
+        end
+    end
+
     packages = {}
+    # Test for failed download
+    if !content_unicode then return packages end
+
+    # The package file seems to have unicode that confuses ruby. Just force to ascii.
+    content = content_unicode.encode('US-ASCII', invalid: :replace, undef: :replace)
     content.lines.each do |line|
         # Typical package line:
         # 3270-common (4.1ga10-1.1+b1) Common files for IBM 3270 emulators and pr3287
