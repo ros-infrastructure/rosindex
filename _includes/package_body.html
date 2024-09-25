@@ -219,7 +219,7 @@ Assumes distro and package are defined
 
   <div class="tab-pane" id="{{distro}}-deps">
     <div class="row">
-      <div class="col-sm-5">
+      <div class="col-sm-6">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">Package Dependencies</h3>
@@ -229,7 +229,6 @@ Assumes distro and package are defined
               <table class="table table-condensed table-striped">
                 <thead>
                   <th class="text-center">Deps</th>
-                  <th class="text-center"><span class="glyphicon glyphicon-th" title="Package instances"></span></th>
                   <th style="width: 100%">Name</th>
                 </thead>
                 <tbody>
@@ -238,26 +237,16 @@ Assumes distro and package are defined
                     {% if n_instances > 0 %}
                       <tr>
                         <td class="text-center">
-                          {% assign n_2nd_order_pdeps = p[1].snapshots[distro].data.pkg_deps | size %}
-                          {% assign n_2nd_order_sdeps = p[1].snapshots[distro].data.system_deps | size %}
-                          {% assign n_2nd_order_deps = n_2nd_order_pdeps | plus: n_2nd_order_sdeps %}
-                          <a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="inactive"{% endif %}>
+                          {% assign n_2nd_order_deps = p[1].snapshots[distro].data.pkg_deps | size %}
+                          <a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
                             <span class="glyphicon glyphicon-arrow-left" title="Package dependencies"></span>
                           </a>
                         </td>
-                        <td class="text-center">
-                          <a href="{{site.baseurl}}/packages/{{p[0]}}" class="label label-{% if n_instances > 1 %}primary{% else %}default{% endif %}">
-                            {{n_instances}}
-                          </a>
-                        </td>
-                        <td><a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}">{{p[0]}}</a></td>
+                        <td><a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}">{{p[0]}} {{n_2nd_order_pdeps}} {{n_2nd_order_sdeps}}</a></td>
                       </tr>
                     {% else %}
                       <tr>
                         <td class="text-center"></td>
-                        <td class="text-center">
-                          <span class="label label-danger">0</span>
-                        </td>
                         <td>{{p[0]}}</td>
                       </tr>
                     {% endif %}
@@ -298,7 +287,7 @@ Assumes distro and package are defined
         </div>
       </div>
 
-      <div class="col-sm-7">
+      <div class="col-sm-6">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">Dependant Packages</h3>
@@ -308,7 +297,6 @@ Assumes distro and package are defined
               <table class="table table-condensed table-striped">
                 <thead>
                   <th>Name</th>
-                  <th>Repo</th>
                   <th class="text-center">Deps</th>
                 </thead>
                 <tbody>
@@ -317,10 +305,9 @@ Assumes distro and package are defined
                     {% for dep_instance in d[1] %}
                     <tr>
                       <td><a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}">{{dep_name}}</a></td>
-                      <td><a href="{{site.baseurl}}/r/{{dep_instance.repo.name}}/{{dep_instance.id}}">{{dep_instance.id}}</a></td>
                       <td class="text-center">
                         {% assign n_2nd_order_deps = dep_instance.package.data.dependants | size %}
-                        <a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="inactive"{% endif %}>
+                        <a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
                           <span class="glyphicon glyphicon-arrow-right"></span>
                         </a>
                       </td>
