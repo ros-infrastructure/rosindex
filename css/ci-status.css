@@ -1,0 +1,13 @@
+td.ci-status{position: absolute}
+td.ci-status button.dropdown-toggle{font-size: 75%; padding: .3em .6em .4em;border: 0}
+td.ci-status button.ci-result-success{background-color:#1f8c22}
+td.ci-status button.ci-result-failure{background-color:#ff4136}
+td.ci-status button.ci-result-unstable{background-color:#ff851b}
+td.ci-status a.ci-result-success{background-color:#1f8c22}
+td.ci-status a.ci-result-failure{background-color:#ff4136}
+td.ci-status a.ci-result-unstable{background-color:#ff851b}
+td.ci-status li.ci-result-success  span{color: #1f8c22}
+td.ci-status li.ci-result-failure  span{color: #ff4136}
+td.ci-status li.ci-result-unstable span{color: #ff851b}
+td.ci-status li.ci-build-info span.caret{margin: 0 3px 0 5px}
+td.ci-status li.ci-build-info span{padding-left: 10px}
