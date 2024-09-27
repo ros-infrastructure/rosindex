@@ -160,10 +160,10 @@ class Indexer < Jekyll::Generator
           next
         end
 
-        puts "Updating repo / instance "+repo.name+" / "+repo.id+" from uri: "+repo.uri
-
         # open or initialize this repo
         local_path = File.join(@checkout_path, repo_instances.name, id)
+
+        puts "Updating repo / instance "+repo.name+" / "+repo.id+" from uri: "+repo.uri+" into path: "+local_path
 
         # make sure there's an actual uri
         unless repo.uri
@@ -230,7 +230,19 @@ class Indexer < Jekyll::Generator
   def get_ci_data(distro, package_name, repo_name)
     ci_data = Hash.new
     manifest_url = "/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/api/#{package_name}/manifest.yaml"
-    manifest_response = Net::HTTP.get_response('docs.ros.org', manifest_url)
+    begin
+      manifest_response = Net::HTTP.get_response('docs.ros.org', manifest_url)
+    rescue StandardError => e
+      puts " Failed to fetch manifest from #{manifest_url} with error #{e.class}"
+      ci_data['tooltip'] = 'Error fetching CI information available for this package.'
+      ci_data['ci_available'] = false
+      return ci_data
+    rescue
+      puts " Failed to fetch manifest from #{manifest_url} with unknown error"
+      ci_data['tooltip'] = 'Error fetching CI information available for this package.'
+      ci_data['ci_available'] = false
+      return ci_data
+    end
     if manifest_response.code != '200'
       ci_data['tooltip'] = 'No CI information available for this package.'
       ci_data['ci_available'] = false
@@ -251,7 +263,15 @@ class Indexer < Jekyll::Generator
     ci_data['job_url'] = manifest_yaml['devel_jobs'][0]
     # get additional test information if available
     results_url = "/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/devel_jobs/#{repo_name}/results.yaml"
-    results_response = Net::HTTP.get_response('docs.ros.org', results_url)
+    begin
+      results_response = Net::HTTP.get_response('docs.ros.org', results_url)
+    rescue
+      ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
+        'No test statistics available for this package.'
+      ci_data['result'] = 'success'
+      ci_data['stats_available'] = false
+      return ci_data
+    end
     if results_response.code != '200'
       ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
         'No test statistics available for this package.'
