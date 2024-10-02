@@ -14,7 +14,7 @@ require 'json'
 require 'uri'
 require 'set'
 require 'yaml'
-require "net/http"
+require 'net/http'
 require 'thread'
 
 # local libs
@@ -532,6 +532,15 @@ class Indexer < Jekyll::Generator
       else
         # ROS 2
         docs_uri = "http://docs.ros.org/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/p/#{package_name}"
+      end
+
+      # ensure documentation uri refers to an existing site
+      url = URI(docs_uri)
+      Net::HTTP.start(url.host, url.port) do |http|
+        response = http.head(url.path)
+        if response.code != '200'
+          docs_uri = ''
+        end
       end
 
       # try to acquire information on the CI status of the package
