@@ -824,6 +824,10 @@ class Indexer < Jekyll::Generator
     return rosdep_data
   end
 
+  def generate_search_package_list(site, elements, default_sort_key)
+    site.pages << SearchPackageListPage.new(site, default_sort_key, 1, 1, elements, true)
+  end
+ 
   def generate_sorted_paginated_deps(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
 
     n_pages = (n_elements / elements_per_page).floor + 1
@@ -1507,6 +1511,9 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     packages_sorted = sort_packages(site)
     generate_sorted_paginated(site, packages_sorted, 'time', @package_names.length, site.config['packages_per_page'], PackageListPage)
 
+    search_packages_sorted = sort_packages(site)
+      generate_search_package_list(site, search_packages_sorted, 'time')
+
     # create rosdep pages
     puts ("Generating rosdep pages...").blue
 
@@ -1562,11 +1569,14 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'unreleased' => if repo_snapshot.released then 'is:unreleased' else '' end,
               'version' => p['version'],
               'description' => p['description'].strip,
-              'maintainers' => p['maintainers'] * " ",
-              'authors' => p['authors'] * " ",
+              'maintainers' => p['maintainers'] * ", ",
+              'authors' => p['authors'] * ", ",
               'distro' => distro,
               'instance' => repo.id,
-              'readme' => readme_filtered
+              'pkg_deps' => p['pkg_deps'].length,
+              'dependants' => p['dependants'].length,
+              'readme' => readme_filtered,
+              'org' => URI(repo.uri).path.split('/')[1]
             }
 
             dputs 'indexed: ' << "#{package_name} #{instance_id} #{distro}"
@@ -1579,7 +1589,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       indexed_fields = [
         'baseurl', 'instance', 'url', 'tags:100','name:100',
         'version', 'description:50', 'maintainers', 'authors',
-        'distro','readme', 'released', 'unreleased'
+        'distro','readme', 'released', 'unreleased', 'org'
       ]
       site.static_files.push(*precompile_lunr_index(
         site, packages_index, reference_field, indexed_fields,

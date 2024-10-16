@@ -61,4 +61,5 @@ function setupDistroSwitch(default_distro) {
   $('.distro-'+distro).show(0);
   $('#'+distro+'-option').addClass('active');
   $('#'+distro+'-button').trigger("click");
+  return distro;
 }
