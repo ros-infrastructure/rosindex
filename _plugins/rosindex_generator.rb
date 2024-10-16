@@ -1530,8 +1530,12 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     unless site.config['skip_search_index']
       puts ("Generating packages search index...").blue
 
-      packages_index = []
+      packages_index = {}
+      $all_distros.each do |distro|
+        packages_index[distro] = []
+      end
 
+      index = 0
       @all_repos.each do |instance_id, repo|
         repo.snapshots.each do |distro, repo_snapshot|
 
@@ -1545,8 +1549,9 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
 
             readme_filtered = if p['readme'] then self.strip_stopwords(p['readme']) else "" end
 
-            packages_index << {
-              'id' => packages_index.length,
+            index += 1
+            packages_index[distro] << {
+              'id' => index,
               'baseurl' => site.config['baseurl'],
               'url' => File.join('/p',package_name,instance_id)+"#"+distro,
               'last_commit_time' => repo_snapshot.data['last_commit_time'],
@@ -1556,7 +1561,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'released' => if repo_snapshot.released then 'is:released' else '' end,
               'unreleased' => if repo_snapshot.released then 'is:unreleased' else '' end,
               'version' => p['version'],
-              'description' => p['description'],
+              'description' => p['description'].strip,
               'maintainers' => p['maintainers'] * " ",
               'authors' => p['authors'] * " ",
               'distro' => distro,
@@ -1569,10 +1574,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
         end
       end
 
-      sorted_packages_index = packages_index.sort do |a, b|
-        $all_distros.index(a['distro']) <=> $all_distros.index(b['distro'])
-      end
-
       puts ("Precompiling lunr index for packages...").blue
       reference_field = 'id'
       indexed_fields = [
@@ -1581,8 +1582,8 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
         'distro','readme', 'released', 'unreleased'
       ]
       site.static_files.push(*precompile_lunr_index(
-        site, sorted_packages_index, reference_field, indexed_fields,
-        "search/packages/", site.config['search_index_shards'] || 1
+        site, packages_index, reference_field, indexed_fields,
+        "search/packages/", $all_distros
       ).to_a)
 
       puts ("Generating system dependencies search index...").blue
@@ -1633,9 +1634,12 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       puts ("Precompiling lunr index for system dependencies...").blue
       reference_field = 'id'
       indexed_fields = ['name', 'platforms', 'dependants']
+      slice_length = system_deps_index.length / site.config['search_index_shards'] || 1
+      slices = {}
+      system_deps_index.each_slice(slice_length).with_index.map { |item, i| slices[i.to_s] = item }
       site.static_files.push(*precompile_lunr_index(
-        site, system_deps_index, reference_field, indexed_fields,
-        "search/deps/", site.config['search_index_shards'] || 1
+        site, slices, reference_field, indexed_fields,
+        "search/deps/", slices.keys
       ).to_a)
     end
 
