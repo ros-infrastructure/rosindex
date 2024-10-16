@@ -39,19 +39,19 @@
 
     <script type="text/javascript" src={{ "/js/jquery.js" | prepend: site.baseurl }}></script>
     <script src={{ "/bootstrap/js/bootstrap.min.js" | prepend: site.baseurl }} type="text/javascript"></script>
-    <script src={{ "/js/jquery-cookie.js" | prepend: site.baseurl }} type="text/javascript"></script>-
+    <script src={{ "/js/jquery-cookie.js" | prepend: site.baseurl }} type="text/javascript"></script>
     {% include_cached google_analytics.html %}
     <script type="text/javascript" src={{ "/js/toc.js" | prepend: site.baseurl }}></script>
 
     <script src={{ "/js/distro_switch.js" | prepend: site.baseurl }}></script>
   </head>
 
-  <body>
+  <body style="height: 100vh;">
 
     {% include_cached header.html %}
 
-    <div class="page-content">
-      <div class="wrapper">
+    <div class="page-content" style="height: var(--content-height);">
+      <div class="wrapper" style="height:100%;">
         {{ content }}
       </div>
     </div>

@@ -88,6 +88,37 @@ class RepoPage < Jekyll::Page
   end
 end
 
+class SearchPackageListPage < Jekyll::Page
+  def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
+    @site = site
+    @base = site.source
+    @dir = 'search_packages/'
+    @name = 'index.html'
+
+    self.process(@name)
+    self.read_yaml(File.join(@base, '_layouts'),'search_packages.html')
+    self.data['pager'] = {
+      'base' => 'packages',
+      'post_ns' => '/'
+    }
+    # self.data['sort_id'] = sort_id
+    #self.data['n_list_pages'] = n_list_pages
+    #self.data['page_index'] = page_index
+    #self.data['list'] = list
+    self.data['title'] = 'ROS Packages'
+
+    #self.data['prev_page'] = [page_index - 1, 1].max
+    #self.data['next_page'] = [page_index + 1, n_list_pages].min
+
+    #self.data['near_pages'] = *([1,page_index-4].max..[page_index+4, n_list_pages].min)
+    self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
+
+    self.data['available_distros'] = Hash[site.config['distros'].collect { |d| [d, true] }]
+    self.data['available_older_distros'] = Hash[site.config['old_distros'].collect { |d| [d, true] }]
+    self.data['n_available_older_distros'] = site.config['old_distros'].length
+  end
+end
+
 class PackageListPage < Jekyll::Page
   def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
     @site = site

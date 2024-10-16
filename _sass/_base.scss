@@ -488,3 +488,29 @@ th.rotatel90 > div > span {
   border-bottom: 2px solid #ccc;
   padding: 5px 10px;
 }
+
+/* Collapsable filter and search. */
+.collapsed .collapsing-icon::before {
+  // glyphicon-chevron-down
+  content: "\e114";
+}
+.collapsing-icon::before {
+  // glyphicon-chevron-up
+  content: "\e113";
+}
+.collapsing-header:hover {
+  text-decoration: underline;
+}
+
+/* checkbox in search_package */
+#search-enable-box {
+  border: thin solid gray;
+  border-radius: 2px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  margin-right: 4px;
+}

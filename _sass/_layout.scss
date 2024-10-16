@@ -1,10 +1,21 @@
 /**
+ * Sizing for no-scroll table page
+ */
+:root {
+  --header-height: 60px;
+  --footer-height: 52px;
+  --content-height: calc(100vh - var(--header-height) - var(--footer-height));
+  --search-height: 60px;
+  --distro-height: 30px;
+}
+
+/**
  * Site header
  */
 .site-header {
     border-top: 5px solid $grey-color-dark;
     border-bottom: 1px solid $grey-color-light;
-    min-height: 56px;
+    height: var(--header-height);
 
     // Positioning context for the mobile navigation icon
     position: relative;
@@ -93,7 +104,8 @@
  */
 .site-footer {
     border-top: 1px solid $grey-color-light;
-    padding: $spacing-unit 0;
+    padding: $spacing-unit/2 0;
+    height:  var(--footer-height);
 }
 
 .footer-heading {
