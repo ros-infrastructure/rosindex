@@ -2,117 +2,84 @@
 
   <div class="wrapper">
     <div class="container-fluid" style="margin-bottom: 10px">
-
-      <div align="center">
-        <br>
-        <table id="topnav-table">
-          <tr>
-            <td valign="middle">
-                ROS Resources:
-              <a href="http://docs.ros.org/">Documentation</a>
-              |
-              <a href="http://wiki.ros.org/Support">Support</a>
-              |
-              <a href="http://discourse.ros.org/">Discussion Forum</a>
-              |
-              <a href="http://status.ros.org/">Service Status</a>
-              |
-              <a href="https://robotics.stackexchange.com/questions/tagged/ros">ros @ Robotics Stack Exchange</a>
-            </td>
-          </tr>
-        </table> <!-- topnav-table -->
-      </div>
-
       <div class="row">
-
-        <div class="col-sm-12 col-md-9" style="margin-top: 8px">
-          <div class="row">
-            <!-- title -->
-            <div class="col-xs-12 col-sm-3 col-md-3" style="white-space:nowrap;">
-              <a class="site-title" href="{{site.baseurl}}/">{{ site.title }}</a>
+        <!-- title -->
+        <div class="col-xs-3" style="white-space:nowrap">
+          <a class="site-title" href="{{site.baseurl}}/">
+            <img src="{{ site.baseurl }}/assets/rosindex_logo.svg" width="26" height="26" alt="ROS index logo" style="padding-bottom: 3px"/>
+            {{ site.title }}</a>
+        </div>
+        <!-- main internal links -->
+        <div class="col-xs-6 text-center" style="padding:0px">
+          <div class="btn-group hidden-xs" role="group" aria-label="..." style="padding: 6px">
+            <div class="btn-group" role="group">
+              <a href="{{site.baseurl}}/packages" class="btn btn-default" role="button">Package List</a>
             </div>
-
-            <!-- main links -->
-            <div class="col-xs-12 col-sm-9 col-md-9 text-right">
-              <ul class="list-inline" style="margin-bottom:0px;">
-                <li><a class="btn btn-link" href="{{site.baseurl}}/about">About</a></li>
-
-                <li class="dropdown">
-                  <button id="dLabel" class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Index <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a href="{{site.baseurl}}/packages/page/1/time/">Package List</a></li>
-                    <li><a href="{{site.baseurl}}/repos/page/1/time/">Repository List</a></li>
-
-                    <li class="hidden" class="divider"></li>
-
-
-                    <li class="hidden"><a href="/srvs/">Nodes</a></li>
-                    <li class="hidden"><a href="/msgs/">Messages</a></li>
-                    <li class="hidden"><a href="/srvs/">Services</a></li>
-                    <li class="hidden"><a href="/srvs/">Plugins</a></li>
-
-                    <li class="divider"></li>
-
-                    <li><a href="{{site.baseurl}}/deps/">System Dependencies</a></li>
-                  </ul>
-                </li>
-
-                <li><a class="btn btn-link" href="{{site.baseurl}}/contribute">Contribute</a></li>
-                <li><a class="btn btn-link" href="{{site.baseurl}}/stats">Stats</a></li>
-              </ul>
-
+            <div class="btn-group" role="group">
+              <a href="{{site.baseurl}}/repos" class="btn btn-default" role="button">Repository List</a>
+            </div>
+            <div class="btn-group" role="group">
+              <a href="{{site.baseurl}}/deps" class="btn btn-default" role="button">System Dependencies</a>
             </div>
           </div>
+          <div class="hidden-lg hidden-md hidden-sm">
+            <button id="hLabel" class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Lists <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="hLabel">
+              <li><a href="{{site.baseurl}}/packages">Package List</a></li>
+              <li><a href="{{site.baseurl}}/repos">Repository List</a></li>
+              <li><a href="{{site.baseurl}}/deps">System Dependencies</a></li>
+            </ul>
+          </div>
         </div>
-
-        <!-- searchbox -->
-        <div class="col-sm-12 col-md-3" style="margin-top: 12px">
-          <form id="top-searchbox" action="{{site.baseurl}}/search/" role="form" method="get">
-            <div class="input-group input-group-sm">
-              <input type="text" class="form-control" name="term" placeholder="Search ROS">
-              <span class="input-group-btn">
-                <button class="btn btn-default btn-sm" title="Search ROS" type="submit">
-                  <span class="glyphicon glyphicon-search"></span>
-                </button>
-                <a href="https://lunrjs.com/guides/searching.html"
-                   title="Help to Search" class="btn btn-default btn-sm">
-                  <span class="glyphicon glyphicon-question-sign"></span>
-                </a>
-              </span>
-            </div>
-          </form>
+        <!-- additional links -->
+        <div class="col-xs-3 text-right" style="white-space:nowrap; padding:0px">
+          <ul class="list-inline" style="margin-bottom:0px;">
+            <li class="dropdown hidden-xs hidden-sm">
+              <button id="rLabel" class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                ROS Resources <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="rLabel">
+                <li><a href="http://docs.ros.org/">Documentation</a></li>
+                <li><a href="http://wiki.ros.org/Support">Support</a></li>
+                <li><a href="http://discourse.ros.org/">Discussion Forum</a></li>
+                <li><a href="http://status.ros.org/">Service Status</a></li>
+                <li><a href="https://robotics.stackexchange.com/questions/tagged/ros">ros @ Robotics Stack Exchange</a></li>
+                <li><a href="https://docs.ros.org/en/ros2_packages/">Package API</a></li>
+              </ul>
+            </li>
+            <li class="dropdown hidden-xs hidden-sm">
+              <button id="aLabel" class="btn btn-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                About <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="aLabel">
+                <li><a href="{{site.baseurl}}/about">About </a></li>
+                <li><a href="{{site.baseurl}}/contribute">Contribute</a></li>
+                <li><a href="{{site.baseurl}}/stats">Stats</a></li>
+              </ul>
+            </li>
+            <li class="dropdown hidden-md hidden-lg">
+              <button id="qLabel" class="btn btn-link" type="button"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Resources <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="qLabel">
+                <li><a href="{{site.baseurl}}/about">About </a></li>
+                <li><a href="{{site.baseurl}}/contribute">Contribute</a></li>
+                <li><a href="{{site.baseurl}}/stats">Stats</a></li>
+                <hr style="margin:7px" />
+                <li><a href="http://docs.ros.org/">Documentation</a></li>
+                <li><a href="http://wiki.ros.org/Support">Support</a></li>
+                <li><a href="http://discourse.ros.org/">Discussion Forum</a></li>
+                <li><a href="http://status.ros.org/">Service Status</a></li>
+                <li><a href="https://robotics.stackexchange.com/questions/tagged/ros">ros @ Robotics Stack Exchange</a></li>
+                <li><a href="https://docs.ros.org/en/ros2_packages/">Package API</a></li>
+              </ul>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-
-    <!--
-    <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>
-
-    <nav class="site-nav">
-      <a href="#" class="menu-icon">
-        <svg viewBox="0 0 18 15">
-          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
-          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
-          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
-        </svg>
-      </a>
-
-      <div class="trigger">
-        <a class="page-link" href="/packages">Packages</a>
-        <a class="page-link" href="/repos">Repositories</a>
-        <a class="page-link" href="/search">Search</a>
-      </div>
-    </nav>
-    -->
-
   </div>
-  <script type="text/javascript">
-    $('#top-searchbox').submit(function() {
-        return $('#top-searchbox input:text').filter(function() {
-          return $(this).val() == "";
-        }).length == 0;
-    });
-  </script>
 </header>
