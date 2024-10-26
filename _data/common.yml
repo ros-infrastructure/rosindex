@@ -49,6 +49,9 @@ platforms:
   mandrake:
     name: 'Mandrake/Mandriva Linux'
     versions: {}
+  openembedded:
+    name: 'OpenEmbedded/Yocto Project'
+    versions: {}
   opensuse:
     name: 'openSUSE'
     versions: {}
@@ -108,3 +111,13 @@ package_manager_names:
   pacman: ['arch']
   pip: []
   portage: ['gentoo']
+
+# These are the platforms currently listed as Tier 1-3 in REP-2000 for currently supported distros.
+# It is used to limit the display of platforms when space is at a premium. Items consist of a
+# Hash with <platforms key>: '<display name>'
+current_platforms:
+  debian: 'Debian'
+  openembedded: 'OpenEmbedded'
+  osx: 'macOS'
+  rhel: 'RHEL'
+  ubuntu: 'Ubuntu'

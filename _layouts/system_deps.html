@@ -25,9 +25,9 @@ layout: default
               </th>
               <th style="text-align: right;">Usage</th>
               <th style="text-align: left;">Description</th>
-              {% for platform in site.data.common.platforms %}
+              {% for platform in site.data.common.current_platforms %}
                 <th style="text-align:left;" class="rotatel90">
-                  <div><span>{{platform[0]}}</span></div>
+                  <div><span>{{platform[1]}}</span></div>
                 </th>
               {% endfor %}
             </tr>
@@ -44,11 +44,9 @@ layout: default
                 </td>
                 <td style="text-align: right;">{{dep_usage}}</td>
                 <td>{{dep_description}}</td>
-                {% for p in site.data.common.platforms %}
-                  {% assign platform = p[0] %}
-                  {% assign platform_details = p[1] %}
-                  {% assign versions = platform_details.versions %}
-
+                {% for cp in site.data.common.current_platforms %}
+                  {% assign platform = cp[0] %}
+                  {% assign versions = site.data.common.platforms[platform].versions %}
 
                   {% assign found_all = true %}
                   {% assign found_one = false %}
