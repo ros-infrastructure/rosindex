@@ -32,6 +32,8 @@ require_relative '../_ruby_libs/dependency_descriptions'
 $fetched_uris = {}
 $debug = false
 DEFAULT_LANGUAGE_PREFIX = 'en'
+HEAVY_CHECKMARK = "\u2714"
+HEAVY_MINUS = "\u2796"
 
 def get_ros_api(elem)
   return []
@@ -827,6 +829,10 @@ class Indexer < Jekyll::Generator
   def generate_search_package_list(site, elements, default_sort_key)
     site.pages << SearchPackageListPage.new(site, default_sort_key, 1, 1, elements, true)
   end
+
+  def generate_search_deps_list(site)
+    site.pages << SearchDepsListPage.new(site)
+  end
  
   def generate_sorted_paginated_deps(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
 
@@ -1512,7 +1518,8 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     generate_sorted_paginated(site, packages_sorted, 'time', @package_names.length, site.config['packages_per_page'], PackageListPage)
 
     search_packages_sorted = sort_packages(site)
-      generate_search_package_list(site, search_packages_sorted, 'time')
+    generate_search_package_list(site, search_packages_sorted, 'time')
+    generate_search_deps_list(site)
 
     # create rosdep pages
     puts ("Generating rosdep pages...").blue
@@ -1601,16 +1608,27 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       system_deps_index = []
       @rosdeps.each do |dep_name, full_dep_data|
         dependants_per_distro = full_dep_data['dependants_per_distro']
+        usage = 0
+        dependants_per_distro.each do |_, platform_usage|
+          usage += platform_usage.length
+        end
         data_per_platform = full_dep_data['data_per_platform']
-        system_deps_index << {
+        aliases = Set[]
+
+        system_deps_index_item = {
           'id' => system_deps_index.length,
           'url' => File.join('/d', dep_name),
           'name' => dep_name,
+          'description' => full_dep_data['description'] || '',
+          'usage' => usage,
+          'score': 0.0,
+          # The lunr tokenizr by default splits strings into tokens, using a default separator
+          # of ' ' and '-'. So we do not need to add these tags to the index for search purposes.
+          # 'tags' => dep_name.split('-') * " ",
           'platforms' => data_per_platform.collect do |platform_key, data|
             next if data.empty?
             next unless site.data['common']['platforms'].key? platform_key
             platform_details = site.data['common']['platforms'][platform_key]
-
             platform_name = platform_details['name']
             platform_versions = platform_details['versions']
             if platform_versions.size > 0
@@ -1623,15 +1641,18 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
                   version_name = version_key.capitalize
                 end
                 names_for_version.collect do |name|
+                  aliases.add(name)
                   "#{name} (#{platform_name} #{version_name})"
                 end.join(' : ')
               end.compact.join(' : ')
             else
               data.collect do |name|
+                aliases.add(name)
                 "#{name} (#{platform_name})"
               end.join(' : ')
             end
           end.compact.join(' : '),
+          'aliases' => aliases.to_a.join(' '),
           'dependants' => dependants_per_distro.collect do |distro, dependants|
             next if dependants.empty?
             dependants.map do |dependant|
@@ -1639,12 +1660,64 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
             end.join(' : ')
           end.compact.join(' : ')
         }
+
+        platform_availables = []
+
+        site.data['common']['current_platforms'].each do |cp, platform_name|
+          versions = site.data['common']['platforms'][cp]['versions']
+          found_all = true
+          found_one = false
+          dep_platform = data_per_platform[cp]
+          n_versions = versions.size
+          if n_versions > 0
+            versions.keys.each do |v|
+              dep_version = dep_platform[v]
+              n_deps = dep_version.size
+              if n_deps > 0
+                found_one = true
+              else
+                found_all = false
+              end
+            end
+          else
+            n_deps = dep_platform.size
+            if n_deps > 0
+              found_one = true
+            else
+              found_all = false
+            end
+          end
+
+          if found_all
+            availability = HEAVY_CHECKMARK
+          elsif found_one
+            availability = HEAVY_MINUS
+          else
+            availability = ''
+          end
+
+          if found_one or found_all
+            platform_availables << cp
+            if cp.downcase != platform_name.downcase
+              platform_availables << platform_name
+            end
+          end
+
+          system_deps_index_item[cp] = availability
+        end
+
+        # Calculate dep availability per platform. Add both platform key and name to a searchable
+        # field to allow searching, for example, for "RHEL".
+        system_deps_index_item['platforms'] = platform_availables.join(' ')
+        system_deps_index << system_deps_index_item
       end
 
       puts ("Precompiling lunr index for system dependencies...").blue
       reference_field = 'id'
-      indexed_fields = ['name', 'platforms', 'dependants']
-      slice_length = system_deps_index.length / site.config['search_index_shards'] || 1
+      # indexed_fields = ['name', 'platforms', 'dependants', 'description', 'aliases']
+      indexed_fields = ['name', 'description', 'dependants', 'aliases', 'platforms']
+      deps_shards = 1
+      slice_length = system_deps_index.length / deps_shards || 1
       slices = {}
       system_deps_index.each_slice(slice_length).with_index.map { |item, i| slices[i.to_s] = item }
       site.static_files.push(*precompile_lunr_index(

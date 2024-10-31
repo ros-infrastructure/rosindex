@@ -119,6 +119,24 @@ class SearchPackageListPage < Jekyll::Page
   end
 end
 
+class SearchDepsListPage < Jekyll::Page
+  def initialize(site)
+    @site = site
+    @base = site.source
+    @dir = 'search_deps/'
+    @name = 'index.html'
+
+    self.process(@name)
+    self.read_yaml(File.join(@base, '_layouts'),'search_deps.html')
+    self.data['pager'] = {
+      'base' => 'packages',
+      'post_ns' => '/'
+    }
+    self.data['title'] = 'System Dependencies'
+  end
+end
+
+
 class PackageListPage < Jekyll::Page
   def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
     @site = site
