@@ -68,7 +68,7 @@ layout: default
                 {% assign n_instances = package[1].instances | size %}
                 <tr>
                   <td title="View Package Instances" data-toggle="tooltip" data-placement="left" align="center">
-                    <a href="{{site.baseurl}}/packages/{{package[0]}}" class="label label-{% if n_instances > 1 %}primary{% else %}default{% endif %}">
+                    <a href="{{site.baseurl}}/p/{{package[0]}}" class="label label-{% if n_instances > 1 %}primary{% else %}default{% endif %}">
                         {{n_instances}}
                     </a>
                   </td>
