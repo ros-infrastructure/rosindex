@@ -1554,7 +1554,13 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
 
             p = package.data
 
-            readme_filtered = if p['readme'] then self.strip_stopwords(p['readme']) else "" end
+            # collect rendered readmes into simple text
+            readmes_text = ''
+            p['readmes'].each do |readme|
+              readmes_text << get_text_from_html(readme['readme_rendered'])
+            end
+
+            readme_filtered = self.strip_stopwords(readmes_text)
 
             index += 1
             packages_index[distro] << {

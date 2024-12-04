@@ -101,3 +101,7 @@ def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
 
   return file_rendered, file_md
 end
+
+def get_text_from_html(html)
+  return Nokogiri::HTML(html).text
+end
