@@ -75,7 +75,6 @@ index_old_doc_paths: false
 #
 ros2_distros:
   - 'humble'
-  - 'iron'
   - 'jazzy'
   - 'rolling'
 
@@ -90,6 +89,7 @@ old_ros2_distros:
   - 'dashing'
   - 'galactic'
   - 'foxy'
+  - 'iron'
 
 old_ros_distros:
   - 'lunar'
