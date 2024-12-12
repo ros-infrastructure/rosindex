@@ -1565,8 +1565,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'tags' => (p['tags'] + package_name.split('_')) * " ",
               'name' => package_name,
               'repo_name' => repo.name,
-              'released' => if repo_snapshot.released then 'is:released' else '' end,
-              'unreleased' => if repo_snapshot.released then 'is:unreleased' else '' end,
+              'released' => if repo_snapshot.released then 'released' else '' end,
               'version' => p['version'],
               'description' => p['description'].strip,
               'maintainers' => p['maintainers'] * ", ",
@@ -1587,9 +1586,8 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       puts ("Precompiling lunr index for packages...").blue
       reference_field = 'id'
       indexed_fields = [
-        'baseurl', 'instance', 'url', 'tags:100','name:100',
-        'version', 'description:50', 'maintainers', 'authors',
-        'distro','readme', 'released', 'unreleased', 'org'
+        'tags:100', 'name:100', 'description:50', 'maintainers', 'authors',
+        'readme', 'released', 'org', 'repo'
       ]
       site.static_files.push(*precompile_lunr_index(
         site, packages_index, reference_field, indexed_fields,
