@@ -42,7 +42,7 @@ RUN apt-get update && \
 RUN gem install bundle
 RUN pip3 install --upgrade setuptools pip
 # For uploading
-RUN pip3 install gitpython
+RUN pip3 install gitpython requests pyyaml
 
 RUN ln -s `which nodejs` /usr/local/bin/node
 

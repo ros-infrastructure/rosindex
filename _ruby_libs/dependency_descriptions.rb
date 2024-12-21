@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'json'
 require 'net/http'
 require 'uri'
 
 DEBIAN_URL = 'https://packages.debian.org/stable/allpackages?format=txt.gz'
+PIP_FILE = '_artifacts/pip_packages.json'
+PIP_SCRIPT = '_scripts/pip_packages.py'
 
 def get_debian_descriptions()
+    # Loads descriptions of debian packages from a debian index.
+    # Returned file gives description indexed by debian package name.
     content_unicode = nil
     retry_delay = [0, 10, 60]
     retry_delay.each_with_index do |delay, idx|
@@ -54,4 +59,19 @@ def get_debian_descriptions()
         packages[package_name] = package_desc
     end
     packages
+end
+
+
+def get_pip_descriptions()
+    # Get pip dependency descriptions from a file.
+    # Returned hash is indexed using rosdep dependency name.
+
+    if File.exist?(PIP_FILE)
+        puts 'Reading pip descriptions from saved file'.green
+        pip_descriptions_json = File.read(PIP_FILE)
+        return JSON.parse(pip_descriptions_json)
+    else
+        puts 'PIP descriptions file does not exist, continuing with no pip descriptions'.red
+        return {}
+    end
 end

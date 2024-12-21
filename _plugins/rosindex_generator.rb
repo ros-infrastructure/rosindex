@@ -10,7 +10,6 @@ require 'find'
 require 'rexml/document'
 require 'rexml/xpath'
 require 'pathname'
-require 'json'
 require 'uri'
 require 'set'
 require 'yaml'
@@ -1015,7 +1014,8 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       site.data['common']['package_manager_names'].keys)
 
     debian_descriptions = get_debian_descriptions()
- 
+    pip_descriptions = get_pip_descriptions()
+
     raw_rosdeps.each do |dep_name, dep_data|
       platforms = site.data['common']['platforms']
       manager_set = Set.new(site.data['common']['package_manager_names'])
@@ -1048,6 +1048,10 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
         else
           platform_data[platform_key] = resolve_dep(platforms, manager_set, platform_key, 'any_version', dep_data)
         end
+      end
+      # if debian did not get a description, maybe we got it from pip
+      if description.empty? and pip_descriptions.has_key?(dep_name)
+        description = pip_descriptions[dep_name]
       end
       @rosdeps[dep_name] = {'data_per_platform' => platform_data, 'dependants_per_distro' => {}, 'description' => description}
     end
