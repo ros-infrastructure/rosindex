@@ -40,6 +40,8 @@ checkout_path: _plugins_data/checkout
 repo_name_whitelist: []
 # if non-empty, only scrape these repo ids (useful for debugging / partial db updates)
 repo_id_whitelist: []
+# always scrape these packages (useful for debugging)
+repo_name_always: []
 
 # domains which are broken
 domain_blacklist:

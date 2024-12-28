@@ -1074,7 +1074,8 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
 
               begin
                 # limit repos if requested
-                if not @repo_names.has_key?(repo_name) and site.config['max_repos'] > 0 and @repo_names.length > site.config['max_repos'] then next end
+                if not site.config['repo_name_always'].include?(repo_name) and \
+                  not @repo_names.has_key?(repo_name) and site.config['max_repos'] > 0 and @repo_names.length > site.config['max_repos'] then next end
 
                 dputs " - "+repo_name
 
