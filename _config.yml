@@ -40,8 +40,8 @@ checkout_path: _plugins_data/checkout
 repo_name_whitelist: []
 # if non-empty, only scrape these repo ids (useful for debugging / partial db updates)
 repo_id_whitelist: []
-# always scrape these packages (useful for debugging)
-repo_name_always: []
+# always scrape the repo containing ros_base (needed for search fields)
+repo_name_always: ['variants', 'metapackages']
 
 # domains which are broken
 domain_blacklist:
@@ -106,7 +106,7 @@ old_ros_distros:
 packages_per_page: 200
 repos_per_page: 200
 
-# uncomment the following line for testing (limit the number of indexed repos)
+# set the following to a non-zero value for testing (limit the number of indexed repos)
 max_repos: 00
 
 plugins:

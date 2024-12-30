@@ -124,6 +124,25 @@ def resolve_dep(ps, ms, os, ver, data)
   return []
 end
 
+def expand_package_deps(package_name, package_names, deps, distro)
+  # Expand package dependencies at all levels for package_name.
+  if deps.include?(package_name)
+    return
+  end
+  deps.add(package_name)
+  if not package_names.key?(package_name)
+    return
+  end
+  if not package_names[package_name].snapshots.key?(distro)
+    return
+  end
+  package_snapshot = package_names[package_name].snapshots[distro]
+  if package_snapshot
+    package_snapshot.data['pkg_deps'].keys.each do |dep_name|
+      expand_package_deps(dep_name, package_names, deps, distro)
+    end
+  end
+end
 
 class Indexer < Jekyll::Generator
   def initialize(config = {})
@@ -1494,9 +1513,21 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     # populate the home page with available distros
     site.pages << HomePage.new(site)
 
+    core_deps = {}
     # create lunr index data
     unless site.config['skip_search_index']
       puts ("Generating packages search index...").blue
+
+      # Determine which packages are dependencies of core packages.
+      core_packages = ['ros_core', 'ros_base', 'desktop', 'desktop_full']
+      $all_distros.each do |distro|
+        core_deps[distro] = {}
+        core_packages.each do |parent_name|
+          deps = Set.new()
+          expand_package_deps(parent_name, @package_names, deps, distro)
+          core_deps[distro][parent_name] = deps
+        end
+      end
 
       packages_index = {}
       $all_distros.each do |distro|
@@ -1524,6 +1555,12 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
             readme_filtered = self.strip_stopwords(readmes_text)
 
             index += 1
+            core = ''
+            core_packages.each do |parent_name|
+              if core.empty? and core_deps[distro][parent_name].include?(package_name) then
+                core = parent_name
+              end
+            end
             packages_index[distro] << {
               'id' => index,
               'baseurl' => site.config['baseurl'],
@@ -1532,6 +1569,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'tags' => (p['tags'] + package_name.split('_')) * " ",
               'package' => package_name,
               'repo' => repo.name,
+              'core' => core,
               'released' => if repo_snapshot.released then 'released' else '' end,
               'version' => p['version'],
               'description' => p['description'].strip,
@@ -1554,7 +1592,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       reference_field = 'id'
       indexed_fields = [
         'tags:100', 'package:100', 'description:50', 'maintainers', 'authors',
-        'readme', 'released', 'org', 'repo'
+        'readme', 'released', 'org', 'repo', 'core'
       ]
       site.static_files.push(*precompile_lunr_index(
         site, packages_index, reference_field, indexed_fields,

@@ -245,6 +245,7 @@ layout: default
     const STAR = "\u2605";
     const LEFT_ARROW = "\u2B05";
     const RIGHT_ARROW = "\u27A1";
+    const CIRCLED_DOT = "\u2299";
     const isRepos = getIsRepos();
 
     const tableSort = searchArray ? SCORE_SORT : (isRepos ? REPO_SORT : PACKAGE_SORT);
@@ -272,10 +273,14 @@ layout: default
       { title:"Package", field:"url", width:200,
         formatter:"link", formatterParams:{labelField:"package", urlPrefix:"{{site.baseurl}}"}},
       { title:"Description", field:"description", minWidth:isRepos ? 160: 300},
-      { title:STAR, field:"released", width:40, formatter:"tickCross", headerTooltip:"release status", hozAlign:"center",
+      { title:STAR, field:"released", width:40, formatter:"tickCross", headerTooltip:"released: release status", hozAlign:"center",
         formatterParams: {allowTruthy: true, allowEmpty: true}},
-      { title:LEFT_ARROW, field:"pkg_deps", width:40, headerTooltip:"package dependency count"},
-      { title:RIGHT_ARROW, field:"dependants", width:40, headerTooltip:"package used by count"},
+      { title:LEFT_ARROW, field:"pkg_deps", width:40, headerTooltip:"pkg_deps: package dependency count"},
+      { title:RIGHT_ARROW, field:"dependants", width:40, headerTooltip:"dependants: package used by count"},
+      { title:CIRCLED_DOT, field:"core", width:40, formatter:"tickCross", headerTooltip:"core: Is dependency of a core package?",
+        hozAlign:"center", formatterParams: {allowTruthy: true}, sorter:function(a, b, aRow, bRow, column, dir, sorterParams) {
+          return sorterParams.indexOf(a) - sorterParams.indexOf(b);
+        }, sorterParams:['ros_core', 'ros_base', 'desktop', 'desktop_full']},
       { title:"Authors", field:"authors", width:120},
       { title:"Maintainers", field:"maintainers", width:120},
       { title:"Org", field:"org", width:100},
