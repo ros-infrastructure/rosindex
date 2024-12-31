@@ -2,7 +2,7 @@
 layout: page
 title: Help for using rosindex system dependencies list and search
 permalink: /help/system_dependencies/
-breadcrumbs: ['help', 'system_dependencies']
+breadcrumbs: ['help']
 ---
 
 # System Dependencies Help

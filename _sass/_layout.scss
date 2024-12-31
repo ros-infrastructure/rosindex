@@ -4,9 +4,12 @@
 :root {
   --header-height: 60px;
   --footer-height: 52px;
-  --content-height: calc(100vh - var(--header-height) - var(--footer-height));
+  --breadcrumb-margin: 20px;
+  --content-height: calc(100vh - var(--header-height) - var(--footer-height) - var(--breadcrumb-margin));
+  --breadcrumb-height: 60px;
   --search-height: 60px;
   --distro-height: 30px;
+  --table-margins: 10px;
 }
 
 /**
@@ -249,4 +252,12 @@
             font-size: 18px;
         }
     }
+}
+
+/**
+ * Tabulator tables
+ */
+.tab-table {
+    // half of --table-margins
+    margin-top: 5px;
 }

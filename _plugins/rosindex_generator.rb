@@ -826,10 +826,6 @@ class Indexer < Jekyll::Generator
     return rosdep_data
   end
 
-  def generate_search_package_list(site, elements, default_sort_key)
-    site.pages << SearchPackageListPage.new(site, default_sort_key, 1, 1, elements, true)
-  end
-
   def generate_search_deps_list(site)
     site.pages << SearchDepsListPage.new(site)
   end
@@ -1517,8 +1513,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     packages_sorted = sort_packages(site)
     generate_sorted_paginated(site, packages_sorted, 'time', @package_names.length, site.config['packages_per_page'], PackageListPage)
 
-    search_packages_sorted = sort_packages(site)
-    generate_search_package_list(site, search_packages_sorted, 'time')
     generate_search_deps_list(site)
 
     # create rosdep pages
@@ -1539,6 +1533,9 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
 
     suggestions_sorted = sort_repos_filtered(site, site.config['contribute_suggested_repos'])
     generate_sorted_paginated(site, suggestions_sorted, 'name', suggestions_sorted['name'].length, site.config['repos_per_page'], ContributionSuggestionsPage)
+
+    # populate the home page with available distros
+    site.pages << HomePage.new(site)
 
     # create lunr index data
     unless site.config['skip_search_index']

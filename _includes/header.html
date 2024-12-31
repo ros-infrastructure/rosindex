@@ -13,13 +13,13 @@
         <div class="col-xs-6 text-center" style="padding:0px">
           <div class="btn-group hidden-xs" role="group" aria-label="..." style="padding: 6px">
             <div class="btn-group" role="group">
-              <a href="{{site.baseurl}}/packages" class="btn btn-default" role="button">Package List</a>
+              <a href="{{site.baseurl}}/?search_packages=true" class="btn btn-default" role="button">Package List</a>
             </div>
             <div class="btn-group" role="group">
               <a href="{{site.baseurl}}/repos" class="btn btn-default" role="button">Repository List</a>
             </div>
             <div class="btn-group" role="group">
-              <a href="{{site.baseurl}}/deps" class="btn btn-default" role="button">System Dependencies</a>
+              <a href="{{site.baseurl}}/search_deps" class="btn btn-default" role="button">System Dependencies</a>
             </div>
           </div>
           <div class="hidden-lg hidden-md hidden-sm">
@@ -27,9 +27,9 @@
               Lists <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="hLabel">
-              <li><a href="{{site.baseurl}}/packages">Package List</a></li>
+              <li><a href="{{site.baseurl}}/?search_packages=true">Package List</a></li>
               <li><a href="{{site.baseurl}}/repos">Repository List</a></li>
-              <li><a href="{{site.baseurl}}/deps">System Dependencies</a></li>
+              <li><a href="{{site.baseurl}}/search_deps">System Dependencies</a></li>
             </ul>
           </div>
         </div>
@@ -56,6 +56,7 @@
               <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="aLabel">
                 <li><a href="{{site.baseurl}}/about">About </a></li>
                 <li><a href="{{site.baseurl}}/contribute">Contribute</a></li>
+                <li><a href="{{site.baseurl}}/help">Help</a></li>
                 <li><a href="{{site.baseurl}}/stats">Stats</a></li>
               </ul>
             </li>
@@ -67,6 +68,7 @@
               <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="qLabel">
                 <li><a href="{{site.baseurl}}/about">About </a></li>
                 <li><a href="{{site.baseurl}}/contribute">Contribute</a></li>
+                <li><a href="{{site.baseurl}}/help">Help</a></li>
                 <li><a href="{{site.baseurl}}/stats">Stats</a></li>
                 <hr style="margin:7px" />
                 <li><a href="http://docs.ros.org/">Documentation</a></li>
