@@ -30,16 +30,14 @@ platforms:
       stretch: ""
       buster: ""
       bullseye: ""
+      bookworm: ""
       sid: "Sid (Unstable)"
   fedora:
     name: 'Fedora'
     versions:
-      beefy: "17 (Beefy Miracle)"
-      spherical: "18 (Spherical Cow)"
-      "schrödinger’s": "19 (Schrödinger's Cat)"
-      heisenbug: "20 (Heisenberg)"
-      '21': "Fedora 21"
-      '22': "Fedora 22"
+      '39': 'Fedora 39'
+      '40': 'Fedora 40'
+      '41': 'Fedora 41'
   freebsd:
     name: 'FreeBSD'
     versions: {}
@@ -64,9 +62,16 @@ platforms:
       "mountain lion": ""
       mavericks: ""
       yosemite: ""
+      monteray: ""
+      ventura: ""
+      sonoma: ""
+      sequoia: ""
   rhel:
     name: 'Red Hat Enterprise Linux'
-    versions: {}
+    versions:
+      '8': 'RHEL 8'
+      '9': 'RHEL 9'
+      '10': 'RHEL 10'
   ubuntu:
     name: 'Ubuntu'
     versions:
@@ -100,6 +105,8 @@ platforms:
       groovy: ""
       hirsute: ""
       impish: ""
+      jammy: ""
+      noble: ""
 
 # These are the names of available package managers across all the
 # platforms
