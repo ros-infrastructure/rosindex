@@ -1564,7 +1564,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
             packages_index[distro] << {
               'id' => index,
               'baseurl' => site.config['baseurl'],
-              'url' => File.join('/p',package_name,instance_id)+"#"+distro,
+              'url' => File.join('/p',package_name)+"#"+distro,
               'last_commit_time' => repo_snapshot.data['last_commit_time'],
               'tags' => (p['tags'] + package_name.split('_')) * " ",
               'name' => package_name,
