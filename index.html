@@ -117,22 +117,22 @@ layout: default
 
   function setHome() {
     // Show the page as a home page, without the package table.
-    $("body").attr("style", "height: auto");
-    $(".page-content").attr("style", "height: auto;");
-    $(".wrapper").attr("style", "height:auto;");
-    $('.showAsSearch').attr("style", "display:none;")
-    $(".showCellAsSearch").attr("style", "display:none;")
-    $(".showAsHome").attr("style", "display:block;")
+    $("body").css("height", "auto");
+    $(".page-content").css("height", "auto");
+    $(".wrapper").css("height", "auto");
+    $(".showAsSearch").css("display", "none");
+    $(".showCellAsSearch").css("display", "none");
+    $(".showAsHome").css("display", "block");
   }
 
   function setSearch() {
     // Show the page as a package search/list page.
-    $("body").attr("style", "height: 100vh;");
-    $(".page-content").attr("style", "height: var(--content-height);");
-    $(".wrapper").attr("style", "height:100%;");
-    $(".showAsHome").attr("style", "display:none;")
-    $(".showAsSearch").attr("style", "display:block;")
-    $(".showCellAsSearch").attr("style", "display:table-cell;")
+    $("body").css("height", "100vh");
+    $(".page-content").css("height", "var(--content-height)");
+    $(".wrapper").css("height", "100%");
+    $(".showAsHome").css("display", "none");
+    $(".showAsSearch").css("display", "block");
+    $(".showCellAsSearch").css("display", "table-cell");
   }
 
   function addFilter(table, field, type, value) {
@@ -214,7 +214,7 @@ layout: default
     }
     return getIndex(distro).then(searchIndex => {
       var searchResults = searchIndex.search(query);
-      searchArray = searchResults.map((result) => parseInt(result.ref));
+      var searchArray = searchResults.map((result) => parseInt(result.ref));
       console.log(`Search returned ${searchArray.length} results`);
       // Tabulator filters don't seem to work with zero entries
       searchArray = searchArray.length ? searchArray : [-1];
@@ -387,7 +387,7 @@ layout: default
     });
 
     $("#search-button").on('click', (e) => {
-      query = $("#search-query").val();
+      var query = $("#search-query").val();
       if (query) {
         $("#search-enable-box").prop("checked", true);
         copyUIToSearchQuery();
