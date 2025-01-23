@@ -24,7 +24,7 @@ def precompile_lunr_index(site, index, ref, fields, output_dir, shard_names)
       data_filename = "data.#{name}.json"
       data_filepath = File.join(output_dirpath, data_filename)
       File.open(data_filepath, 'w') do |data_file|
-        data_file.write(JSON.generate(index[name]))
+        data_file.write(JSON.generate(index[name], options={object_nl: "\n"}))
       end
       enum.yield SearchIndexFile.new(site, site.dest, output_dir, data_filename)
       dputs("Index data written to #{data_filename}.")
