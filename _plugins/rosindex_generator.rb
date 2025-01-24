@@ -931,33 +931,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     return repos_sorted
   end
 
-  def sort_packages(site)
-    packages_sorted = {'name' => {}, 'time' => {}, 'released' => {}}
-
-    packages_sorted_by_name = @package_names.sort_by { |name, _| name }
-    $all_distros.each do |distro|
-      packages_sorted['name'][distro] = packages_sorted_by_name
-
-      packages_sorted['time'][distro] = \
-      packages_sorted['name'][distro].sort_by do |_, instances|
-        instances.snapshots.select do |d, s|
-          distro == d and not s.nil?
-        end.map do |_, s|
-          s.snapshot.data['last_commit_time'].to_s
-        end.max.to_s
-      end.reverse
-
-      packages_sorted['released'][distro] = \
-      packages_sorted['name'][distro].sort_by do |_, instances|
-        instances.snapshots.count do |d, s|
-          distro == d and not s.nil? and s.snapshot.released
-        end
-      end.reverse
-    end
-
-    return packages_sorted
-  end
-
   def write_release_manifests(site, repo, package_name, default)
     $all_distros.each do |distro|
       unless repo.release_manifests[distro].nil?
@@ -1510,9 +1483,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
     # create package list pages
     puts ("Generating package list pages...").blue
 
-    packages_sorted = sort_packages(site)
-    generate_sorted_paginated(site, packages_sorted, 'time', @package_names.length, site.config['packages_per_page'], PackageListPage)
-
     generate_search_deps_list(site)
 
     # create rosdep pages
@@ -1522,12 +1492,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
       site.pages << DepPage.new(site, dep_name, raw_rosdeps[dep_name], full_dep_data)
     end
 
-    # create rosdep list pages
-    puts ("Generating rosdep list pages...").blue
-  
-    rosdeps_sorted = @rosdeps.sort_by { |name, _| name }
-    generate_sorted_paginated_deps(site, rosdeps_sorted, 'name', @rosdeps.length, site.config['packages_per_page'], DepListPage)
-  
     # create contribution suggestions list pages
     puts ("Generating contribution suggestions list page...").blue
 

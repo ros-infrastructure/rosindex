@@ -123,38 +123,6 @@ class SearchDepsListPage < Jekyll::Page
   end
 end
 
-
-class PackageListPage < Jekyll::Page
-  def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
-    @site = site
-    @base = site.source
-    @dir = unless default then 'packages/page/'+page_index.to_s+'/'+sort_id else 'packages' end
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'packages.html')
-    self.data['pager'] = {
-      'base' => 'packages',
-      'post_ns' => '/'+sort_id
-    }
-    self.data['sort_id'] = sort_id
-    self.data['n_list_pages'] = n_list_pages
-    self.data['page_index'] = page_index
-    self.data['list'] = list
-    self.data['title'] = 'ROS Packages'
-
-    self.data['prev_page'] = [page_index - 1, 1].max
-    self.data['next_page'] = [page_index + 1, n_list_pages].min
-
-    self.data['near_pages'] = *([1,page_index-4].max..[page_index+4, n_list_pages].min)
-    self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
-
-    self.data['available_distros'] = Hash[site.config['distros'].collect { |d| [d, true] }]
-    self.data['available_older_distros'] = Hash[site.config['old_distros'].collect { |d| [d, true] }]
-    self.data['n_available_older_distros'] = site.config['old_distros'].length
-  end
-end
-
 class RepoListPage < Jekyll::Page
   def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
     @site = site
@@ -172,37 +140,6 @@ class RepoListPage < Jekyll::Page
     self.data['n_list_pages'] = n_list_pages
     self.data['page_index'] = page_index
     self.data['list'] = list
-
-    self.data['prev_page'] = [page_index - 1, 1].max
-    self.data['next_page'] = [page_index + 1, n_list_pages].min
-
-    self.data['near_pages'] = *([1,page_index-4].max..[page_index+4, n_list_pages].min)
-    self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
-
-    self.data['available_distros'] = Hash[site.config['distros'].collect { |d| [d, true] }]
-    self.data['available_older_distros'] = Hash[site.config['old_distros'].collect { |d| [d, true] }]
-    self.data['n_available_older_distros'] = site.config['old_distros'].length
-  end
-end
-
-class DepListPage < Jekyll::Page
-  def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
-    @site = site
-    @base = site.source
-    @dir = unless default then 'deps/page/'+page_index.to_s+'/'+sort_id else 'deps' end
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'system_deps.html')
-    self.data['pager'] = {
-      'base' => 'deps',
-      'post_ns' => '/'+sort_id
-    }
-    self.data['sort_id'] = sort_id
-    self.data['n_list_pages'] = n_list_pages
-    self.data['page_index'] = page_index
-    self.data['list'] = list
-    self.data['title'] = 'rosdep System Dependencies'
 
     self.data['prev_page'] = [page_index - 1, 1].max
     self.data['next_page'] = [page_index + 1, n_list_pages].min
@@ -375,7 +312,7 @@ class SearchIndexFile < Jekyll::StaticFile
     true
   end
 end
-
+ 
 class PackageManifestFile < Jekyll::StaticFile
   def write(dest)
     true
@@ -385,17 +322,6 @@ end
 class ReportFile < Jekyll::StaticFile
   def write(dest)
     true
-  end
-end
-
-class RelocatableStaticFile < Jekyll::StaticFile
-  def initialize(site, base, dir, name, dest = nil)
-    super(site, base, dir, name)
-    @dest = dest || File.join(destination_rel_dir, @name)
-  end
-
-  def destination(dest_root)
-    @site.in_dest_dir(*[dest_root, @dest].compact)
   end
 end
 
