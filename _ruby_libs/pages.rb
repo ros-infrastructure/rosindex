@@ -96,7 +96,7 @@ class HomePage < Jekyll::Page
     @name = 'index.html'
 
     self.process(@name)
-    self.read_yaml(@base, 'index.html')
+    self.read_yaml(File.join(@base, '_layouts'),'search_packages.html')
 
     self.data['title'] = 'ROS Index'
     self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
