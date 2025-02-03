@@ -113,6 +113,7 @@ layout: default
   var gIndex_promises = {};
   var gTable = null;
   var gDistro = "{{ site.distros[0] }}";
+  var gQuery = null;
   const DEFAULT_SORT = [{column:"url", dir:"asc"}];
 
   function setHome() {
@@ -133,21 +134,6 @@ layout: default
     $(".showAsHome").css("display", "none");
     $(".showAsSearch").css("display", "block");
     $(".showCellAsSearch").css("display", "table-cell");
-  }
-
-  function addFilter(table, field, type, value) {
-    // Add a new table filter, removing existing.
-    removeFilterByField(table, field);
-    table.addFilter(field, type, value);
-  }
-
-  function removeFilterByField(table, field) {
-    // remove all filters on a specified field, if any.
-    for (const existingFilter of table.getFilters()) {
-      if ('field' in existingFilter && existingFilter['field'] == field) {
-        table.removeFilter(existingFilter.field, existingFilter.type, existingFilter.value);
-      }
-    }
   }
 
   function getData(distro) {
@@ -226,13 +212,14 @@ layout: default
     // Set the sort and filter for a table with search results.
     // Must be called after table built event.
     if (searchArray) {
-      addFilter(table, 'id', 'in', searchArray);
+      table.setFilter('id', 'in', searchArray);
     } else {
-      removeFilterByField(table, 'id');
+      table.clearFilter(true);
     }
   }
 
   function makeTable(distro, data, searchArray) {
+    console.log(`makeTable for distro ${distro}`);
     const CALENDAR = "\u{1F4C5}";
     const STAR = "\u2605";
     const LEFT_ARROW = "\u2B05";
@@ -284,6 +271,7 @@ layout: default
         $("#table-unfiltered-count").text(table.getDataCount());
       });
       table.on("tableBuilt", () => {
+        console.log('tableBuilt');
         resolve(table);
       });
     });
@@ -292,6 +280,9 @@ layout: default
 
   function showTable(distro, query) {
     // Returns a promise that displays a Tabulator table.
+    console.log(`showTable distro=${distro} query=${query}`);
+    gQuery = query;
+    gDistro = distro;
     var searchPromise = query ? getSearchArray(distro, query) : Promise.resolve(null);
     return Promise.all([getData(distro), searchPromise]).then(values => {
       var data = values[0];
@@ -302,9 +293,12 @@ layout: default
       }
 
       if (gTable) {
-        setTableFilter(gTable, searchArray);
+        if (searchArray) {
+          gTable.setFilter('id', 'in', searchArray);
+        } else {
+          gTable.clearFilter(true);
+        }
         gTable.replaceData(data).then(console.log('table data replaced'));
-        return;
       }
       else {
         makeBuiltTable(distro, data, searchArray).then(table => {
@@ -314,46 +308,53 @@ layout: default
     });
   }
 
-  $(function() {
-    copySearchQueryToUI();
-    gDistro = setupDistroSwitch("{{ site.distros[0] }}");
-    getData(gDistro);
+  function updatePage() {
+    // Queries status to update page.
     if (getIsSearch()) {
+      copySearchQueryToUI();
       var query = getWindowSearchQuery();
-      showTable(gDistro, query).then(setSearch());
+      var distro = window.location.hash.substring(1) || gDistro;
+      // Don't rerun query if nothing changed.
+      if (gTable && query == gQuery && distro == gDistro) {
+        console.log('updatePage isSearch no change');
+        setSearch();
+      } else {
+        console.log('updatePage isSearch with change');
+        showTable(distro, query).then(setSearch());
+      }
     } else {
+      console.log('updatePage isHome');
       setHome();
     }
+  }
 
-    window.addEventListener("popstate", (event) => {
-      console.log(`onpopstate: url: ${document.location.toString()}`);
-      if (getIsSearch()) {
-        copySearchQueryToUI();
-        var query = getWindowSearchQuery();
-        showTable(gDistro, query).then(setSearch());
-      } else {
-        setHome();
-      }
+  $(function() {
+    console.log('search_packages');
+    gDistro = setupDistroSwitch("{{ site.distros[0] }}");
+    getData(gDistro);
+    updatePage();
+
+    window.addEventListener('popstate', () => {
+      console.log(`popstate ${window.location.href}`);
+      updatePage();
     });
 
-    window.addEventListener('hashchange', (event) => {
-      // Reload the table if the distro changes.
-      var url = new URL(document.location.toString());
-      console.log(`hash change url: ${url.href}`);
-      if (url.hash) {
-        gDistro = url.hash.substring(1);
+    window.addEventListener('hashchange', () => {
+      var distro = window.location.hash.substring(1) || gDistro;
+      // Trigger distro change if distro UI incorrect.
+      if (!$('#'+distro+'-option').hasClass('active')) {
+        console.log(`hashchange ${window.location.href} distro ${distro} triggering`);
+        const nodes = $('#'+distro+'-option');
+        console.log(`node ${nodes[0].tagName} ${nodes[0].id}`);
+        if (nodes[0].tagName == 'LABEL') {
+          // one of the current distro types
+          nodes.trigger('click');
+        } else {
+          // an older distro type
+          nodes.children().trigger('click');
+        }
       } else {
-        gDistro = gDistro || "{{ site.distros[0] }}";
-      }
-      getData(gDistro);
-      var query = getWindowSearchQuery();
-      if (gTable) {
-        gTable.clearData();
-      }
-      if (getIsSearch()) {
-        showTable(gDistro, query).then(setSearch());
-      } else {
-        setHome();
+        console.log(`hashchange ${window.location.href} distro ${distro} no trigger`);
       }
     });
 
@@ -366,8 +367,7 @@ layout: default
       if (e.which == 13) {
         $("#search-enable-box").prop("checked", true);
         copyUIToSearchQuery();
-        var query = getWindowSearchQuery() || '';
-        showTable(gDistro, query).then(setSearch());
+        updatePage();
       }
     });
 

@@ -6,12 +6,9 @@ function setupDistroSwitch(default_distro) {
     console.log('selecting distro: '+distro)
 
     if(distro) {
-      //$(this).tab('show');
       $('.distro').not('.distro-'+distro).hide(0, function(){
         $('.distro-'+distro).fadeIn('fast');
       });
-      //$('.older-distro-button').removeClass('btn-primary');
-      console.log(this);
       $('#older-distro-button').removeClass("active");
       $('.older-distro-option').removeClass("active");
       $('#older-label').text('Older');
