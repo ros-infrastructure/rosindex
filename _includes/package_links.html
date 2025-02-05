@@ -30,18 +30,19 @@ Assumes the following are defined:
        {%if hide_link_labels%}<br>{%endif%}
        Browse Code
   </a>
-  {% assign has_ros1 = false %}
+  {% assign is_ros1_page = false %}
   {% for ros_distro in site.ros_distros %}
-    {% if page.available_distros[ros_distro] %}
-      {% assign has_ros1 = true %}
+    {% if ros_distro == distro %}
+      {% assign is_ros1_page = true %}
     {% endif %}
   {% endfor %}
   {% for old_ros_distro in site.old_ros_distros %}
-    {% if page.available_distros[old_ros_distro] %}
-      {% assign has_ros1 = true %}
+    {% if old_ros_distro == distro %}
+      {% assign is_ros1_page = true %}
     {% endif %}
   {% endfor %}
-  {% if has_ros1 %}
+  
+  {% if is_ros1_page %}
   <a class="{{list_group_class}} {% comment %} TODO: rosindex currently does not detect if a wiki page exists - implement and then re-enable the following: {% unless package.data.wiki.exists %}inactive{% endunless %} {% endcomment %}"
      target="_blank"
      href="http://wiki.ros.org/{{page.package_name}}?distro={{distro}}"
