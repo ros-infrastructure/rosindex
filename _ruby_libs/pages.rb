@@ -312,7 +312,6 @@ class SearchIndexFile < Jekyll::StaticFile
     true
   end
 end
- 
 class PackageManifestFile < Jekyll::StaticFile
   def write(dest)
     true
