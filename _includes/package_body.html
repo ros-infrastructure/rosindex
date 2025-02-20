@@ -304,10 +304,10 @@ Assumes distro and package are defined
                     {% assign dep_name = d[0] %}
                     {% for dep_instance in d[1] %}
                     <tr>
-                      <td><a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}">{{dep_name}}</a></td>
+                      <td><a href="{{site.baseurl}}/p/{{dep_name}}#{{distro}}">{{dep_name}}</a></td>
                       <td class="text-center">
                         {% assign n_2nd_order_deps = dep_instance.package.data.dependants | size %}
-                        <a href="{{site.baseurl}}/p/{{dep_name}}/{{dep_instance.id}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
+                        <a href="{{site.baseurl}}/p/{{dep_name}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
                           <span class="glyphicon glyphicon-arrow-right"></span>
                         </a>
                       </td>

@@ -90,7 +90,7 @@ layout: default
                     <td>
                       {% for p in r.packages %}
                         {% assign labeled_package = p[1] %}
-                        <a href="{{site.baseurl}}/p/{{p[0]}}/{{default}}" class="label label-primary pkg-label">{% include peer_label.html %}</a>
+                        <a href="{{site.baseurl}}/p/{{p[0]}}" class="label label-primary pkg-label">{% include peer_label.html %}</a>
                       {% endfor %}
                     </td>
                   {% else %}

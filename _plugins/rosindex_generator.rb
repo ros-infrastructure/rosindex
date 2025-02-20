@@ -1464,18 +1464,6 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
 
       # create default package page
       site.pages << PackagePage.new(site, package_instances)
-
-      # create a page for each package instance
-      package_instances.instances.each do |instance_id, instance|
-        dputs "Generating page for package " << package_name << " instance " << instance_id << "..."
-        site.pages << PackageInstancePage.new(site, package_instances, instance, package_name)
-
-        repo = @all_repos[instance_id]
-        write_release_manifests(site, repo, package_name, false)
-        if @repo_names[repo.name].default.id == repo.id
-          write_release_manifests(site, repo, package_name, true)
-        end
-      end
     end
 
     # create repo list pages

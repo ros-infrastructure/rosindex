@@ -34,7 +34,7 @@ Assumes the following are defined:
           {% for peer in package.snapshot.packages %}
             {% assign labeled_package = peer[1] %}
             {% if peer[0] != package.name %}
-              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}/{{package.repo.id}}">{% include peer_label.html %}</a>
+              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}">{% include peer_label.html %}</a>
             {% else %}
               <span class="label label-default pkg-label">{% include peer_label.html %}</span>
             {% endif %}
@@ -42,7 +42,4 @@ Assumes the following are defined:
       </td>
     </tr>
   </table>
-  <div class="top-buffer distro distro-{{distro}}">
-    {% include instance_switch.html %}
-  </div>
 </div>
