@@ -115,6 +115,7 @@ layout: default
   var gDistro = "{{ site.distros[0] }}";
   var gQuery = null;
   const DEFAULT_SORT = [{column:"url", dir:"asc"}];
+  const SCORE_SORT = [{column:"score", dir:"desc"}];
 
   function setHome() {
     // Show the page as a home page, without the package table.
@@ -193,28 +194,33 @@ layout: default
     }
   }
 
-  function getSearchArray(distro, query) {
-    // Returns a promise resolving to a search array of id hits.
+  function getSearchHash(distro, query) {
+    // Returns a promise resolving to a hash of {ref: score} with hits.
     if (!query) {
       return Promise.resolve(null);
     }
     return getIndex(distro).then(searchIndex => {
       var searchResults = searchIndex.search(query);
-      var searchArray = searchResults.map((result) => parseInt(result.ref));
-      console.log(`Search returned ${searchArray.length} results`);
       // Tabulator filters don't seem to work with zero entries
-      searchArray = searchArray.length ? searchArray : [-1];
-      return searchArray;
+      var searchHash = {'-1': 0.0};
+      for (const result of searchResults) {
+        searchHash[result.ref] = result.score;
+      }
+      console.log(`Search returned ${searchResults.length} results`);
+      return searchHash;
     });
   }
 
-  function setTableFilter(table, searchArray) {
-    // Set the sort and filter for a table with search results.
-    // Must be called after table built event.
-    if (searchArray) {
-      table.setFilter('id', 'in', searchArray);
-    } else {
-      table.clearFilter(true);
+  function updateDataScore(data, searchHash) {
+    // Update table data score with results from a search.
+    for (const dataValue of data) {
+      const ref = dataValue['id'].toString();
+      if (searchHash && ref in searchHash) {
+        dataValue['score'] = searchHash[ref];
+      }
+      else {
+        dataValue['score'] = 0.0;
+      }
     }
   }
 
@@ -225,7 +231,7 @@ layout: default
     const LEFT_ARROW = "\u2B05";
     const RIGHT_ARROW = "\u27A1";
 
-    var tableSort = DEFAULT_SORT;
+    const tableSort = searchArray ? SCORE_SORT : DEFAULT_SORT;
     if (searchArray) {
       var tableFilter = [{field: 'id', type: 'in', value: searchArray}];
     } else {
@@ -256,6 +262,7 @@ layout: default
           formatter:"link", formatterParams:{labelField:"repo_name", url:(cell) => {
             return `{{site.baseurl}}/r/${cell.getValue()}/#${distro}`}}},
         { title:"Org", field:"org", width:100},
+        { title:"score", field:"score", width:60, sorter:"number", visible:false},
       ],
       });
       return table;
@@ -283,11 +290,14 @@ layout: default
     console.log(`showTable distro=${distro} query=${query}`);
     gQuery = query;
     gDistro = distro;
-    var searchPromise = query ? getSearchArray(distro, query) : Promise.resolve(null);
+    var searchPromise = getSearchHash(distro, query);
     return Promise.all([getData(distro), searchPromise]).then(values => {
       var data = values[0];
-      var searchArray = values[1];
+      var searchHash = values[1];
+      var searchArray = searchHash ? Object.keys(searchHash).map(ref => parseInt(ref)) : null;
+      updateDataScore(data, searchHash);
       if (!searchArray) {
+        console.log(`showTable sets count to ${data.length}`);
         $("#table-filtered-count").text(data.length);
         $("#table-unfiltered-count").text(data.length);
       }
@@ -295,8 +305,10 @@ layout: default
       if (gTable) {
         if (searchArray) {
           gTable.setFilter('id', 'in', searchArray);
+          gTable.setSort(SCORE_SORT);
         } else {
           gTable.clearFilter(true);
+          gTable.setSort(DEFAULT_SORT);
         }
         gTable.replaceData(data).then(console.log('table data replaced'));
       }
