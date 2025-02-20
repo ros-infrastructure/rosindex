@@ -18,7 +18,6 @@ require 'uri'
 
 DEBIAN_URL = 'https://packages.debian.org/stable/allpackages?format=txt.gz'
 PIP_FILE = '_artifacts/pip_packages.json'
-PIP_SCRIPT = '_scripts/pip_packages.py'
 
 def get_debian_descriptions()
     # Loads descriptions of debian packages from a debian index.

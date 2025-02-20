@@ -15,6 +15,8 @@ update_config=_config/update.yml
 scrape_config=_config/scrape.yml
 search_config=_config/search_index.yml
 
+.DEFAULT_GOAL := build
+.PHONY: build rebuild-pip-descriptions prepare-sources discover update scrape serve serve-devel test-build clean-sources clean-cache clean
 PIP_FILE := _artifacts/pip_packages.json
 PIP_SCRIPT := _scripts/pip_packages.py
 
