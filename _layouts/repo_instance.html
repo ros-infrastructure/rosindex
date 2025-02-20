@@ -18,15 +18,16 @@ layout: default
     <div class="row">
       &nbsp;
     </div>
-    <div class="row">
-      {% include repo_info.html %}
-    </div>
+
   </div>
 </div>
 
 {% for distro in page.all_distros %}
   <div class="distro distro-{{distro}}">
     <div class="container-fluid">
+      <div class="row">
+        {% include repo_info.html %}
+      </div>
       {% if page.available_distros[distro] or page.available_older_distros[distro] %}
         {% assign repo = page.repo %}
         <div class="panel panel-default">
