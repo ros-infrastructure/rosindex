@@ -65,6 +65,7 @@ exclude:
   - README.md
   - Makefile
   - docker
+  - rubygems
 
 index_old_doc_paths: false
 
