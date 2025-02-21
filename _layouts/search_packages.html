@@ -9,7 +9,7 @@ layout: default
       </ol>
       <ol class="breadcrumb showAsSearch" style="display:none">
         <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li class="active">Package List</li>
+        <li id="breadcrumb-name" class="active">Package List</li>
       </ol>
     </div>
     <div class="row" style="height:var(--distro-height);">
@@ -103,6 +103,8 @@ layout: default
 
 <!-- See https://github.com/olifolkerd/tabulator/issues/4419 for issue with Tabulator post-5.6.0 -->
 <link href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/css/tabulator.min.css" rel="stylesheet">
+<link href={{ "css/search_packages.css" | prepend: site.baseurl }} rel="stylesheet">
+
 <!-- <script src={{ "/js/tabulator.js" | prepend: site.baseurl }}></script> -->
 <script src={{ "/js/distro_switch.js" | prepend: site.baseurl }}></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/js/tabulator.min.js"></script>
@@ -114,7 +116,8 @@ layout: default
   var gTable = null;
   var gDistro = "{{ site.distros[0] }}";
   var gQuery = null;
-  const DEFAULT_SORT = [{column:"url", dir:"asc"}];
+  const PACKAGE_SORT = [{column:"url", dir:"asc"}];
+  const REPO_SORT = [{column: "repo", dir:"asc"}];
   const SCORE_SORT = [{column:"score", dir:"desc"}];
 
   function setHome() {
@@ -169,7 +172,12 @@ layout: default
   }
 
   function getIsSearch() {
-    return new URL(window.location.toString()).searchParams.has('search_packages');
+    parms = new URL(window.location.toString()).searchParams;
+    return (parms.has('search_packages') || parms.has('search_repos'));
+  }
+
+  function getIsRepos() {
+    return new URL(window.location.toString()).searchParams.has('search_repos');
   }
 
   function setWindowSearchQuery(query) {
@@ -230,15 +238,46 @@ layout: default
     const STAR = "\u2605";
     const LEFT_ARROW = "\u2B05";
     const RIGHT_ARROW = "\u27A1";
+    const isRepos = getIsRepos();
 
-    const tableSort = searchArray ? SCORE_SORT : DEFAULT_SORT;
+    const tableSort = searchArray ? SCORE_SORT : (isRepos ? REPO_SORT : PACKAGE_SORT);
     if (searchArray) {
       var tableFilter = [{field: 'id', type: 'in', value: searchArray}];
     } else {
       var tableFilter = [];
     }
 
-    const table = new Tabulator("#packages-table", {
+    dateColumn =
+      { title:CALENDAR, field: "last_commit_time", width:80, headerHozAlign:"center",
+        headerTooltip:"last commit date", sorter:"date", sorterParams:{format:"yyyy-MM-dd"}
+      };
+    repoColumn =
+      { title:"Repo", field:"repo", width:100,
+        formatter:"link", formatterParams:{labelField:"repo", url:(cell) => {
+          return `{{site.baseurl}}/r/${cell.getValue()}/#${distro}`}}
+      };
+
+    tableColumns = [ //Define Table Columns
+      { title:"Package", field:"url", width:200,
+        formatter:"link", formatterParams:{labelField:"package", urlPrefix:"{{site.baseurl}}"}},
+      { title:"Description", field:"description", minWidth:isRepos ? 160: 300},
+      { title:STAR, field:"released", width:40, formatter:"tickCross", headerTooltip:"release status", hozAlign:"center",
+        formatterParams: {allowTruthy: true, allowEmpty: true}},
+      { title:LEFT_ARROW, field:"pkg_deps", width:40, headerTooltip:"package dependency count"},
+      { title:RIGHT_ARROW, field:"dependants", width:40, headerTooltip:"package used by count"},
+      { title:"Authors", field:"authors", width:120},
+      { title:"Maintainers", field:"maintainers", width:120},
+      { title:"Org", field:"org", width:100},
+      { title:"score", field:"score", width:60, sorter:"number", visible:false},
+    ];
+
+    if (isRepos) {
+      tableColumns = [dateColumn, repoColumn].concat(tableColumns);
+    } else {
+      tableColumns = tableColumns.concat([repoColumn, dateColumn]);
+    }
+
+    tableOptions = {
       columnDefaults:{ tooltip:true },
       maxHeight:"100%",
       data:data, //assign data to table
@@ -246,27 +285,24 @@ layout: default
       rowHeight:30, // Workaround for https://github.com/olifolkerd/tabulator/issues/4419
       initialSort: tableSort,
       initialFilter: tableFilter,
-      columns:[ //Define Table Columns
-        { title:"Name", field:"url", width:200,
-          formatter:"link", formatterParams:{labelField:"name", urlPrefix:"{{site.baseurl}}"}},
-        { title:"Description", field:"description", minWidth:300},
-        { title:STAR, field:"released", width:40, formatter:"tickCross", headerTooltip:"release status", hozAlign:"center",
-          formatterParams: {allowTruthy: true, allowEmpty: true}},
-        { title:CALENDAR, field: "last_commit_time", width:80, headerHozAlign:"center", headerTooltip:"last commit date",
-          sorter:"date", sorterParams:{format:"yyyy-MM-dd"}},
-        { title:LEFT_ARROW, field:"pkg_deps", width:40, headerTooltip:"package dependency count"},
-        { title:RIGHT_ARROW, field:"dependants", width:40, headerTooltip:"package used by count"},
-        { title:"Authors", field:"authors", width:120},
-        { title:"Maintainers", field:"maintainers", width:120},
-        { title:"Repo", field:"repo_name", width:100,
-          formatter:"link", formatterParams:{labelField:"repo_name", url:(cell) => {
-            return `{{site.baseurl}}/r/${cell.getValue()}/#${distro}`}}},
-        { title:"Org", field:"org", width:100},
-        { title:"score", field:"score", width:60, sorter:"number", visible:false},
-      ],
-      });
-      return table;
+      columns:tableColumns,
+    };
+
+    if (isRepos) {
+      tableOptions['groupBy'] = 'repo';
+      tableOptions['groupStartOpen'] = true;
+      tableOptions['groupToggleElement'] = false;  // Always show packages.
+      tableOptions['groupHeader'] = (value, count, data, group) => {
+        p_str = count != 1 ? 'packages' : 'package';
+        console.log(data[0]);
+        header = 
+          `<span style='color:#d00;'>${data[0]['last_commit_time']}</span>` +
+          `<span style='margin-left:11px;'><a href="/r/${value}/#${distro}">${value}</span>`;
+        return header;
+      }
     }
+    return new Tabulator("#packages-table", tableOptions);
+  }
 
   function makeBuiltTable(distro, data, searchArray) {
     // Returns a promise resolving to a built Tabulator table.
@@ -289,7 +325,17 @@ layout: default
     // Returns a promise that displays a Tabulator table.
     console.log(`showTable distro=${distro} query=${query}`);
     gQuery = query;
+    if (distro != gDistro) {
+      // Some of the table links depend on distro. Let's just rebuild the whole thing.
+      gTable = null;
+    }
     gDistro = distro;
+    var title = 'Search packages';
+    var breadcrumb = getIsRepos() ? 'Repo list' : 'Package List';
+    $('#search-button').attr('title', title);
+    $('#search-query').attr('placeholder', title);
+    $('#breadcrumb-name').text(breadcrumb);
+
     var searchPromise = getSearchHash(distro, query);
     return Promise.all([getData(distro), searchPromise]).then(values => {
       var data = values[0];
@@ -308,7 +354,7 @@ layout: default
           gTable.setSort(SCORE_SORT);
         } else {
           gTable.clearFilter(true);
-          gTable.setSort(DEFAULT_SORT);
+          gTable.setSort(getIsRepos() ? REPO_SORT : PACKAGE_SORT);
         }
         gTable.replaceData(data).then(console.log('table data replaced'));
       }
@@ -392,7 +438,7 @@ layout: default
         setWindowSearchQuery('');
         query = '';
         if (gTable) {
-          gTable.setSort(DEFAULT_SORT);
+          gTable.setSort(getIsRepos() ? REPO_SORT : PACKAGE_SORT);
         }
       }
       showTable(gDistro, query).then(setSearch());
@@ -407,7 +453,7 @@ layout: default
         setWindowSearchQuery('');
         query = '';
         if (gTable) {
-          gTable.setSort(DEFAULT_SORT);
+          gTable.setSort(getIsRepos() ? REPO_SORT : PACKAGE_SORT);
         }
       }
       showTable(gDistro, query).then(setSearch());

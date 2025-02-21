@@ -11,7 +11,7 @@ breadcrumbs: ['help']
 
 ## Fields in Package List
 
-- Name: Package name.
+- Package: Package name.
 - Description: Package description.
 - Release status (★): Release status of the package. A checkmark signifies the package is released.
 - Last commit date (📅): The last date a commit was made to the package's repository.
@@ -31,7 +31,7 @@ In the search field, you may enter some search text, and lunr search will search
 The package name is split by underscore (_), and those individual terms are added as "tags" that are included in the search. So searching for "msgs" will find packages whose name includes "_msgs", such as "control_msgs".
 
 **rosindex** searches the following fields within packages. These fields are also displayed, see above for their description:
-- name
+- package
 - description
 - maintainers
 - authors
@@ -46,7 +46,7 @@ These fields are additionally searched:
 ### Example searches
 
 - `ament_package`: packages containing 'ament_package' in any field (shows package ament_package and one other)
-- `name:ament_package` packages with the name 'ament_package' (shows only the package ament_package)
+- `package:ament_package` packages with the name 'ament_package' (shows only the package ament_package)
 - `authors:josh maintainers:josh` packages with 'Josh' as either an author, or a maintainer.
 - `org:ros2`: packages in the organization ros2
 - `msgs`: packages containing 'msgs' in any field. Since packages names are split by '_' into tags, any package with a name like *_msgs will have 'msgs' as a tag, and thus show in this search result.

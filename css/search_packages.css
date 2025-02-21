@@ -1,0 +1,13 @@
+/**
+ * Don't show Tabulator group open arrows
+ */
+ .tabulator-group-toggle {
+    display: none !important;
+}
+.tabulator-row.tabulator-group {
+    padding: 4px 5px 5px 4px !important;
+    margin-left: 0px !important;
+}
+.tabulator-row.tabulator-group span {
+    margin-left: 0px;
+}
