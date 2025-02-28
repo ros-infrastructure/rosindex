@@ -24,7 +24,7 @@ layout: default
                 <input id="search-query" type="text" class="form-control"
                         autocomplete="off" placeholder="Search packages">
                 <span class="input-group-btn">
-                  <button id="search-button" title="Search packages" class="btn btn-default">
+                  <button id="search-button" class="btn btn-default">
                     <span class="glyphicon glyphicon-search"></span>
                   </button>
                 </span>
@@ -39,7 +39,7 @@ layout: default
                 <span class="hidden-xs">Showing </span>
                 <span id="table-filtered-count">0</span> of
                 <span id="table-unfiltered-count">0</span>
-                <span class="hidden-xs"> packages</span>
+                <span id="filtered-type" class="hidden-xs"> packages</span>
               </p>
             </div>
             <div class="col-xs-2 text-right" style="line-height:35px">
@@ -116,6 +116,7 @@ layout: default
   var gTable = null;
   var gDistro = "{{ site.distros[0] }}";
   var gQuery = null;
+  var gRepoCount = null;
   const PACKAGE_SORT = [{column:"url", dir:"asc"}];
   const REPO_SORT = [{column: "repo", dir:"asc"}];
   const SCORE_SORT = [{column:"score", dir:"desc"}];
@@ -221,15 +222,21 @@ layout: default
 
   function updateDataScore(data, searchHash) {
     // Update table data score with results from a search.
+    // Returns array of repo names that the search hit.
+    var reposSet = new Set();
+    // Tabulator filters don't like empty arrays.
+    reposSet.add('__dummy__');
     for (const dataValue of data) {
       const ref = dataValue['id'].toString();
       if (searchHash && ref in searchHash) {
+        reposSet.add(dataValue['repo']);
         dataValue['score'] = searchHash[ref];
       }
       else {
         dataValue['score'] = 0.0;
       }
     }
+    return Array.from(reposSet);
   }
 
   function makeTable(distro, data, searchArray) {
@@ -242,7 +249,11 @@ layout: default
 
     const tableSort = searchArray ? SCORE_SORT : (isRepos ? REPO_SORT : PACKAGE_SORT);
     if (searchArray) {
-      var tableFilter = [{field: 'id', type: 'in', value: searchArray}];
+      if (isRepos) {
+        var tableFilter = [{field: 'repo', type: 'in', value: searchArray}];
+      } else {
+        var tableFilter = [{field: 'id', type: 'in', value: searchArray}];
+      }
     } else {
       var tableFilter = [];
     }
@@ -272,8 +283,10 @@ layout: default
     ];
 
     if (isRepos) {
+      $("#filtered-type").text(' repos');
       tableColumns = [dateColumn, repoColumn].concat(tableColumns);
     } else {
+      $("#filtered-type").text(' packages');
       tableColumns = tableColumns.concat([repoColumn, dateColumn]);
     }
 
@@ -293,8 +306,6 @@ layout: default
       tableOptions['groupStartOpen'] = true;
       tableOptions['groupToggleElement'] = false;  // Always show packages.
       tableOptions['groupHeader'] = (value, count, data, group) => {
-        p_str = count != 1 ? 'packages' : 'package';
-        console.log(data[0]);
         header = 
           `<span style='color:#d00;'>${data[0]['last_commit_time']}</span>` +
           `<span style='margin-left:11px;'><a href="/r/${value}/#${distro}">${value}</span>`;
@@ -307,11 +318,31 @@ layout: default
   function makeBuiltTable(distro, data, searchArray) {
     // Returns a promise resolving to a built Tabulator table.
     var table = makeTable(distro, data, searchArray);
+    if (!gRepoCount) {
+      const reposSet = new Set();
+      for (const dataItem of data) {
+        reposSet.add(dataItem['repo']);
+      }
+      gRepoCount = reposSet.size;
+      console.log(`gRepoCount is ${gRepoCount}`)
+    }
     var tablePromise = new Promise((resolve, reject) => {
       table.on("dataFiltered", (filters, rows) => {
-        console.log(`Table filtered: total: ${table.getDataCount()} rowCount: ${rows.length}`);
-        $("#table-filtered-count").text(rows.length);
-        $("#table-unfiltered-count").text(table.getDataCount());
+        if (getIsRepos()) {
+          const rowsData = rows.map(row => row.getData());
+          var totalLength = gRepoCount;
+          const reposSet = new Set();
+          for (const row of rowsData) {
+            reposSet.add(row['repo']);
+          }
+          var hitsLength = reposSet.size;
+        } else {
+          var totalLength = table.getDataCount();
+          var hitsLength = rows.length;
+        }
+        console.log(`Table filtered: total: ${totalLength} rowCount: ${hitsLength}`);
+        $("#table-filtered-count").text(hitsLength);
+        $("#table-unfiltered-count").text(totalLength);
       });
       table.on("tableBuilt", () => {
         console.log('tableBuilt');
@@ -325,14 +356,18 @@ layout: default
     // Returns a promise that displays a Tabulator table.
     console.log(`showTable distro=${distro} query=${query}`);
     gQuery = query;
+    const isRepos = getIsRepos();
     if (distro != gDistro) {
       // Some of the table links depend on distro. Let's just rebuild the whole thing.
+      if (gTable) {
+        gTable.destroy();
+      }
       gTable = null;
+      gRepoCount = null;
     }
     gDistro = distro;
-    var title = 'Search packages';
-    var breadcrumb = getIsRepos() ? 'Repo list' : 'Package List';
-    $('#search-button').attr('title', title);
+    var title = isRepos ? 'Search repos' : 'Search packages';
+    var breadcrumb = isRepos ? 'Repo list' : 'Package List';
     $('#search-query').attr('placeholder', title);
     $('#breadcrumb-name').text(breadcrumb);
 
@@ -340,21 +375,30 @@ layout: default
     return Promise.all([getData(distro), searchPromise]).then(values => {
       var data = values[0];
       var searchHash = values[1];
-      var searchArray = searchHash ? Object.keys(searchHash).map(ref => parseInt(ref)) : null;
-      updateDataScore(data, searchHash);
+      var reposArray = updateDataScore(data, searchHash);
+      if (isRepos) {
+        var searchArray = searchHash ? reposArray : null;
+      } else {
+        var searchArray = searchHash ? Object.keys(searchHash).map(ref => parseInt(ref)) : null;
+      }
+      var filteredLength = isRepos ? reposArray.length : data.length;
       if (!searchArray) {
-        console.log(`showTable sets count to ${data.length}`);
-        $("#table-filtered-count").text(data.length);
-        $("#table-unfiltered-count").text(data.length);
+        console.log(`showTable sets count to ${filteredLength}`);
+        $("#table-filtered-count").text(filteredLength);
+        $("#table-unfiltered-count").text(filteredLength);
       }
 
       if (gTable) {
         if (searchArray) {
-          gTable.setFilter('id', 'in', searchArray);
+          if (isRepos) {
+            gTable.setFilter('repo', 'in', searchArray);
+          } else {
+            gTable.setFilter('id', 'in', searchArray);
+          }
           gTable.setSort(SCORE_SORT);
         } else {
           gTable.clearFilter(true);
-          gTable.setSort(getIsRepos() ? REPO_SORT : PACKAGE_SORT);
+          gTable.setSort(isRepos ? REPO_SORT : PACKAGE_SORT);
         }
         gTable.replaceData(data).then(console.log('table data replaced'));
       }
