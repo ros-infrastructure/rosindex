@@ -7,6 +7,7 @@ require 'awesome_print'
 require 'colorator'
 require 'fileutils'
 require 'find'
+require 'nokogiri'
 require 'rexml/document'
 require 'rexml/xpath'
 require 'pathname'
@@ -30,6 +31,7 @@ require_relative '../_ruby_libs/dependency_descriptions'
 
 $fetched_uris = {}
 $debug = false
+$repo_scrape = {}
 DEFAULT_LANGUAGE_PREFIX = 'en'
 HEAVY_CHECKMARK = "\u2714"
 HEAVY_MINUS = "\u2796"
@@ -647,6 +649,69 @@ class Indexer < Jekyll::Generator
     return packages
   end
 
+  def fetch(uri_str, limit = 10)
+    # get an http response, accounting for redirects.
+    if limit <= 0 then
+      raise StandardError.new "Redirect limit exceeded for #{uri_str}"
+    end
+    response = Net::HTTP.get_response(URI(uri_str))
+    case response
+    when Net::HTTPSuccess
+        response
+    when Net::HTTPRedirection
+        fetch(response['location'], limit - 1)
+    else
+        response.error!
+    end
+  end
+
+  def scrape_repo_page(uri_s)
+    # Scrapes a github repository home page to get various items
+    begin
+      # cache the results since this only depends on the repo uri
+      if $repo_scrape.key?(uri_s) then
+        return $repo_scrape[uri_s]
+      end
+
+      repo_uri = URI(uri_s)
+      if repo_uri.host == 'github.com' then
+        response = fetch(uri_s)
+        document = Nokogiri::HTML(response.body)
+        element = document.at(".Layout-sidebar .octicon-star + strong")
+        if element then
+          star_count_f = element.text.to_f
+          if element.text.include? 'k' then
+              star_count_f = 1000 * star_count_f
+          end
+          star_count = star_count_f.to_i
+        else
+            star_count = nil
+        end
+        element = document.at('.Layout-sidebar p')
+        description = if element then element.text.strip else '' end
+        tag_elements = document.css('h3:contains("Topics") + div a')
+        tags = []
+        tag_elements.each do |element|
+          tags.push(element.text.strip)
+        end
+        repo_parms = {
+          stars: star_count,
+          description: description,
+          tags: tags,
+        }
+      else
+        repo_parms = {}
+      end
+
+    rescue => e
+      puts "Error in scrape_repo_page: #{ e.message } for #{ uri_s }"
+      repo_parms = {}
+    end
+
+    $repo_scrape[uri_s] = repo_parms
+    return repo_parms
+end
+
   # scrape a version of a repository for packages and their contents
   def scrape_version(site, repo, distro, snapshot, vcs)
 
@@ -656,6 +721,7 @@ class Indexer < Jekyll::Generator
     end
 
     # initialize this snapshot data
+    repo_page = scrape_repo_page(repo.uri)
     data = snapshot.data = {
       # get the uri for resolving raw links (for imgages, etc)
       'raw_uri' => get_raw_uri(repo.uri, repo.type, snapshot.version),
@@ -665,7 +731,11 @@ class Indexer < Jekyll::Generator
       'readme' => nil,
       'readme_rendered' => nil,
       'contributing' => nil,
-      'contributing_rendered' => nil}
+      'contributing_rendered' => nil,
+      'stars' => repo_page.fetch(:stars, ''),
+      'description' => repo_page.fetch(:description, ''),
+      'tags' => repo_page.fetch(:tags, []),
+    }
 
     # load the repo readme for this branch if it exists
     data['readme_rendered'], data['readme'] = get_readme(
@@ -698,7 +768,10 @@ class Indexer < Jekyll::Generator
       snapshot.packages[package_name] = package
 
       # collect tags from discovered packages
-      repo.tags = Set.new(repo.tags).merge(package_data['tags']).to_a
+      repo.tags = Set.new(repo.tags).merge(package_data['tags'])
+
+      # add any tags placed on a repo
+      repo.tags = repo.tags.merge(data['tags']).to_a
 
       # collect wiki data
       package.data['wiki'] = @wiki_data[package_name]
@@ -1580,7 +1653,9 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'pkg_deps' => p['pkg_deps'].length,
               'dependants' => p['dependants'].length,
               'readme' => readme_filtered,
-              'org' => URI(repo.uri).path.split('/')[1]
+              'org' => URI(repo.uri).path.split('/')[1],
+              'stars' => repo_snapshot.data['stars'],
+              'repo_description': repo_snapshot.data['description'],
             }
 
             dputs 'indexed: ' << "#{package_name} #{instance_id} #{distro}"

@@ -13,11 +13,12 @@ breadcrumbs: ['help']
 
 - Package: Package name.
 - Description: Package description.
-- Release status (★): Release status of the package. A checkmark signifies the package is released.
+- Release status (⚡): Release status of the package. A checkmark signifies the package is released.
 - Core (⊙): Is this a dependency of a core package? (a dependent of ros_core, ros_base, desktop, or desktop_full).
 - Last commit date (📅): The last date a commit was made to the package's repository.
 - Package dependency count (⬅): How many packages this package depends on.
 - Package used by count(➡): How many packages use this package as a dependency.
+- Stars (★): Github count of repo stars.
 - Authors: Names listed in package.xml as authors.
 - Maintainers: Names listed in package.xml as maintainers.
 - Repo: Repository containing this package.

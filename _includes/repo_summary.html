@@ -5,6 +5,10 @@
   <link rel="stylesheet" href="{{ "/css/ci-status.css" | prepend: site.baseurl }}">
   <table class="table table-condensed">
     <tr>
+      <td class="text-right"><b>Description</b></td>
+      <td><span class="label label-default">{{snapshot.data.description}}</span></td>
+    </tr>
+    <tr>
       <td style="width:100px;" class="text-right"><b>Checkout URI</b></td>
       <td><a class="label label-default" href="{{repo.uri}}">{{repo.uri}}</a></td>
     </tr>

@@ -246,6 +246,7 @@ layout: default
     const LEFT_ARROW = "\u2B05";
     const RIGHT_ARROW = "\u27A1";
     const CIRCLED_DOT = "\u2299";
+    const BOLT = "\u26A1";
     const isRepos = getIsRepos();
 
     const tableSort = searchArray ? SCORE_SORT : (isRepos ? REPO_SORT : PACKAGE_SORT);
@@ -273,7 +274,7 @@ layout: default
       { title:"Package", field:"url", width:200,
         formatter:"link", formatterParams:{labelField:"package", urlPrefix:"{{site.baseurl}}"}},
       { title:"Description", field:"description", minWidth:isRepos ? 160: 300},
-      { title:STAR, field:"released", width:40, formatter:"tickCross", headerTooltip:"released: release status", hozAlign:"center",
+      { title:BOLT, field:"released", width:40, formatter:"tickCross", headerTooltip:"released: release status", hozAlign:"center",
         formatterParams: {allowTruthy: true, allowEmpty: true}},
       { title:LEFT_ARROW, field:"pkg_deps", width:40, headerTooltip:"pkg_deps: package dependency count"},
       { title:RIGHT_ARROW, field:"dependants", width:40, headerTooltip:"dependants: package used by count"},
@@ -281,6 +282,10 @@ layout: default
         hozAlign:"center", formatterParams: {allowTruthy: true}, sorter:function(a, b, aRow, bRow, column, dir, sorterParams) {
           return sorterParams.indexOf(a) - sorterParams.indexOf(b);
         }, sorterParams:['ros_core', 'ros_base', 'desktop', 'desktop_full']},
+      { title:STAR, field:"stars", width:40, sorter:"number", headerTooltip:"Repo stars", formatter:function(cell, formatterParams, onRendered) {
+        const value = cell.getValue();
+        return value >= 10000 ? Math.floor(value / 1000).toString() + "K" : value.toString();
+      }},
       { title:"Authors", field:"authors", width:120},
       { title:"Maintainers", field:"maintainers", width:120},
       { title:"Org", field:"org", width:100},
@@ -313,7 +318,8 @@ layout: default
       tableOptions['groupHeader'] = (value, count, data, group) => {
         header = 
           `<span style='color:#d00;'>${data[0]['last_commit_time']}</span>` +
-          `<span style='margin-left:11px;'><a href="/r/${value}/#${distro}">${value}</span>`;
+          `<span style='margin-left:11px;'><a href="/r/${value}/#${distro}">${value}</a></span>` +
+          `<span style='margin-left:11px;' title='${data[0]['repo_description']}'>${data[0]['repo_description']}</span>`
         return header;
       }
     }
