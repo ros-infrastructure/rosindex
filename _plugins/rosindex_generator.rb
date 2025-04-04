@@ -1576,7 +1576,7 @@ def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_element
               'maintainers' => p['maintainers'] * ", ",
               'authors' => p['authors'] * ", ",
               'distro' => distro,
-              'instance' => repo.id,
+              'instance' => repo.name + '/' + repo.id,
               'pkg_deps' => p['pkg_deps'].length,
               'dependants' => p['dependants'].length,
               'readme' => readme_filtered,
