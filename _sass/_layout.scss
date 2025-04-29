@@ -261,3 +261,15 @@
     // half of --table-margins
     margin-top: 5px;
 }
+
+/**
+ * Make tables look more like github.
+ */
+table > tbody > tr > td, table > thead > tr > th {
+    padding-top: 6px;
+    padding-right: 13px;
+    padding-bottom: 6px;
+    padding-left: 13px;
+    border: 1px solid;
+    border-color: lightgray;
+}
