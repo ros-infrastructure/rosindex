@@ -79,6 +79,7 @@ index_old_doc_paths: false
 ros2_distros:
   - 'humble'
   - 'jazzy'
+  - 'kilted'
   - 'rolling'
 
 ros_distros:
