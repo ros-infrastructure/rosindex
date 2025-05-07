@@ -863,7 +863,7 @@ class Indexer < Jekyll::Generator
     end
   end
 
-def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
+  def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
 
     n_pages = (n_elements / elements_per_page).floor + 1
 
