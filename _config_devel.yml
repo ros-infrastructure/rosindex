@@ -1,7 +1,3 @@
-# package list page
-packages_per_page: 5
-repos_per_page: 5
-
 # set the following to a non-zero value for testing (limit the number of indexed repos)
 max_repos: 10
 
