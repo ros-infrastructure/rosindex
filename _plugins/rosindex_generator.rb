@@ -1471,14 +1471,8 @@ class Indexer < Jekyll::Generator
       site.pages << PackagePage.new(site, package_instances)
     end
 
-    # create repo list pages
-    puts ("Generating repo list pages...").blue
-
-    repos_sorted = sort_repos(site)
-    generate_sorted_paginated(site, repos_sorted, 'time', @repo_names.length, site.config['repos_per_page'], RepoListPage)
-
-    # create package list pages
-    puts ("Generating package list pages...").blue
+    # create system dependency list pages
+    puts ("Generating system dependency list pages...").blue
 
     generate_search_deps_list(site)
 
