@@ -848,21 +848,6 @@ class Indexer < Jekyll::Generator
     site.pages << SearchDepsListPage.new(site)
   end
  
-  def generate_sorted_paginated_deps(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
-
-    n_pages = (n_elements / elements_per_page).floor + 1
-
-    (1..n_pages).each do |page_index|
-      p_start = (page_index-1) * elements_per_page
-      elements_sliced = elements_sorted.slice(p_start, elements_per_page)
-      site.pages << page_class.new(site, default_sort_key, n_pages, page_index, elements_sliced)
-      # create page 1 without a page number or key in the url
-      if page_index == 1
-        site.pages << page_class.new(site, default_sort_key, n_pages, page_index, elements_sliced, true)
-      end
-    end
-  end
-
   def generate_sorted_paginated(site, elements_sorted, default_sort_key, n_elements, elements_per_page, page_class)
 
     n_pages = (n_elements / elements_per_page).floor + 1
