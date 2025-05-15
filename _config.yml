@@ -9,6 +9,7 @@ kramdown:
 
 profile: true
 
+url: "https://index.ros.org" # the base hostname & protocol for your site
 google_analytics_tag_id: 'G-EVD5Z6G6NH'
 
 # OLD from jekyll 2.x
@@ -112,6 +113,7 @@ max_repos: 00
 
 plugins:
   - jekyll-include-cache
+  - jekyll-redirect-from
   - jekyll-sitemap
 
 # Repos to list as suggestiong on the "contribute" page
