@@ -31,6 +31,7 @@ class DepPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'dep.html')
+    self.data['permalink'] = @dir
 
     self.data['dep_name'] = dep_name
     self.data['dep_data'] = dep_data
@@ -52,6 +53,7 @@ class RepoInstancesPage < Jekyll::Page
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'repo_instances.html')
     self.data['repo_instances'] = repo_instances
+    self.data['permalink'] = @dir
   end
 end
 
@@ -71,6 +73,7 @@ class RepoPage < Jekyll::Page
 
     self.data['instance'] =   repo
     self.data['repo'] =   repo
+    self.data['permalink'] = @dir
 
     self.data['instances'] = instances.instances
     self.data['instance_base_url'] = basepath
@@ -110,11 +113,12 @@ class SearchDepsListPage < Jekyll::Page
   def initialize(site)
     @site = site
     @base = site.source
-    @dir = 'search_deps/'
+    @dir = 'search_deps'
     @name = 'index.html'
-
+    
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'search_deps.html')
+    self.data['permalink'] = @dir
     self.data['pager'] = {
       'base' => 'packages',
       'post_ns' => '/'
@@ -132,6 +136,7 @@ class RepoListPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'repos.html')
+    self.data['permalink'] = unless default then 'repos/page/'+page_index.to_s+'/'+sort_id else 'repos' end
     self.data['pager'] = {
       'base' => 'repos',
       'post_ns' => '/'+sort_id
@@ -162,6 +167,7 @@ class PackagePage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'package.html')
+    self.data['permalink'] = File.join('p',package_instances.name)
     self.data['package_instances'] = package_instances
     self.data['package_name'] = package_instances.name
     self.data['title'] = 'ROS Package: ' + package_instances.name
@@ -192,6 +198,7 @@ class PackageInstancePage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'package_instance.html')
+    self.data['permalink'] = File.join('p', package_name, instance.id)
 
     self.data['instances'] = package_instances.instances
     self.data['instance'] = instance
@@ -230,6 +237,7 @@ class StatsPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'stats.html')
+    self.data['permalink'] = 'stats'
 
     self.data['n_packages'] = package_names.length
     self.data['n_repos'] = all_repos.length
@@ -286,6 +294,7 @@ class ContributionSuggestionsPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'contribution_suggestions.html')
+    self.data['permalink'] = unless default then 'contribute/suggestions/page/'+page_index.to_s+'/'+sort_id else 'contribute/suggestions' end
     self.data['pager'] = {
       'base' => 'contribute/suggestions',
       'post_ns' => '/'+sort_id
@@ -334,6 +343,7 @@ class ErrorsPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'errors.html')
+    self.data['permalink'] = File.join('stats','errors')
     self.data['errors'] = []
 
     errors.each do |name, repo_errors|

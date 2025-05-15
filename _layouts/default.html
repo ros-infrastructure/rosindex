@@ -16,7 +16,7 @@
       window.location.href = "{{ page.canonical_url | replace: 'index.html','' }}";
     </script>
     {% else %}
-    <link rel="canonical" href="{{ page.url | replace: 'index.html', '' | prepend: site.baseurl | prepend: site.url }}">
+    <link rel="canonical" href="{{ page.url | prepend: site.baseurl | prepend: site.url }}">
     {% endif %}
     
     <link rel="icon" sizes="any" type="image/svg+xml" href="{{ site.baseurl }}/assets/rosindex_logo.svg">
