@@ -75,34 +75,34 @@ layout: default
         <div class="panel panel-default">
           <div class="panel-heading"><h3 class="panel-title">CONTRIBUTING</h3></div>
           <div class="panel-body">
-            {% if page.repo.snapshots[distro].data.contributing %}
+            {% if page.repo.snapshots[distro].data.contributing_rendered %}
               {{ page.repo.snapshots[distro].data.contributing_rendered }}
-              <hr id="{{distro}}-contribute-lists">
-              <ul class="nav nav-tabs nav-justified" id="{{distro}}-contribute-lists-tabs">
-                <li class="better-tabs active">
-                  <a href="#{{distro}}-contribute-lists-help-wanted" data-toggle="tab"><span class="contribute-lists-help-wanted-count label label-primary">0</span> Help Wanted</a>
-                </li>
-                <li class="better-tabs">
-                  <a href="#{{distro}}-contribute-lists-good-first-issue" data-toggle="tab"><span class="contribute-lists-good-first-issue-count label label-primary">0</span> Good First Issue</a>
-                </li>
-                <li class="better-tabs">
-                  <a href="#{{distro}}-contribute-lists-pull-requests" data-toggle="tab"><span class="contribute-lists-pull-requests-count label label-primary">0</span> Pull Requests to Review</a>
-                </li>
-              </ul>
-              <div class="tab-content contribute-lists">
-                <div class="tab-pane active" id="{{distro}}-contribute-lists-help-wanted">
-                  <div class="contribute-lists-help-wanted"></div>
-                </div>
-                <div class="tab-pane" id="{{distro}}-contribute-lists-good-first-issue">
-                  <div class="contribute-lists-good-first-issue"></div>
-                </div>
-                <div class="tab-pane" id="{{distro}}-contribute-lists-pull-requests">
-                  <div class="contribute-lists-pull-requests"></div>
-                </div>
-              </div>
             {% else %}
               <em>No CONTRIBUTING.md found.</em>
             {% endif %}
+            <hr id="{{distro}}-contribute-lists">
+            <ul class="nav nav-tabs nav-justified" id="{{distro}}-contribute-lists-tabs">
+              <li class="better-tabs active">
+                <a href="#{{distro}}-contribute-lists-help-wanted" data-toggle="tab"><span class="contribute-lists-help-wanted-count label label-primary">0</span> Help Wanted</a>
+              </li>
+              <li class="better-tabs">
+                <a href="#{{distro}}-contribute-lists-good-first-issue" data-toggle="tab"><span class="contribute-lists-good-first-issue-count label label-primary">0</span> Good First Issue</a>
+              </li>
+              <li class="better-tabs">
+                <a href="#{{distro}}-contribute-lists-pull-requests" data-toggle="tab"><span class="contribute-lists-pull-requests-count label label-primary">0</span> Pull Requests to Review</a>
+              </li>
+            </ul>
+            <div class="tab-content contribute-lists">
+              <div class="tab-pane active" id="{{distro}}-contribute-lists-help-wanted">
+                <div class="contribute-lists-help-wanted"></div>
+              </div>
+              <div class="tab-pane" id="{{distro}}-contribute-lists-good-first-issue">
+                <div class="contribute-lists-good-first-issue"></div>
+              </div>
+              <div class="tab-pane" id="{{distro}}-contribute-lists-pull-requests">
+                <div class="contribute-lists-pull-requests"></div>
+              </div>
+            </div>
           </div>
         </div>
 
