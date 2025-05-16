@@ -1,3 +1,0 @@
-{% assign package_has_readme = labeled_package.data.readme_rendered %}
-{% assign package_n_tutorials = labeled_package.data.wiki.tutorials | size %}
-{%if package_has_readme %}<span class="glyphicon glyphicon-file"></span> {%endif%}{%if package_n_tutorials > 0 %}<span class="glyphicon glyphicon-education"></span> {%endif%}{{ labeled_package.data.name }}

@@ -34,9 +34,9 @@ Assumes the following are defined:
           {% for peer in package.snapshot.packages %}
             {% assign labeled_package = peer[1] %}
             {% if peer[0] != package.name %}
-              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}">{% include peer_label.html %}</a>
+              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}">{{ labeled_package.data.name }}</a>
             {% else %}
-              <span class="label label-default pkg-label">{% include peer_label.html %}</span>
+              <span class="label label-default pkg-label">{{ labeled_package.data.name }}</span>
             {% endif %}
           {% endfor %}
       </td>
