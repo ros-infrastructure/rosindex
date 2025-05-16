@@ -96,8 +96,6 @@ function setupContributeListTabLinks() {
 /**
  * Update the numbers of items of contribution
  * suggestiond for each repository.
- * Used on the contribution suggestions page
- * (_layouts/contribution_suggestions.html)
  * @param {string} repo_name The name of the repo.
  * @param {string} repo_uri The URL of the github repo.
  */

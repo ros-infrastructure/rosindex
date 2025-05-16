@@ -45,28 +45,6 @@ additional metadata.
 
 See [ROS Index Metadata]({{ "/contribute/metadata" | prepend: site.baseurl }}) for documentation on these tags.
 
-## Contributing Content to Packages Maintained by Others
-
-There are many documented ROS repositories and packages out there, but
-there are even more which lack descriptions or even `README` files. One of
-the best ways to contribute to ROS Index is to contribute documentation to
-the indexed packages directly.
-
-For example, if you find a package without a good description or `README`,
-it's very easy to write up your own notes, and submit them as a <em>pull
-request</em> on the hosting site (GitHub, BitBucket, GitLab, etc).
-
-For packages which are hosted on systems that don't support pull requests, or
-packages which are no longer maintained, feel free to fork those packages on
-GitHub, add documentation, and get them indexed as forks.
-
-You can also contribute by fixing bugs or adding new features to packages
-or by reviewing the contributions proposed or submitted by others as <em>pull requests</em>.
-If you would like some suggestions where your help may be welcomed,
-click the button below.
-
-<a type="button" href="{{ "/contribute/suggestions" | prepend: site.baseurl }}" class="btn btn-success">Contribution Suggestions</a>
-
 ## Opting out of Indexing
 
 If you do not want a branch of your repository to be shown on ROS Index, simply

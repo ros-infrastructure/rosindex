@@ -248,36 +248,6 @@ class StatsPage < Jekyll::Page
   end
 end
 
-class ContributionSuggestionsPage < Jekyll::Page
-  def initialize(site, sort_id, n_list_pages, page_index, list, default=false)
-    @site = site
-    @base = site.source
-    @dir = unless default then 'contribute/suggestions/page/'+page_index.to_s+'/'+sort_id else 'contribute/suggestions' end
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'contribution_suggestions.html')
-    self.data['pager'] = {
-      'base' => 'contribute/suggestions',
-      'post_ns' => '/'+sort_id
-    }
-    self.data['sort_id'] = sort_id
-    self.data['n_list_pages'] = n_list_pages
-    self.data['page_index'] = page_index
-    self.data['list'] = list
-
-    self.data['prev_page'] = [page_index - 1, 1].max
-    self.data['next_page'] = [page_index + 1, n_list_pages].min
-
-    self.data['near_pages'] = *([1,page_index-4].max..[page_index+4, n_list_pages].min)
-    self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
-
-    self.data['available_distros'] = Hash[site.config['distros'].collect { |d| [d, true] }]
-    self.data['available_older_distros'] = Hash[site.config['old_distros'].collect { |d| [d, true] }]
-    self.data['n_available_older_distros'] = site.config['old_distros'].length
-  end
-end
-
 class SearchIndexFile < Jekyll::StaticFile
   # Override write as the search.json index file has already been created
   def write(dest)
