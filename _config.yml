@@ -103,21 +103,9 @@ old_ros_distros:
   - 'kinetic'
   - 'melodic'
 
-contributions_per_page: 200
-
 # set the following to a non-zero value for testing (limit the number of indexed repos)
 max_repos: 00
 
 plugins:
   - jekyll-include-cache
   - jekyll-sitemap
-
-# Repos to list as suggestiong on the "contribute" page
-#
-# This must be an array of repository names which acts as a whitelist,
-# filtering all known repositories by name.
-#
-contribute_suggested_repos:
-  - moveit
-  - catkin_virtualenv
-  - tiny_tf
