@@ -922,6 +922,8 @@ class Indexer < Jekyll::Generator
     @wiki_data = {}
 
     # load rosdep data
+    puts ("Loading ros dependencies").green
+
     # TODO: check deps against this when generating pages
     rosdep_path = site.config.key?('rosdep_path') ? site.config['rosdep_path']: site.config['rosdistro_paths'].first
 
@@ -975,6 +977,7 @@ class Indexer < Jekyll::Generator
 
     # get the repositories from the rosdistro files, rosdoc rosinstall files, and other sources
     unless @skip_discover
+      puts ("Doing discovery").green
 
       # read in rosdistro sources
       $all_distros.reverse_each do |distro|

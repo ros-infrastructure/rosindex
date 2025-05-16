@@ -16,48 +16,21 @@ require 'json'
 require 'net/http'
 require 'uri'
 
-DEBIAN_URL = 'https://packages.debian.org/stable/allpackages?format=txt.gz'
 PIP_FILE = '_artifacts/pip_packages.json'
+DEBIAN_FILE = '_artifacts/debian_packages.json'
+
 
 def get_debian_descriptions()
-    # Loads descriptions of debian packages from a debian index.
-    # Returned file gives description indexed by debian package name.
-    content_unicode = nil
-    retry_delay = [0, 10, 60]
-    retry_delay.each_with_index do |delay, idx|
-        if delay != 0 then sleep(delay) end
-        begin
-            content_unicode = Net::HTTP.get(URI(DEBIAN_URL))
-            break
-        rescue StandardError => error
-            puts 'WARNING: Debian packages description download error: #{error}'
-            if idx < retry_delay.length - 1
-                puts 'Retrying debian description download'
-                next
-            else
-                puts 'Failing debian description download'
-            end
-        end
+    # Get debian descriptions from a file.
+    # Returned descriptions are indexed by debian package name.
+    if File.exist?(DEBIAN_FILE)
+        puts 'Reading debian descriptions from saved file'.green
+        debian_descriptions_json = File.read(DEBIAN_FILE)
+        return JSON.parse(debian_descriptions_json)
+    else
+        puts 'Debian descriptions file does not exist, continuing with no debian descriptions'.red
+        return {}
     end
-
-    packages = {}
-    # Test for failed download
-    if !content_unicode then return packages end
-
-    # The package file seems to have unicode that confuses ruby. Just force to ascii.
-    content = content_unicode.encode('US-ASCII', invalid: :replace, undef: :replace)
-    content.lines.each do |line|
-        # Typical package line:
-        # 3270-common (4.1ga10-1.1+b1) Common files for IBM 3270 emulators and pr3287
-        left_paren = line.index('(')
-        right_paren = line.index(')')
-        # The file starts with some beginning material that is not packages.
-        if not left_paren or not right_paren then next end
-        package_name = line[0..left_paren - 2]
-        package_desc = line[right_paren + 2..line.length - 1]
-        packages[package_name] = package_desc
-    end
-    packages
 end
 
 
