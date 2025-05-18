@@ -664,7 +664,6 @@ class Indexer < Jekyll::Generator
       'last_commit_time' => vcs.get_last_commit_time(),
       'readme' => nil,
       'readme_rendered' => nil,
-      'contributing' => nil,
       'contributing_rendered' => nil}
 
     # load the repo readme for this branch if it exists
@@ -672,7 +671,7 @@ class Indexer < Jekyll::Generator
       site, vcs.local_path, data['raw_uri'], data['browse_uri'])
 
     # load the repo CONTRIBUTING.md for this branch if it exists
-    data['contributing_rendered'], data['contributing'] = get_contributing(
+    data['contributing_rendered'] = get_contributing(
       site, vcs.local_path, data['raw_uri'], data['browse_uri'])
 
     unless repo.release_manifests[distro].nil?
