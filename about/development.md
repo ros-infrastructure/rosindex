@@ -26,11 +26,3 @@ Everything used to build ROS Index can be found on the
 See the [ROS Index README.md](http://github.com/ros-infrastructure/rosindex)
 for details on building ROS Index locally.
 
-## Design Patterns
-
-### Pagination
-
-Currently, pagination of `N` total items is done by generating html files for
-each page of `n` items and each `m` ways of sorting those items. This leads to
-`n*(m+1)` html pages (`+1` for the default sort, whichever that may be). This
-also constrains the display to display only `N/n` items at a time.
