@@ -115,10 +115,6 @@ class SearchDepsListPage < Jekyll::Page
 
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'search_deps.html')
-    self.data['pager'] = {
-      'base' => 'packages',
-      'post_ns' => '/'
-    }
     self.data['title'] = 'System Dependencies'
   end
 end
