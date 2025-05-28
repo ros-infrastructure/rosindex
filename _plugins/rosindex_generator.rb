@@ -1142,68 +1142,6 @@ class Indexer < Jekyll::Generator
               end
             end
           end
-
-          # read in the old documentation index file (if it exists)
-          doc_path = File.join(rosdistro_path,'doc',distro)
-
-          puts "Examining doc path: " << doc_path
-
-          Dir.glob(File.join(doc_path,'*.rosinstall').to_s) do |rosinstall_filename|
-
-            puts 'Indexing rosinstall repo data file: ' << rosinstall_filename
-
-            rosinstall_data = YAML.load_file(rosinstall_filename)
-            rosinstall_data.each do |rosinstall_entry|
-              rosinstall_entry.each do |repo_type, repo_data|
-
-                begin
-                  if repo_data.nil? then next end
-                  #puts repo_type.inspect
-                  #puts repo_data.inspect
-
-                  # extract the garbage
-                  repo_name = repo_data['local-name'].to_s.split(File::SEPARATOR)[-1]
-                  repo_uri = repo_data['uri'].to_s
-                  repo_version = (if repo_data.key?('version') and repo_data['version'] != 'HEAD' then repo_data['version'].to_s else 'REMOTE_HEAD' end)
-
-                  # limit number of repos indexed if in devel mode
-                  if not @repo_names.has_key?(repo_name) and site.config['max_repos'] > 0 and @repo_names.length > site.config['max_repos'] then next end
-                  unless (site.config['repo_name_whitelist'].length == 0 or site.config['repo_name_whitelist'].include?(repo_name)) then next end
-
-                  puts " - #{repo_name}"
-
-                  if repo_type == 'bzr'
-                    raise IndexException.new("ERROR: some fools trying to use bazaar: " + rosinstall_filename)
-                  end
-
-                  # create a new repo structure for this remote
-                  repo = Repo.new(
-                    repo_name,
-                    repo_type,
-                    repo_uri,
-                    'Via rosdistro doc: '+distro,
-                    @checkout_path)
-
-                  if @all_repos.key?(repo.id)
-                    repo = @all_repos[repo.id]
-                  else
-                    puts " -- Adding repo for " << repo.name << " instance: " << repo.id << " from uri: " << repo.uri.to_s
-                    # store this repo in the unique index
-                    @all_repos[repo.id] = repo
-                  end
-
-                  # add the specific version from this instance
-                  repo.snapshots[distro] = RepoSnapshot.new(repo_version, distro, false, true)
-
-                  # store this repo in the name index
-                  @repo_names[repo.name].instances[repo.id] = repo
-                  @repo_names[repo.name].default = repo
-                rescue IndexException => e
-                  @errors[repo_name] << e
-                end
-              end
-            end
-          end
         end
       end
 
