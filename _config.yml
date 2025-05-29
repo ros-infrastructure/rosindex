@@ -15,15 +15,13 @@ google_analytics_tag_id: 'G-EVD5Z6G6NH'
 #highlighter: pygments
 
 # If true, this begins with an existing db
-use_db_cache: true
+use_db_cache: false
 db_cache_filename: _cache/_deploy_cache.db
 report_filename: _cache/_deploy_index_report.yaml
 report_diff_filename: _cache/_deploy_index_report_diff.yaml
 debbuild_release_path: _cache/debbuild_releases
 wiki_title_index_filename: _cache/ros_org_wiki_title_index.txt
 
-# If true, this skips finding repos based on the repo sources
-skip_discover: false
 # If true, this skips updating the known repos
 skip_update: false
 # If true, this skips scraping the cloned repos

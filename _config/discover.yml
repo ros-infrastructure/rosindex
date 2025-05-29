@@ -1,8 +1,0 @@
-# If true, this skips finding repos based on the repo sources
-skip_discover: false
-# If true, this skips updating the known repos
-skip_update: true
-# If true, this skips scraping the cloned repos
-skip_scrape: true
-# If true, this skips generating the search index
-skip_search_index: true
