@@ -23,30 +23,37 @@ layout: default
 {% for distro in page.all_distros %}
   <div class="distro distro-{{distro}}">
     <div class="container-fluid">
-      {% if page.available_distros[distro] or page.available_older_distros[distro] %}
-        {% assign package = page.package_instances.snapshots[distro] %}
-        {% assign instance = page.package_instances.repos[distro] %}
-        {% assign show_repo = false %}
+      {% unless page.available_distros[distro] or page.available_older_distros[distro] %}
+        {% for fallback_distro in page.all_distros %}
+          {% if page.available_distros[fallback_distro] or page.available_older_distros[fallback_distro] %}
+            {% assign rendered_distro = fallback_distro %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        <div class="alert alert-warning">No version for distro <strong>{{ distro }}</strong> showing <strong>{{ rendered_distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
+      {% else %}
+        {% assign rendered_distro = distro %}
+      {% endunless %}
+      {% assign package = page.package_instances.snapshots[rendered_distro] %}
+      {% assign instance = page.package_instances.repos[rendered_distro] %}
+      {% assign show_repo = false %}
 
-        <div class="row">
-          <div class="col-md-10">
-            {% include package_header.html %}
-            <div class="visible-xs visible-sm">
-              {% assign hide_link_labels = true %}
-              {% assign horizontal = true %}
-              {% include package_links.html %}
-            </div>
-            {% include package_body.html %}
-          </div>
-          <div class="col-md-2 hidden-xs hidden-sm">
-            {% assign hide_link_labels = false %}
-            {% assign horizontal = false %}
+      <div class="row">
+        <div class="col-md-10">
+          {% include package_header.html %}
+          <div class="visible-xs visible-sm">
+            {% assign hide_link_labels = true %}
+            {% assign horizontal = true %}
             {% include package_links.html %}
           </div>
+          {% include package_body.html %}
         </div>
-      {% else %}
-          <div class="alert alert-warning">No version for distro <strong>{{ distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
-      {% endif %}
+        <div class="col-md-2 hidden-xs hidden-sm">
+          {% assign hide_link_labels = false %}
+          {% assign horizontal = false %}
+          {% include package_links.html %}
+        </div>
+      </div>
     </div>
   </div>
 {% endfor %}
