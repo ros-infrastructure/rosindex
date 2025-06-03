@@ -162,7 +162,7 @@ class Indexer < Jekyll::Generator
     # stop word exclusion configuration
     @min_length = lunr_config['min_length']
     @stopwords_file = lunr_config['stopwords']
-    if File.exists?(@stopwords_file)
+    if File.exist?(@stopwords_file)
       @stopwords = IO.readlines(@stopwords_file, :encoding=>'UTF-8').map { |l| l.strip }
     else
       @stopwords = []
@@ -268,7 +268,7 @@ class Indexer < Jekyll::Generator
       ci_data['ci_available'] = false
       return ci_data
     end
-    manifest_yaml = YAML.load(manifest_response.body)
+    manifest_yaml = YAML.load(manifest_response.body, aliases: true)
     if !manifest_yaml.is_a?(Hash) || !manifest_yaml.key?('devel_jobs') || manifest_yaml['devel_jobs'].length == 0
       ci_data['tooltip'] = 'No CI information available for this package.'
       ci_data['ci_available'] = false
@@ -299,7 +299,7 @@ class Indexer < Jekyll::Generator
       ci_data['stats_available'] = false
       return ci_data
     end
-    results_yaml = YAML.load(results_response.body)
+    results_yaml = YAML.load(results_response.body, aliases: true)
     if !results_yaml.is_a?(Hash) || !results_yaml.key?('dev_job_data')
       ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
         'No test statistics available for this package.'
@@ -810,7 +810,7 @@ class Indexer < Jekyll::Generator
     manager_set = Set.new(package_manager_names)
 
     Dir.glob(File.join(rosdistro_path,'rosdep','*.yaml')) do |rosdep_filename|
-      rosdep_yaml = YAML.load_file(rosdep_filename)
+      rosdep_yaml = YAML.load_file(rosdep_filename, aliases: true)
       rosdep_data = rosdep_data.deep_merge(rosdep_yaml)
     end
 
@@ -853,7 +853,7 @@ class Indexer < Jekyll::Generator
         manifest_path = File.join('p', package_name, unless default then repo.id else '' end, distro)
         dest_manifest_path = File.join(site.dest,manifest_path)
 
-        unless File.exists?(dest_manifest_path) or File.directory?(dest_manifest_path) then FileUtils.mkdir_p(dest_manifest_path) end
+        unless File.exist?(dest_manifest_path) or File.directory?(dest_manifest_path) then FileUtils.mkdir_p(dest_manifest_path) end
 
         IO.write(File.join(dest_manifest_path,'package.xml'), repo.release_manifests[distro])
         site.static_files << PackageManifestFile.new(site, site.dest, '/'+manifest_path, 'package.xml')
@@ -984,7 +984,7 @@ class Indexer < Jekyll::Generator
           # read in the rosdistro distribution file
           rosdistro_filename = File.join(rosdistro_path,distro,'distribution.yaml')
           if File.exist?(rosdistro_filename)
-            distro_data = YAML.load_file(rosdistro_filename)
+            distro_data = YAML.load_file(rosdistro_filename, aliases: true)
             distro_data['repositories'].each do |repo_name, repo_data|
 
               unless (site.config['repo_name_whitelist'].length == 0 or site.config['repo_name_whitelist'].include?(repo_name)) then next end
@@ -1042,7 +1042,7 @@ class Indexer < Jekyll::Generator
 
                         begin
                           # get the tracks file
-                          tracks_file = YAML.load_file(File.join(release_repo_path,'tracks.yaml'))
+                          tracks_file = YAML.load_file(File.join(release_repo_path,'tracks.yaml'), aliases: true)
                           # get package manifest files (if any)
                           release_manifest_path = Dir[File.join(release_repo_path,distro,'package.xml')].first
                           unless release_manifest_path.nil?
@@ -1152,7 +1152,7 @@ class Indexer < Jekyll::Generator
 
             puts 'Indexing rosinstall repo data file: ' << rosinstall_filename
 
-            rosinstall_data = YAML.load_file(rosinstall_filename)
+            rosinstall_data = YAML.load_file(rosinstall_filename, aliases: true)
             rosinstall_data.each do |rosinstall_entry|
               rosinstall_entry.each do |repo_type, repo_data|
 
@@ -1231,7 +1231,7 @@ class Indexer < Jekyll::Generator
     # Load wiki title index
     @wiki_data = {}
     wiki_title_index_filename = site.config['wiki_title_index_filename']
-    if File.exists?(wiki_title_index_filename)
+    if File.exist?(wiki_title_index_filename)
       @wiki_data = parse_wiki_title_index(wiki_title_index_filename)
     end
 
@@ -1270,8 +1270,8 @@ class Indexer < Jekyll::Generator
     # read the old report
     old_report = {}
     old_report_filename = site.config['report_filename']
-    if File.exists?(old_report_filename)
-      old_report = YAML.load(IO.read(old_report_filename))
+    if File.exist?(old_report_filename)
+      old_report = YAML.load(IO.read(old_report_filename), aliases: true)
     end
 
     # write out the report and the diff
