@@ -82,8 +82,7 @@ ros2_distros:
   - 'kilted'
   - 'rolling'
 
-ros_distros:
-  - 'noetic'
+ros_distros: []
 
 old_ros2_distros:
   - 'ardent'
@@ -102,6 +101,7 @@ old_ros_distros:
   - 'hydro'
   - 'kinetic'
   - 'melodic'
+  - 'noetic'
 
 # set the following to a non-zero value for testing (limit the number of indexed repos)
 max_repos: 00
