@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ros:jazzy
 
 ARG user=rosindex
 ARG uid=1000
@@ -9,11 +9,6 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         gnupg && \
     rm -rf /var/lib/apt/lists/*
-
-COPY docker/image/ros.asc /tmp/ros.asc
-RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > \
-         /etc/apt/sources.list.d/ros-latest.list
-RUN apt-key add /tmp/ros.asc
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
@@ -40,9 +35,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN gem install bundle
-RUN pip3 install --upgrade setuptools pip
+RUN pip3 install --upgrade setuptools --break-system-packages
 # For uploading
-RUN pip3 install gitpython requests pyyaml
+RUN pip3 install gitpython requests pyyaml --break-system-packages
 
 RUN ln -s `which nodejs` /usr/local/bin/node
 
