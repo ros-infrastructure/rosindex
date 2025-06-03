@@ -149,43 +149,6 @@ class PackagePage < Jekyll::Page
   end
 end
 
-class PackageInstancePage < Jekyll::Page
-  def initialize(site, package_instances, instance, package_name)
-
-    @site = site
-    @base = site.source
-    @dir = File.join('p', package_name, instance.id)
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'package_instance.html')
-
-    self.data['instances'] = package_instances.instances
-    self.data['instance'] = instance
-    self.data['package_name'] = package_name
-    self.data['title'] = 'ROS Package: ' + package_name
-
-    self.data['instance_index_url'] = ['packages',package_instances.name].join('/')
-    self.data['instance_base_url'] = ['p',package_name].join('/')
-
-    self.data['available_distros'] = {}
-    self.data['available_older_distros'] = {}
-    instance.snapshots.each do |distro, snapshot|
-      if site.config['distros'].include? distro
-        self.data['available_distros'][distro] = snapshot.packages.key?(package_name)
-      else
-        self.data['available_older_distros'][distro] = snapshot.packages.key?(package_name)
-      end
-    end
-    self.data['n_available_older_distros'] = self.data['available_older_distros'].values.count(true)
-
-    self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
-
-    self.data['default_distro'] = self.data['available_distros'].keys.first or
-                                  self.data['available_older_distros'].keys.first or
-                                  self.data['all_distros'].first
-  end
-end
 
 class StatsPage < Jekyll::Page
   def initialize(site, package_names, all_repos, errors)
