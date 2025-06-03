@@ -46,7 +46,8 @@ COPY docker/image/test_site.sh /usr/local/bin/test_site
 COPY docker/image/update_site.sh /usr/local/bin/update_site
 COPY docker/image/git_add_files.py /usr/local/bin/git_add_files
 
-RUN useradd -u $uid -m $user
+# Add requested user, removing any existing user with that UID.
+RUN if [ $(id -nu $uid) ]; then userdel -r $(id -nu $uid); fi && useradd -u $uid -m $user
 ENV HOME=/home/$user
 WORKDIR $HOME
 COPY Gemfile* .bundle/
