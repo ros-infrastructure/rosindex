@@ -43,7 +43,8 @@
         {% endif %}</span>
       </td>
     </tr>
-              <tr>
+              <!-- Removing CI Status it was only available in ROS 1 which is now EOL.
+                <tr>
                 <td class="text-right"><b>CI status</b></td>
                 <td class="ci-status">
                   {% assign ci_data = package.data.ci_data %}
@@ -85,7 +86,7 @@
                     <span class="label label-default" title="{{ ci_data.tooltip }}">No Continuous Integration</span>
                   {% endif %}
                 </td>
-              </tr>
+              </tr> -->
     <tr>
       <td class="text-right"><b>Released</b></td>
       <td>
