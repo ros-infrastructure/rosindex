@@ -43,50 +43,6 @@
         {% endif %}</span>
       </td>
     </tr>
-              <!-- Removing CI Status it was only available in ROS 1 which is now EOL.
-                <tr>
-                <td class="text-right"><b>CI status</b></td>
-                <td class="ci-status">
-                  {% assign ci_data = package.data.ci_data %}
-                  {% if ci_data.ci_available %}
-                    {% if ci_data.history_available %}
-                      <div class="dropdown">
-                        <button type="button" data-toggle="dropdown" class="btn label label-primary dropdown-toggle ci-result-{{ ci_data.result }}" title="{{ ci_data.tooltip }}">
-                          <span class="glyphicon glyphicon-check"></span>
-                          Continuous Integration
-                          {% if ci_data.stats_available %}
-                            : {{ ci_data.tests_ok }} / {{ ci_data.tests_total }}
-                          {% endif %}
-                          <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                          <li class="dropdown-header">Latest build history: {{ ci_data.timestamp }} (last {{ ci_data.history.size }} of {{ ci_data.total_builds }} builds)</li>
-                          {% for build in ci_data.history %}
-                            <li class="ci-build-info ci-result-{{ build.result }}">
-                              <a href="http://build.ros.org/{{ build.uri }}" target="_blank">
-                                <span class="glyphicon glyphicon-{{ build.icon }}"></span>
-                                <span><strong>#{{ build.id }}</strong></span>
-                                <span>{{ build.timestamp }}</span>
-                                <span>{{ build.tests_ok }} / {{ build.tests_total }}</span>
-                              </a>
-                            </li>
-                          {% endfor %}
-                        </ul>
-                      </div>
-                    {% else %}
-                      <a href="{{ ci_data.job_url }}" class="label ci-result-{{ ci_data.result }}" title="{{ ci_data.tooltip }}">
-                        <span class="glyphicon glyphicon-check"></span>
-                        Continuous Integration
-                        {% if ci_data.stats_available %}
-                          : {{ ci_data.tests_ok }} / {{ ci_data.tests_total }}
-                        {% endif %}
-                      </a>
-                    {% endif %}
-                  {% else %}
-                    <span class="label label-default" title="{{ ci_data.tooltip }}">No Continuous Integration</span>
-                  {% endif %}
-                </td>
-              </tr> -->
     <tr>
       <td class="text-right"><b>Released</b></td>
       <td>

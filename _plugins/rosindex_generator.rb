@@ -445,7 +445,6 @@ class Indexer < Jekyll::Generator
         # optional package info
         'authors' => authors,
         'urls' => urls,
-        'ci_data' => {}, #TODO(tfoote) restore ci_data, expected fields are: ci_available, tooltip, timestamp job_url, result, stats_availble, total_builds, health, tests_ok, history_available, history (a list of status with the preceding fields)
         # dependencies
         'pkg_deps' => pkg_deps,
         'system_deps' => system_deps,
