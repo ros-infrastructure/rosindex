@@ -93,6 +93,9 @@ def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
   if file_md
     lines = file_md.lines
     max_lines = 100
+    if site.config['max_embedded_content_lines']
+      max_lines = site.config['max_embedded_content_lines']
+    end
     if lines.size > max_lines
       file_md = lines.take(max_lines).join
       file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri})"

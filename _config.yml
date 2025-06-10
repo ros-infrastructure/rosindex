@@ -105,6 +105,7 @@ old_ros_distros:
 
 # set the following to a non-zero value for testing (limit the number of indexed repos)
 max_repos: 00
+max_embedded_content_lines: 100
 
 plugins:
   - jekyll-include-cache
