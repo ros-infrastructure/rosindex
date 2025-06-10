@@ -247,131 +247,6 @@ class Indexer < Jekyll::Generator
     return 'remove'
   end
 
-  def get_ci_data(distro, package_name, repo_name)
-    ci_data = Hash.new
-    manifest_url = "/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/api/#{package_name}/manifest.yaml"
-    begin
-      manifest_response = Net::HTTP.get_response('docs.ros.org', manifest_url)
-    rescue StandardError => e
-      puts " Failed to fetch manifest from #{manifest_url} with error #{e.class}"
-      ci_data['tooltip'] = 'Error fetching CI information available for this package.'
-      ci_data['ci_available'] = false
-      return ci_data
-    rescue
-      puts " Failed to fetch manifest from #{manifest_url} with unknown error"
-      ci_data['tooltip'] = 'Error fetching CI information available for this package.'
-      ci_data['ci_available'] = false
-      return ci_data
-    end
-    if manifest_response.code != '200'
-      ci_data['tooltip'] = 'No CI information available for this package.'
-      ci_data['ci_available'] = false
-      return ci_data
-    end
-    manifest_yaml = YAML.load(manifest_response.body, aliases: true)
-    if !manifest_yaml.is_a?(Hash) || !manifest_yaml.key?('devel_jobs') || manifest_yaml['devel_jobs'].length == 0
-      ci_data['tooltip'] = 'No CI information available for this package.'
-      ci_data['ci_available'] = false
-      return ci_data
-    end
-    ci_data['ci_available'] = true
-    if manifest_response.header.key?('Last-Modified')
-      ci_data['timestamp'] = manifest_response.header['Last-Modified']
-    else
-      ci_data['timestamp'] = 'unknown'
-    end
-    ci_data['job_url'] = manifest_yaml['devel_jobs'][0]
-    # get additional test information if available
-    results_url = "/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/devel_jobs/#{repo_name}/results.yaml"
-    begin
-      results_response = Net::HTTP.get_response('docs.ros.org', results_url)
-    rescue
-      ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
-        'No test statistics available for this package.'
-      ci_data['result'] = 'success'
-      ci_data['stats_available'] = false
-      return ci_data
-    end
-    if results_response.code != '200'
-      ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
-        'No test statistics available for this package.'
-      ci_data['result'] = 'success'
-      ci_data['stats_available'] = false
-      return ci_data
-    end
-    results_yaml = YAML.load(results_response.body, aliases: true)
-    if !results_yaml.is_a?(Hash) || !results_yaml.key?('dev_job_data')
-      ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
-        'No test statistics available for this package.'
-      ci_data['result'] = 'success'
-      ci_data['stats_available'] = false
-      return ci_data
-    end
-    ci_data['stats_available'] = true
-    # if we're reporting results.yaml statistics, we should use that timestamp if available
-    if results_response.header.key?('Last-Modified')
-      ci_data['timestamp'] = results_response.header['Last-Modified']
-    end
-    dev_job_data = results_yaml['dev_job_data']
-    latest_build = dev_job_data['latest_build']
-    tests_skipped = latest_build ? latest_build['skipped'] : 0
-    tests_failed = latest_build ? latest_build['failed'] : 0
-    tests_total = latest_build ? latest_build['total'] : 0
-    # TODO: this essentially considers skipped tests as failures
-    tests_ok = tests_total - tests_failed - tests_skipped
-    ci_data['total_builds'] = dev_job_data.key?('total_builds') ? dev_job_data['total_builds'] : 0
-    ci_data['health'] = dev_job_data.key?('job_health') ? dev_job_data['job_health'] : 0
-    ci_data['tests_ok'] = tests_ok
-    ci_data['tests_total'] = tests_total
-    ci_data['tooltip'] = "Latest build information: " + ci_data['timestamp'] + "\n" \
-      "  Total tests: #{ tests_total }\n" \
-      "  Succeeded: #{ tests_ok }\n" \
-      "  Skipped: #{ tests_skipped }\n" \
-      "  Failed: #{ tests_failed }"
-    if tests_failed > 0
-      ci_data['result'] = 'failure'
-    elsif tests_skipped > 0
-      ci_data['result'] = 'unstable'
-    else
-      ci_data['result'] = 'success'
-    end
-    if !dev_job_data.key?('history') || dev_job_data['history'].length == 0
-      ci_data['tooltip'] << "\nNo build history available for this repository."
-      ci_data['history_available'] = false
-      return ci_data
-    end
-    ci_data['history_available'] = true
-    ci_data['tooltip'] << "\nClick to show more build history."
-    ci_data['history'] = Array.new
-    dev_job_data['history'].each do |build|
-      build_ = Hash.new
-      build_['id'] = build['build_id']
-      build_['uri'] = build['uri']
-      build_['result'] = build['result']
-      build_['icon'] = map_build_result_to_icon(build['result'])
-      build_['timestamp'] = Time.at(build['stamp'].to_f).strftime('%d-%b-%Y %H:%M')
-      # if there is test data available (not all jobs/builds have tests),
-      # add it to the ci data
-      if build.key?('tests')
-        build_test_data = build['tests']
-        tests_skipped = build_test_data['skipped'].to_i
-        tests_failed = build_test_data['failed'].to_i
-        tests_total = build_test_data['total'].to_i
-        # TODO: this essentially considers skipped tests as failures
-        tests_ok = tests_total - tests_failed - tests_skipped
-        tests_health = (100.0 * tests_ok / [tests_total, 1].max).round
-        build_['health'] = tests_health
-        build_['tests_ok'] = tests_ok
-        build_['tests_total'] = tests_total
-      else
-        build_['health'] = 'n/a'
-        build_['tests_ok'] = '?'
-        build_['tests_total'] = '?'
-      end
-      ci_data['history'] << build_
-    end
-    return ci_data
-  end
 
   def extract_package(site, distro, repo, snapshot, checkout_path, path, pkg_type, manifest_xml)
 
@@ -554,8 +429,6 @@ class Indexer < Jekyll::Generator
         docs_uri = "http://docs.ros.org/#{DEFAULT_LANGUAGE_PREFIX}/#{distro}/p/#{package_name}"
       end
 
-      # try to acquire information on the CI status of the package
-      ci_data = get_ci_data(distro, package_name, repo.name)
 
       package_info = {
         'name' => package_name,
@@ -572,7 +445,7 @@ class Indexer < Jekyll::Generator
         # optional package info
         'authors' => authors,
         'urls' => urls,
-        'ci_data' => ci_data,
+        'ci_data' => {}, #TODO(tfoote) restore ci_data, expected fields are: ci_available, tooltip, timestamp job_url, result, stats_availble, total_builds, health, tests_ok, history_available, history (a list of status with the preceding fields)
         # dependencies
         'pkg_deps' => pkg_deps,
         'system_deps' => system_deps,
