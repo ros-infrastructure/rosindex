@@ -91,6 +91,12 @@ def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
   end
 
   if file_md
+    lines = file_md.lines
+    max_lines = 100
+    if lines.size > max_lines
+      file_md = lines.take(max_lines).join
+      file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri})"
+    end
     # read in the file and fix links
     file_html = render_md(site, file_md)
     file_html = '<div class="rendered-markdown">'+file_html+"</div>"
