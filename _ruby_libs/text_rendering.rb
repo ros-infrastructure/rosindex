@@ -67,9 +67,11 @@ end
 def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
 
   file_md = nil
+  file_name = nil
 
   file_files = Dir.glob(File.join(path,glob), File::FNM_CASEFOLD)
   file_files.each do |file_path|
+    file_name = File.basename(file_path)
     case File.extname(file_path)
     when '.md'
       file_md = IO.read(file_path, :encoding=>'utf-8')
@@ -98,7 +100,7 @@ def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
     end
     if lines.size > max_lines
       file_md = lines.take(max_lines).join
-      file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri})"
+      file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri + '/' + file_name})"
     end
     # read in the file and fix links
     file_html = render_md(site, file_md)
