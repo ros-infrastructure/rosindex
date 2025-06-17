@@ -43,7 +43,7 @@ layout: default
           <th scope="row">{{distro}}</th>
           <td>
             {% for dependant in dependants %}
-            <a href="{{site.baseurl}}/p/{{dependant.package.name}}#{{distro}}" class="label label-primary pkg-label">
+            <a href="{{site.baseurl}}/p/{{dependant.package.name}}/#{{distro}}" class="label label-primary pkg-label">
               {{dependant.package.name}}
             </a>
             {% endfor %}

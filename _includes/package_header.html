@@ -14,12 +14,12 @@ Assumes the following are defined:
       </td>
       <td>
         <h3 style="margin-top: 5px">
-          <a style="text-decoration:none" href="{{site.baseurl}}/p/{{package.name}}">{{package.name}}</a> <small>package from <a style="text-decoration:none" href="{{site.baseurl}}/r/{{ package.repo.name }}/{{ package.repo.id }}">{{ package.repo.name }}</a> repo</small>
+          <a style="text-decoration:none" href="{{site.baseurl}}/p/{{package.name}}/">{{package.name}}</a> <small>package from <a style="text-decoration:none" href="{{site.baseurl}}/r/{{ package.repo.name }}/{{ package.repo.id }}/">{{ package.repo.name }}</a> repo</small>
         </h3>
           {% for peer in package.snapshot.packages %}
             {% assign labeled_package = peer[1] %}
             {% if peer[0] != package.name %}
-              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}">{{ labeled_package.data.name }}</a>
+              <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{peer[0]}}/">{{ labeled_package.data.name }}</a>
             {% else %}
               <span class="label label-default pkg-label">{{ labeled_package.data.name }}</span>
             {% endif %}

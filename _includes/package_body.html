@@ -238,11 +238,11 @@ Assumes distro and package are defined
                       <tr>
                         <td class="text-center">
                           {% assign n_2nd_order_deps = p[1].snapshots[distro].data.pkg_deps | size %}
-                          <a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
+                          <a href="{{site.baseurl}}/p/{{p[0]}}/#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
                             <span class="glyphicon glyphicon-arrow-left" title="Package dependencies"></span>
                           </a>
                         </td>
-                        <td><a href="{{site.baseurl}}/p/{{p[0]}}#{{distro}}">{{p[0]}} {{n_2nd_order_pdeps}} {{n_2nd_order_sdeps}}</a></td>
+                        <td><a href="{{site.baseurl}}/p/{{p[0]}}/#{{distro}}">{{p[0]}} {{n_2nd_order_pdeps}} {{n_2nd_order_sdeps}}</a></td>
                       </tr>
                     {% else %}
                       <tr>
@@ -304,10 +304,10 @@ Assumes distro and package are defined
                     {% assign dep_name = d[0] %}
                     {% for dep_instance in d[1] %}
                     <tr>
-                      <td><a href="{{site.baseurl}}/p/{{dep_name}}#{{distro}}">{{dep_name}}</a></td>
+                      <td><a href="{{site.baseurl}}/p/{{dep_name}}/#{{distro}}">{{dep_name}}</a></td>
                       <td class="text-center">
                         {% assign n_2nd_order_deps = dep_instance.package.data.dependants | size %}
-                        <a href="{{site.baseurl}}/p/{{dep_name}}#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
+                        <a href="{{site.baseurl}}/p/{{dep_name}}/#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
                           <span class="glyphicon glyphicon-arrow-right"></span>
                         </a>
                       </td>

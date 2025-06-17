@@ -49,7 +49,7 @@ layout: default
                 <tbody>
                 {% for p in page.repo.snapshots[distro].packages %}
                   <tr>
-                    <td><a href="{{site.baseurl}}/p/{{p[1].name}}">{{ p[1].name }}</a></td>
+                    <td><a href="{{site.baseurl}}/p/{{p[1].name}}/">{{ p[1].name }}</a></td>
                     <td>{{ p[1].data.version }}</td>
                   </tr>
                 {% endfor %}

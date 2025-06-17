@@ -50,13 +50,13 @@ index.ros.org/r/<<REPOSITORY>>/<<INSTANCE>>/#<<DISTRO>>
 So for the ``geometry`` repository, the default instance would be resolved by:
 
 ```
-index.ros.org/r/geometry
+index.ros.org/r/geometry/
 ```
 
 In this case, this would be equivalent to:
 
 ```
-index.ros.org/r/geometry/github-ros-geometry
+index.ros.org/r/geometry/github-ros-geometry/
 ```
 
 This link would resolve to the repository corresponding to the URI given in the
@@ -93,13 +93,13 @@ index.ros.org/p/<<PACKAGE>>/<<INSTANCE>>/#<<DISTRO>>
 So for the ``tf`` package, the default instance would be resolved by:
 
 ```
-index.ros.org/p/tf
+index.ros.org/p/tf/
 ```
 
 In this case, this would be equivalent to:
 
 ```
-index.ros.org/p/tf/github-ros-geometry
+index.ros.org/p/tf/github-ros-geometry/
 ```
 
 When viewing the tab for a given ROS distribution, the user can see additional
