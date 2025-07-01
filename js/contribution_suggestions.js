@@ -93,45 +93,8 @@ function setupContributeListTabLinks() {
 }
 
 
-/**
- * Update the numbers of items of contribution
- * suggestiond for each repository.
- * @param {string} repo_name The name of the repo.
- * @param {string} repo_uri The URL of the github repo.
- */
-function updateContributionSuggestionsCount(repo_name, repo_uri) {
-  // Incoming uri format:
-  // "https://github.com/<owner>/<repo>/tree/master"
-  if (!repo_uri.includes('github.com')) {
-    return;
-  }
-  // Target query pattern:
-  // "https://api.github.com/repos/<owner>/<repo>/pulls"
-  var details = repo_uri.match(/github\.com\/([^\/]*)\/([^\/]*)/);
-  api_uri = 'https://api.github.com/repos/' + details[1] + '/' + details[2];
-
-  fetch(api_uri + '/issues?state=open&labels=help%20wanted&per_page=99')
-  .then(response => response.json())
-  .then(data => {
-    $('.contribute-lists-'+repo_name+' .contribute-lists-help-wanted-count').text(data.length);
-  })
-  .catch(error => console.error(error));
-
-  fetch(api_uri + '/issues?state=open&labels=good%20first%20issue&per_page=99')
-  .then(response => response.json())
-  .then(data => {
-    $('.contribute-lists-'+repo_name+' .contribute-lists-good-first-issue-count').text(data.length);
-  })
-  .catch(error => console.error(error));
-
-  fetch(api_uri + "/pulls?state=open&per_page=100")
-  .then(response => response.json())
-  .then(data => {
-    $('.contribute-lists-'+repo_name+' .contribute-lists-pull-requests-count').text(data.length);
-  })
-  .catch(error => console.error(error));
-}
-
+// Caching if it's already been updated
+var contribution_suggestions_hasFetchedRepo = {}
 
 /**
  * Update the numbers of items of contribution
@@ -144,6 +107,11 @@ function updateContributionSuggestionsCountOnPackage(repo_uri) {
   if (!repo_uri.includes("github.com")) {
     return;
   }
+  // Only fetch a given repo once
+  if (repo_uri in contribution_suggestions_hasFetchedRepo ) {
+    return;
+  }
+  contribution_suggestions_hasFetchedRepo[repo_uri] = true;
   api_uri = repo_uri.replace(/\.git$/, "").replace("github.com", "api.github.com/repos");
   fetch(api_uri + "/issues?state=open&labels=help%20wanted&per_page=100")
     .then(response => response.json())
