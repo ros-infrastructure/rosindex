@@ -44,7 +44,6 @@ a ROS package:
 The following are ROS Index metadata elements which are either unimplemented or
 still being designed:
 
-* **Tutorials** -- `<tutorials>...</tutorials>`
 * **Nodes** -- `<nodes>...</nodes>`
 
 ### Category Tags
@@ -109,41 +108,6 @@ Standard readme filenames include (case-insensitive):
 Plaintext files and files without extensions will not be rendered, but will be
 shown as a single preformatted block. Markdown (`.md`) and RST (`.rst`)
 documents will be rendered into HTML.
-
-### Tutorials
-
-***WIP***
-
-A package can give a list of a series of tutorials with the
-following formats:
-
-```xml
-<tutorials>
-  <!-- Declare some pre-requisite tutorials -->
-  <prereq pkg="other_pkg"/>
-
-  <!-- Direct users to another package for tutorials. -->
-  <tutorial pkg="my_pkg_tutorials"/>
-
-  <!-- Direct users to a tutorial on an external website. -->
-  <tutorial link="http://www.my_website.com/some_tutorial.html">That Other Guy's Tutorial</tutorial>
-
-  <!-- Display markdown-based tutorials (rendered by ROSIndex). -->
-  <tutorial file="doc/tut1.md">Tutorial One</tutorial>
-  <tutorial file="doc/tut2.md">Tutorial Two</tutorial>
-  <tutorial file="doc/tut3.md">Tutorial Three</tutorial>
-
-  <!-- Display a group of markdown-based tutorials (rendered by ROSIndex). -->
-  <sequence title="Advanced Tutorials">
-    <tutorial file="doc/tut4.md">Tutorial Four</tutorial>
-    <tutorial file="doc/tut5.md">Tutorial Five</tutorial>
-    <tutorial file="doc/tut6.md">Tutorial Six</tutorial>
-  </sequence>
-</tutorials>
-```
-
-Tutorials listed on the ROS Wiki under `<<package_name>>/Tutorials/*`
-will also be listed and directly linked.
 
 ### Nodes
 

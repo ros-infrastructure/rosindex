@@ -26,10 +26,6 @@ Assumes distro and package are defined
     <a href="#{{distro}}-deps" data-toggle="tab"><span class="label label-{%if n_deps == 0%}default{%else%}primary{%endif%}">{{n_deps}}</span> Dependencies</a>
   </li>
   <li class="better-tabs">
-    {% assign n_tutorials = package.data.wiki.tutorials | size %}
-    <a href="#{{distro}}-tutorials" data-toggle="tab"><span class="label label-{%if n_tutorials == 0%}default{%else%}primary{%endif%}">{{n_tutorials}}</span> Tutorials</a>
-  </li>
-  <li class="better-tabs">
     <a href="#{{distro}}-questions" data-toggle="tab"><span id="{{distro}}-questions-count" class="label label-primary">0</span> Q & A</a>
   </li>
 </ul>
@@ -192,27 +188,6 @@ Assumes distro and package are defined
             {% endif %}
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane" id="{{distro}}-tutorials">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Wiki Tutorials</h3>
-      </div>
-      <div class="panel-body">
-        {% if n_tutorials > 0 %}
-          <ul>
-            {% for t in package.data.wiki.tutorials %}
-              <li><a href="http://wiki.ros.org/{{t[1]}}" target="_blank">{{t[0]}}</a></li>
-            {% endfor %}
-          </ul>
-          <br>
-        {% else %}
-        <em>This package does not provide any links to tutorials in it's <a href="https://index.ros.org/contribute/metadata/">rosindex metadata</a>.</em>
-        <em>You can check on the <a href="http://wiki.ros.org/{{package.name}}/Tutorials" target="_blank">ROS Wiki Tutorials</a> page for the package.</em>
-        {% endif %}
       </div>
     </div>
   </div>
