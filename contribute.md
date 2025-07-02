@@ -35,7 +35,7 @@ Releasing a package for binary distribution is a bit more complicated, and
 cannot be done through a web interface. It will, however, make it much
 easier for users to run your code. In order to release your repository's
 packages, follow the tutorials for the [bloom release automation
-tool](http://wiki.ros.org/bloom) on the ROS.org Wiki.
+tool](https://docs.ros.org/en/rolling/How-To-Guides/Releasing/Releasing-a-Package.html) on the ROS.org.
 
 ## Adding ROS Index Metadata
 
