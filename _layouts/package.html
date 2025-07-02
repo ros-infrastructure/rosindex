@@ -20,6 +20,8 @@ layout: default
   </div>
 </div>
 
+<script src={{ "/js/contribution_suggestions.js" | prepend: site.baseurl }}></script>
+
 {% for distro in page.all_distros %}
   <div class="distro distro-{{distro}}">
     <div class="container-fluid">
@@ -58,6 +60,8 @@ layout: default
 {% endfor %}
 
 {% include package_qna_updater.html %}
+
+<script type="text/javascript" src="{{ '/js/package_body_tabs.js' | prepend: site.baseurl }}"></script>
 
 <script type="text/javascript">
   $(document).ready(function() {
