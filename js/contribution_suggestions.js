@@ -100,7 +100,7 @@ var contribution_suggestions_hasFetchedRepo = {}
  * Update the numbers of items of contribution
  * suggestiond for each repository.
  * Used on each package page
- * (_layouts/package.html)
+ * (_layouts/package.html, _layouts/repo_instance.html)
  * @param {string} repo_uri The URL of the github repo.
  */
 function updateContributionSuggestionsCountOnPackage(repo_uri) {
