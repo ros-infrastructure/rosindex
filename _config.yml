@@ -20,7 +20,6 @@ db_cache_filename: _cache/_deploy_cache.db
 report_filename: _cache/_deploy_index_report.yaml
 report_diff_filename: _cache/_deploy_index_report_diff.yaml
 debbuild_release_path: _cache/debbuild_releases
-wiki_title_index_filename: _cache/ros_org_wiki_title_index.txt
 
 # If true, this skips updating the known repos
 skip_update: false

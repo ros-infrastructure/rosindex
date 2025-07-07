@@ -25,7 +25,6 @@ require_relative '../_ruby_libs/conversions'
 require_relative '../_ruby_libs/text_rendering'
 require_relative '../_ruby_libs/pages'
 require_relative '../_ruby_libs/asset_parsers'
-require_relative '../_ruby_libs/roswiki'
 require_relative '../_ruby_libs/lunr'
 require_relative '../_ruby_libs/dependency_descriptions'
 require_relative '../_ruby_libs/discovery'
@@ -468,7 +467,6 @@ class Indexer < Jekyll::Generator
         'plugin_data' => plugin_data,
         'msg_files' => msg_files.map {|f| Pathname.new(f).relative_path_from(local_package_path).to_s },
         'srv_files' => srv_files.map {|f| Pathname.new(f).relative_path_from(local_package_path).to_s },
-        'wiki' => {'exists'=>false}
       }
 
     rescue REXML::ParseException => e
@@ -574,9 +572,6 @@ class Indexer < Jekyll::Generator
 
       # collect tags from discovered packages
       repo.tags = Set.new(repo.tags).merge(package_data['tags']).to_a
-
-      # collect wiki data
-      package.data['wiki'] = @wiki_data[package_name]
 
       # add this package to the global package dict
       @package_names[package_name].instances[repo.id] = repo
@@ -792,10 +787,6 @@ class Indexer < Jekyll::Generator
     # the list of errors encountered
     @errors = @db.errors
 
-    # a dict of data scraped from the wiki
-    # currently the only information is the title-index on the wiki
-    @wiki_data = {}
-
     # load rosdep data
     puts ("Loading ros dependencies").green
 
@@ -930,13 +921,6 @@ class Indexer < Jekyll::Generator
         end
       end; "ok"
       workers.map(&:join); "ok"
-    end
-
-    # Load wiki title index
-    @wiki_data = {}
-    wiki_title_index_filename = site.config['wiki_title_index_filename']
-    if File.exist?(wiki_title_index_filename)
-      @wiki_data = parse_wiki_title_index(wiki_title_index_filename)
     end
 
     # scrape all the repos

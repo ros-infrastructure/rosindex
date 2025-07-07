@@ -41,16 +41,6 @@ Assumes the following are defined:
       {% assign is_ros1_page = true %}
     {% endif %}
   {% endfor %}
-  
-  {% if is_ros1_page %}
-  <a class="{{list_group_class}} {% comment %} TODO: rosindex currently does not detect if a wiki page exists - implement and then re-enable the following: {% unless package.data.wiki.exists %}inactive{% endunless %} {% endcomment %}"
-     target="_blank"
-     href="http://wiki.ros.org/{{page.package_name}}?distro={{distro}}"
-     title="View this package on wiki.ros.org">
-       <span style="margin-right: 5px;" class="glyphicon glyphicon-info-sign"></span>
-       {%if hide_link_labels%}<br>{%endif%}
-       Wiki
-  </a>
-  {%endif%}
+
   {% comment %}<a type="button" class="list-group-item {%if horizontal %}text-center{%endif%} inactive" target="_blank" ><span class="glyphicon glyphicon-fire"></span>{%if hide_link_labels%} CI{%endif%}</a>{% endcomment %}
 </div>
