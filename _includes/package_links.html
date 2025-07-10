@@ -30,17 +30,6 @@ Assumes the following are defined:
        {%if hide_link_labels%}<br>{%endif%}
        Browse Code
   </a>
-  {% assign is_ros1_page = false %}
-  {% for ros_distro in site.ros_distros %}
-    {% if ros_distro == distro %}
-      {% assign is_ros1_page = true %}
-    {% endif %}
-  {% endfor %}
-  {% for old_ros_distro in site.old_ros_distros %}
-    {% if old_ros_distro == distro %}
-      {% assign is_ros1_page = true %}
-    {% endif %}
-  {% endfor %}
 
   {% comment %}<a type="button" class="list-group-item {%if horizontal %}text-center{%endif%} inactive" target="_blank" ><span class="glyphicon glyphicon-fire"></span>{%if hide_link_labels%} CI{%endif%}</a>{% endcomment %}
 </div>
