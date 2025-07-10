@@ -42,16 +42,15 @@
     <script src={{ "/js/jquery-cookie.js" | prepend: site.baseurl }} type="text/javascript"></script>
     {% include_cached google_analytics.html %}
     <script type="text/javascript" src={{ "/js/toc.js" | prepend: site.baseurl }}></script>
-
-    <script src={{ "/js/distro_switch.js" | prepend: site.baseurl }}></script>
+    {% unless page.no_scroll %}<script src={{ "/js/distro_switch.js" | prepend: site.baseurl }}></script>{% endunless %}
   </head>
 
-  <body>
+  <body {% if page.no_scroll %}style="height: 100vh"{% endif %}>
 
     {% include_cached header.html %}
 
-    <div class="page-content">
-      <div class="wrapper">
+    <div class="page-content" {% if page.no_scroll %} style="height: var(--content-height);"{% endif %}>
+      <div class="wrapper" {% if page.no_scroll %} style="height:100%;"{% endif %}>
         {{ content }}
       </div>
     </div>
