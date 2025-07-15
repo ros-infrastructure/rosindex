@@ -42,19 +42,6 @@ class DepPage < Jekyll::Page
   end
 end
 
-class RepoInstancesPage < Jekyll::Page
-  def initialize(site, repo_instances)
-    @site = site
-    @base = site.source
-    @dir = File.join('repos', repo_instances.name)
-    @name = 'index.html'
-
-    self.process(@name)
-    self.read_yaml(File.join(@base, '_layouts'),'repo_instances.html')
-    self.data['repo_instances'] = repo_instances
-  end
-end
-
 
 class RepoPage < Jekyll::Page
   def initialize(site, instances, repo, default)
@@ -71,6 +58,9 @@ class RepoPage < Jekyll::Page
 
     self.data['instance'] =   repo
     self.data['repo'] =   repo
+    if default then
+      self.data['redirect_from'] = [ File.join('repos', repo.name)]
+    end
 
     self.data['instances'] = instances.instances
     self.data['instance_base_url'] = basepath
