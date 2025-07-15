@@ -6,6 +6,7 @@ gem 'colorator'
 gem 'github-markup'
 gem 'jekyll'
 gem "jekyll-include-cache"
+gem "jekyll-redirect-from"
 gem 'jekyll-sitemap'
 gem 'liquid'#, '~> 2.6.2'
 gem 'mercurial-ruby'

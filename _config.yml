@@ -106,4 +106,5 @@ max_embedded_content_lines: 100
 
 plugins:
   - jekyll-include-cache
+  - jekyll-redirect-from
   - jekyll-sitemap
