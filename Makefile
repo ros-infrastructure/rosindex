@@ -69,10 +69,10 @@ serve:
 	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(index_file) --skip-initial-build
 
 serve-devel:
-	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(devel_config_file),$(index_file) --skip-initial-build
+	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(index_file),$(devel_config_file) --skip-initial-build
 
 test-build: $(PIP_FILE) $(DEBIAN_FILE) $(DISCOVERY_RESULTS) prepare-sources
-	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(devel_config_file),$(index_file)
+	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(index_file),$(devel_config_file)
 
 clean-sources:
 	rm -rf $(plugins_data_dir)
