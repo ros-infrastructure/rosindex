@@ -60,6 +60,9 @@ class RepoPage < Jekyll::Page
     self.data['repo'] =   repo
     if default then
       self.data['redirect_from'] = [ File.join('repos', repo.name)]
+      instances.instances.each do |id, repo|
+        self.data['redirect_from'] << File.join('r', repo.name, id)
+      end
     end
 
     self.data['instances'] = instances.instances

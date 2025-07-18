@@ -1051,10 +1051,6 @@ class Indexer < Jekyll::Generator
       # create the page for the default instance
       site.pages << RepoPage.new(site, repo_instances, repo_instances.default, true)
 
-      # create pages for each repo instance
-      repo_instances.instances.each do |instance_id, instance|
-        site.pages << RepoPage.new(site, repo_instances, instance, false)
-      end
     end
 
     # create package pages
