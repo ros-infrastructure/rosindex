@@ -68,7 +68,7 @@ class RepoPage < Jekyll::Page
     self.data['instances'] = instances.instances
     self.data['instance_base_url'] = basepath
     self.data['instance_index_url'] = File.join('repos', repo.name)
-    self.data['default_instance_id'] = instances.default.id
+    self.data['default_instance_id'] = instances.default.id ## TODO
 
     self.data['available_distros'],
     self.data['available_older_distros'],
