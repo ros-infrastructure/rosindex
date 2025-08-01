@@ -2,8 +2,6 @@
 layout: default
 ---
 
-<!-- # TODO(tfoote) Make this different instances per distro tab instead of flagging as missing -->
-
 <div class="container-fluid" style="margin-top:20px">
   <div class="container-fluid">
     <div class="row">
@@ -11,7 +9,6 @@ layout: default
         <li><a href="{{site.baseurl}}/">Home</a></li>
         <li><a href="{{site.baseurl}}/?search_repos=true">Repos</a></li>
         <li class="active">{{page.repo.name}}</li>
-        <!--<li class="active">{{page.instance.name}}</li>-->
       </ol>
     </div>
     <div class="row">
@@ -27,11 +24,23 @@ layout: default
 {% for distro in page.all_distros %}
   <div class="distro distro-{{distro}}">
     <div class="container-fluid">
+      {% unless page.available_distros[distro] or page.available_older_distros[distro] %}
+        {% for fallback_distro in page.all_distros %}
+          {% if page.available_distros[fallback_distro] or page.available_older_distros[fallback_distro] %}
+            {% assign rendered_distro = fallback_distro %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        <div class="alert alert-warning">No version for distro <strong>{{ distro }}</strong> showing <strong>{{ rendered_distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
+      {% else %}
+        {% assign rendered_distro = distro %}
+      {% endunless %}
+
       {% include repo_info.html %}
       {% if page.available_distros[distro] or page.available_older_distros[distro] %}
         {% assign repo = page.repo %}
         <div class="panel panel-default">
-          {% assign snapshot = page.repo.snapshots[distro] %}
+          {% assign snapshot = repo.snapshots[rendered_distro] %}
           <div class="panel-heading"><h3 class="panel-title">Repository Summary</h3></div>
           <div class="panel-body" style="overflow-x: auto">
             {% include repo_summary.html %}
@@ -40,7 +49,7 @@ layout: default
         <div class="panel panel-default">
           <div class="panel-heading"><h3 class="panel-title">Packages</h3></div>
           <div class="panel-body">
-            {% assign n_packages = page.repo.snapshots[distro].packages | size %}
+            {% assign n_packages = repo.snapshots[rendered_distro].packages | size %}
             {% if n_packages > 0 %}
               <table class="table table-condensed table-hover table-striped">
                 <thead>
@@ -50,7 +59,7 @@ layout: default
                   </tr>
                 </thead>
                 <tbody>
-                {% for p in page.repo.snapshots[distro].packages %}
+                {% for p in repo.snapshots[rendered_distro].packages %}
                   <tr>
                     <td><a href="{{site.baseurl}}/p/{{p[1].name}}/">{{ p[1].name }}</a></td>
                     <td>{{ p[1].data.version }}</td>
@@ -67,8 +76,8 @@ layout: default
         <div class="panel panel-default">
           <div class="panel-heading"><h3 class="panel-title">README</h3></div>
           <div class="panel-body">
-            {% if page.repo.snapshots[distro].data.readme %}
-              {{ page.repo.snapshots[distro].data.readme_rendered }}
+            {% if repo.snapshots[rendered_distro].data.readme %}
+              {{ repo.snapshots[rendered_distro].data.readme_rendered }}
             {% else %}
               <em>No README found.</em>
             {% endif %}
@@ -78,44 +87,44 @@ layout: default
         <div class="panel panel-default">
           <div class="panel-heading"><h3 class="panel-title">CONTRIBUTING</h3></div>
           <div class="panel-body">
-            {% if page.repo.snapshots[distro].data.contributing_rendered %}
-              {{ page.repo.snapshots[distro].data.contributing_rendered }}
+            {% if repo.snapshots[rendered_distro].data.contributing_rendered %}
+              {{ repo.snapshots[rendered_distro].data.contributing_rendered }}
             {% else %}
               <em>No CONTRIBUTING.md found.</em>
             {% endif %}
-            <hr id="{{distro}}-contribute-lists">
-            <ul class="nav nav-tabs nav-justified" id="{{distro}}-contribute-lists-tabs">
+            <hr id="{{rendered_distro}}-contribute-lists">
+            <ul class="nav nav-tabs nav-justified" id="{{rendered_distro}}-contribute-lists-tabs">
               <li class="better-tabs active">
-                <a href="#{{distro}}-contribute-lists-help-wanted" data-toggle="tab"><span class="contribute-lists-help-wanted-count label label-primary">-</span> Help Wanted</a>
+                <a href="#{{rendered_distro}}-contribute-lists-help-wanted" data-toggle="tab"><span class="contribute-lists-help-wanted-count label label-primary">-</span> Help Wanted</a>
               </li>
               <li class="better-tabs">
-                <a href="#{{distro}}-contribute-lists-good-first-issue" data-toggle="tab"><span class="contribute-lists-good-first-issue-count label label-primary">-</span> Good First Issue</a>
+                <a href="#{{rendered_distro}}-contribute-lists-good-first-issue" data-toggle="tab"><span class="contribute-lists-good-first-issue-count label label-primary">-</span> Good First Issue</a>
               </li>
               <li class="better-tabs">
-                <a href="#{{distro}}-contribute-lists-pull-requests" data-toggle="tab"><span class="contribute-lists-pull-requests-count label label-primary">-</span> Pull Requests to Review</a>
+                <a href="#{{rendered_distro}}-contribute-lists-pull-requests" data-toggle="tab"><span class="contribute-lists-pull-requests-count label label-primary">-</span> Pull Requests to Review</a>
               </li>
             </ul>
             <div class="tab-content contribute-lists">
-              <div class="tab-pane active" id="{{distro}}-contribute-lists-help-wanted">
+              <div class="tab-pane active" id="{{rendered_distro}}-contribute-lists-help-wanted">
                 <div class="contribute-lists-help-wanted"></div>
               </div>
-              <div class="tab-pane" id="{{distro}}-contribute-lists-good-first-issue">
+              <div class="tab-pane" id="{{rendered_distro}}-contribute-lists-good-first-issue">
                 <div class="contribute-lists-good-first-issue"></div>
               </div>
-              <div class="tab-pane" id="{{distro}}-contribute-lists-pull-requests">
+              <div class="tab-pane" id="{{rendered_distro}}-contribute-lists-pull-requests">
                 <div class="contribute-lists-pull-requests"></div>
               </div>
             </div>
           </div>
         </div>
 
-        {% assign n_errors = page.repo.errors | size %}
+        {% assign n_errors = repo.errors | size %}
         {% if n_errors > 0 %}
           <div class="panel panel-danger">
             <div class="panel-heading"><h3 class="panel-title">Indexing Errors</h3></div>
             <div class="panel-body">
               <ul>
-                {% for e in page.repo.errors %}
+                {% for e in repo.errors %}
                   <li><em>{{e}}</em></li>
                 {% endfor %}
               </ul>
@@ -123,7 +132,7 @@ layout: default
           </div>
         {% endif %}
       {% else %}
-        <div class="alert alert-warning" role="alert">No version for distro <strong>{{ distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
+        <div class="alert alert-warning" role="alert">No version for distro <strong>{{ rendered_distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
       {% endif %}
     </div>
   </div>
