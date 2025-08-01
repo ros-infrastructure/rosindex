@@ -120,6 +120,13 @@ class PackagePage < Jekyll::Page
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'package.html')
     self.data['package_instances'] = package_instances
+
+    # Redirect from retired urls in #483
+    self.data['redirect_from'] = []
+    package_instances.instances.each_key do |instance_id|
+      self.data['redirect_from'].append(File.join('p', package_instances.name, instance_id))
+    end
+
     self.data['package_name'] = package_instances.name
     self.data['title'] = 'ROS Package: ' + package_instances.name
 
