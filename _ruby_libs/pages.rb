@@ -44,13 +44,13 @@ end
 
 
 class RepoPage < Jekyll::Page
-  def initialize(site, instances, repo, default)
+  def initialize(site, instances, repo)
 
     basepath = File.join('r', repo.name)
 
     @site = site
     @base = site.source
-    @dir = if default then basepath else File.join(basepath, repo.id) end
+    @dir = basepath
     @name = 'index.html'
 
     self.process(@name)
@@ -58,11 +58,9 @@ class RepoPage < Jekyll::Page
 
     self.data['instance'] =   repo
     self.data['repo'] =   repo
-    if default then
-      self.data['redirect_from'] = [ File.join('repos', repo.name)]
-      instances.instances.each do |id, repo|
-        self.data['redirect_from'] << File.join('r', repo.name, id)
-      end
+    self.data['redirect_from'] = [ File.join('repos', repo.name)]
+    instances.instances.each do |id, repo_inst|
+      self.data['redirect_from'] << File.join('r', repo_inst.name, id)
     end
 
     self.data['instances'] = instances.instances

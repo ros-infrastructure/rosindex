@@ -1049,7 +1049,7 @@ class Indexer < Jekyll::Generator
       dputs " - creating pages for repo "+repo_name+"..."
 
       # create the page for the default instance
-      site.pages << RepoPage.new(site, repo_instances, repo_instances.default, true)
+      site.pages << RepoPage.new(site, repo_instances, repo_instances.default)
 
     end
 
