@@ -44,9 +44,9 @@ end
 
 
 class RepoPage < Jekyll::Page
-  def initialize(site, instances, repo)
+  def initialize(site, instances)
 
-    basepath = File.join('r', repo.name)
+    basepath = File.join('r', instances.name)
 
     @site = site
     @base = site.source
@@ -56,14 +56,12 @@ class RepoPage < Jekyll::Page
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'repo_instance.html')
 
-    self.data['instance'] =   repo
-    self.data['repo'] =   repo
-    self.data['redirect_from'] = [ File.join('repos', repo.name)]
+    self.data['redirect_from'] = [ File.join('repos', instances.name)]
     instances.instances.each do |id, repo_inst|
       self.data['redirect_from'] << File.join('r', repo_inst.name, id)
     end
 
-    self.data['instances'] = instances.instances
+    self.data['instances'] = instances
 
     # Use the same logic for repo selection as packages.
     # This could likely be collected earlier in a simpler format.

@@ -36,9 +36,9 @@ layout: default
         {% assign rendered_distro = distro %}
       {% endunless %}
 
-      {% include repo_info.html %}
-      {% if page.available_distros[distro] or page.available_older_distros[distro] %}
-        {% assign repo = page.repo %}
+      {% if page.available_distros[rendered_distro] or page.available_older_distros[rendered_distro] %}
+        {% assign repo = page.instances.defaults[rendered_distro] %}
+        {% include repo_info.html %}
         <div class="panel panel-default">
           {% assign snapshot = repo.snapshots[rendered_distro] %}
           <div class="panel-heading"><h3 class="panel-title">Repository Summary</h3></div>
