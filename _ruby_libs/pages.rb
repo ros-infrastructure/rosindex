@@ -65,7 +65,6 @@ class RepoPage < Jekyll::Page
 
     self.data['instances'] = instances.instances
     self.data['instance_base_url'] = basepath
-    self.data['instance_index_url'] = File.join('repos', repo.name)
     self.data['default_instance_id'] = instances.default.id ## TODO
 
     # Use the same logic for repo selection as packages.
@@ -140,7 +139,7 @@ class PackagePage < Jekyll::Page
 
     self.data['instances'] = package_instances.instances
 
-    self.data['instance_index_url'] = File.join('packages',package_instances.name)
+    self.data['redirect_from'] = [ File.join('packages',package_instances.name) ]
     self.data['instance_base_url'] = @dir
 
     self.data['available_distros'],
