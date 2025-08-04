@@ -10,7 +10,6 @@
       </td>
       <td>
         <h3><a style="text-decoration:none;" href="{{site.baseurl }}/r/{{repo.name}}/">{{repo.name}}</a> <small>repository</small></h3>
-        {% for tag in repo.tags %}<span class="label label-default">{{ tag }}</span> {% endfor %}
         {% for p in repo.snapshots[rendered_distro].packages %}
         <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{p[1].name}}/">{{ p[1].name }}</a>
         {% endfor %}
