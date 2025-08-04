@@ -68,9 +68,16 @@ class RepoPage < Jekyll::Page
     self.data['instance_index_url'] = File.join('repos', repo.name)
     self.data['default_instance_id'] = instances.default.id ## TODO
 
+    # Use the same logic for repo selection as packages.
+    # This could likely be collected earlier in a simpler format.
+    all_snapshots = {}
+    instances.instances.each do |id, repo|
+      all_snapshots = all_snapshots.merge(repo.snapshots)
+    end
+
     self.data['available_distros'],
     self.data['available_older_distros'],
-    self.data['n_available_older_distros'] = get_available_distros(site, repo.snapshots)
+    self.data['n_available_older_distros'] = get_available_distros(site, all_snapshots)
     self.data['all_distros'] = site.config['distros'] + site.config['old_distros']
 
     self.data['default_distro'] = self.data['available_distros'].keys.first or
