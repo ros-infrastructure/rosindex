@@ -415,7 +415,7 @@ layout: default
 
   function updatePage() {
     // Queries status to update page.
-    if (getIsSearch()) {getIsRepos
+    if (getIsSearch()) {
       copySearchQueryToUI();
       var query = getWindowSearchQuery();
       var distro = window.location.hash.substring(1) || gDistro;
