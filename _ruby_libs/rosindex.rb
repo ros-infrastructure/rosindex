@@ -101,7 +101,7 @@ class RepoInstances < Liquid::Drop
     # these are all of the known instances of this repo
     @instances = {}
 
-    # reference to the preferred Repo instance
+    # reference to the preferred Repo instance per rosdistro
     @defaults = {}
   end
 end

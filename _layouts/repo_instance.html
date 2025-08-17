@@ -28,7 +28,7 @@ layout: default
         {% for fallback_distro in page.all_distros %}
           {% if page.available_distros[fallback_distro] or page.available_older_distros[fallback_distro] %}
             {% assign rendered_distro = fallback_distro %}
-            {% break %}
+            {% break %} {% comment %} tfoote: check ordering of fallback, to get newest. Maybe newest LTS if possible? {% endcomment %}
           {% endif %}
         {% endfor %}
         <div class="alert alert-warning">No version for distro <strong>{{ distro }}</strong> showing <strong>{{ rendered_distro }}</strong>. Known supported distros are highlighted in the buttons above.</div>
