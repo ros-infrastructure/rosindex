@@ -1146,7 +1146,6 @@ class Indexer < Jekyll::Generator
               'maintainers' => p['maintainers'] * ", ",
               'authors' => p['authors'] * ", ",
               'distro' => distro,
-              'instance' => repo.name + '/' + repo.id,
               'pkg_deps' => p['pkg_deps'].length,
               'dependants' => p['dependants'].length,
               'readme' => readme_filtered,
