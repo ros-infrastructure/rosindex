@@ -38,7 +38,7 @@ Assumes distro and package are defined
           <div class="alert alert-info">
             <h4>Third-Party Package</h4>
             This third-party package's source repository does not contain a package manifest. Instead, its package manifest is stored in its <em>release repository</em>.
-            In order to build this package from source in a Catkin workspace, please <a class="alert-link" target="_blank" href="{{site.baseurl}}/p/{{package.name}}/{{package.repo.id}}/{{distro}}/package.xml">download its package manifest</a>.
+            In order to build this package from source in a Catkin workspace, please <a class="alert-link" target="_blank" href="{{site.baseurl}}/p/{{package.name}}/{{distro}}/package.xml">download its package manifest</a>.
           </div>
         </div>
       </div>
@@ -167,7 +167,7 @@ Assumes distro and package are defined
             <div class="panel-heading"><span class="glyphicon glyphicon-file"></span> README </div>
             <div class="panel-body">
             <em>No README found.</em>
-            {% if package.snapshot.data.readme_rendered %} <em><a href="{{site.baseurl}}/r/{{package.repo.name}}/{{package.repo.id}}/#{{distro}}">See repository README.</a></em>
+            {% if package.snapshot.data.readme_rendered %} <em><a href="{{site.baseurl}}/r/{{package.repo.name}}/#{{distro}}">See repository README.</a></em>
             {% else %}
               <em>No README in repository either.</em>
             {% endif %}
