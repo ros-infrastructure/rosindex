@@ -56,9 +56,9 @@ class RepoPage < Jekyll::Page
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'repo_instance.html')
 
-    self.data['redirect_from'] = [ File.join('repos', instances.name)]
+    self.data['redirect_from'] = [ File.join('repos', instances.name) + '/']
     instances.instances.each do |id, repo_inst|
-      self.data['redirect_from'] << File.join('r', repo_inst.name, id)
+      self.data['redirect_from'] << File.join('r', repo_inst.name, id) + '/'
     end
 
     self.data['instances'] = instances
@@ -127,7 +127,7 @@ class PackagePage < Jekyll::Page
     # Redirect from retired urls in #483
     self.data['redirect_from'] = []
     package_instances.instances.each_key do |instance_id|
-      self.data['redirect_from'].append(File.join('p', package_instances.name, instance_id))
+      self.data['redirect_from'].append(File.join('p', package_instances.name, instance_id) + '/')
     end
 
     self.data['package_name'] = package_instances.name
@@ -135,7 +135,7 @@ class PackagePage < Jekyll::Page
 
     self.data['instances'] = package_instances.instances
 
-    self.data['redirect_from'] = [ File.join('packages',package_instances.name) ]
+    self.data['redirect_from'] = [ File.join('packages',package_instances.name) + '/']
 
     self.data['available_distros'],
     self.data['available_older_distros'],
