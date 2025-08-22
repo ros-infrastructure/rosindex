@@ -28,6 +28,10 @@
     border-radius: 1em;
 }
 
+.label {
+  line-height: 24px
+}
+
 .glyphicon-none:before {
     content: "\2122";
     color: transparent !important;
@@ -176,7 +180,7 @@ div#toc a {
 
 .pkg-label {
   margin-right: 2px;
-  display: inline-block;
+  display: inline;
 }
 
 
@@ -403,7 +407,7 @@ code {
 }
 
 .list-group-horizontal .list-group-item {
-  display: inline-block;
+  display: inline;
 }
 .list-group-horizontal .list-group-item {
   margin-bottom: 0;
