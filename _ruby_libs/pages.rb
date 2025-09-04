@@ -161,6 +161,7 @@ class StatsPage < Jekyll::Page
     self.process(@name)
     self.read_yaml(File.join(@base, '_layouts'),'stats.html')
 
+    self.data['title'] = 'Statistics - ROS Index'
     self.data['n_packages'] = package_names.length
     self.data['n_repos'] = all_repos.length
     self.data['n_errors'] = errors.length
