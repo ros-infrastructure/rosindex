@@ -34,7 +34,7 @@ class DepPage < Jekyll::Page
 
     self.data['dep_name'] = dep_name
     self.data['dep_data'] = dep_data
-    self.data['title'] = 'rosdep System Dependency: ' + dep_name
+    self.data['title'] = dep_name + ' - rosdep System Dependency Overview'
 
     self.data['dep_data_per_platform'] = full_dep_data['data_per_platform']
     self.data['dependants_per_distro'] = full_dep_data['dependants_per_distro']
@@ -62,6 +62,7 @@ class RepoPage < Jekyll::Page
     end
 
     self.data['instances'] = instances
+    self.data['title'] = instances.name + ' - ROS Repository Overview'
 
     # Use the same logic for repo selection as packages.
     # This could likely be collected earlier in a simpler format.
@@ -131,7 +132,7 @@ class PackagePage < Jekyll::Page
     end
 
     self.data['package_name'] = package_instances.name
-    self.data['title'] = 'ROS Package: ' + package_instances.name
+    self.data['title'] = package_instances.name + ' - ROS Package Overview'
 
     self.data['instances'] = package_instances.instances
 
