@@ -30,7 +30,7 @@ $(PIP_FILE):
 	@echo "Get pip descriptions file"
 	python3 $(PIP_SCRIPT)
 
-$(DISCOVERY_RESULTS):
+$(DISCOVERY_RESULTS): prepare-sources
 	@echo "Rebuild discovery file that contains discovered repos"
 	bundle exec $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS)
   
