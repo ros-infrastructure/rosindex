@@ -94,19 +94,17 @@ Assumes distro and package are defined
           <div class="panel-body">
             {{ package.data.description}}
           </div>
+          {% assign n_urls = package.data.urls | size %}
+          {% if n_urls > 0 %}
           <div class="panel-heading"><h4 class="panel-title">Additional Links</h4></div>
           <div class="panel-body">
-            {% assign n_urls = package.data.urls | size %}
-            {% if n_urls > 0 %}
-              <ul class="list-unstyled">
-                {% for url in package.data.urls %}
-                  <li><a href="{{url.uri}}">{%if url.type%}{{url.type | capitalize}}{%else%}{{url.domain}}{%endif%}</a></li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <em>No additional links.</em>
-            {% endif %}
+            <ul class="list-unstyled">
+              {% for url in package.data.urls %}
+                <li><a href="{{url.uri}}">{%if url.type%}{{url.type | capitalize}}{%else%}{{url.domain}}{%endif%}</a></li>
+              {% endfor %}
+            </ul>
           </div>
+          {% endif %}
           <div class="panel-heading"><h4 class="panel-title">Maintainers</h4></div>
           <div class="panel-body">
             {% assign n_maintainers = package.data.maintainers | size %}
