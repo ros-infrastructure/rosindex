@@ -53,17 +53,6 @@
       </td>
     </tr>
     <tr>
-      <td class="text-right"><b>Tags</b></td>
-      <td>
-        {% assign n_tags = repo.tags.size %}
-        {% if n_tags > 0 %}
-          {% for tag in repo.tags %}<span class="label label-default">{{ tag }}</span> {% endfor %}
-        {% else %}
-          <em>No category tags.</em>
-        {% endif %}
-      </td>
-    </tr>
-    <tr>
       <td class="text-right"><b>Contributing</b></td>
       <td>
         <a class="label label-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-help-wanted">

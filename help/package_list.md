@@ -42,7 +42,7 @@ The package name is split by underscore (_), and those individual terms are adde
 
 These fields are additionally searched:
 - readme: The 'readme' file included in the package repository.
-- tags: These mostly contains the page name split by '_', so that for example the package with name "avt_vimbra_camera" would have tags 'avt', 'vimbra', and 'camera'. (A few packages have explicit tags defined, but most do not.)
+- tags: These mostly contains the page name split by '_', so that for example the package with name "avt_vimbra_camera" would have tags 'avt', 'vimbra', and 'camera'.
 - released: Is the package released? Has a value 'released' if released, otherwise empty.
 
 ### Example searches

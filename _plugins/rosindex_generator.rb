@@ -338,22 +338,6 @@ class Indexer < Jekyll::Generator
       # extract other standard exports
       deprecated = REXML::XPath.first(manifest_doc, "/package/export/deprecated/text()").to_s
 
-      # extract rosindex exports
-      tags = REXML::XPath.each(manifest_doc, "/package/export/rosindex/tags/tag/text()").map { |t| t.to_s }
-      nodes = REXML::XPath.each(manifest_doc, "/package/export/rosindex/nodes").map { |nodes|
-        case nodes.attributes["format"]
-        when "hdf"
-          get_hdf(nodes.text)
-        else
-          REXML::XPath.each(manifest_doc, "/package/export/rosindex/nodes/node").map { |node|
-            {
-              'name' => REXML::XPath.first(node,'/name/text()').to_s,
-              'description' => REXML::XPath.first(node,'/description/text()').to_s,
-              'ros_api' => get_ros_api(REXML::XPath.first(node,'/description/api'))
-            }
-          }
-        end
-      }
 
       # compute the relative path from the root of the repo to this directory
       package_relpath = Pathname.new(File.join(*path)).relative_path_from(Pathname.new(checkout_path))
@@ -454,9 +438,6 @@ class Indexer < Jekyll::Generator
         'dependants' => {},
         # exports
         'deprecated' => deprecated,
-        # rosindex metadata
-        'tags' => tags,
-        'nodes' => nodes,
         # readme
         'readmes' => readmes,
         # changelog
@@ -570,12 +551,8 @@ class Indexer < Jekyll::Generator
       # store this package in the repo snapshot
       snapshot.packages[package_name] = package
 
-      # collect tags from discovered packages
-      repo.tags = Set.new(repo.tags).merge(package_data['tags']).to_a
-
       # add this package to the global package dict
       @package_names[package_name].instances[repo.id] = repo
-      @package_names[package_name].tags = Set.new(@package_names[package_name].tags).merge(package_data['tags']).to_a
 
       # add this package as the default for this distro
       if @repo_names[repo.name].defaults[distro]
@@ -1136,7 +1113,7 @@ class Indexer < Jekyll::Generator
               'baseurl' => site.config['baseurl'],
               'url' => File.join('/p',package_name)+"#"+distro,
               'last_commit_time' => repo_snapshot.data['last_commit_time'],
-              'tags' => (p['tags'] + package_name.split('_')) * " ",
+              'tags' => (package_name.split('_')) * " ",
               'package' => package_name,
               'repo' => repo.name,
               'core' => core,

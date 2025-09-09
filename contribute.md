@@ -37,13 +37,6 @@ easier for users to run your code. In order to release your repository's
 packages, follow the tutorials for the [bloom release automation
 tool](https://docs.ros.org/en/rolling/How-To-Guides/Releasing/Releasing-a-Package.html) on the ROS.org.
 
-## Adding ROS Index Metadata
-
-In addition to standard `README` formats, ROS Index also inspects ROS package
-manifest XML files for ROS Index-specific `<export>` tags in order to read
-additional metadata.
-
-See [ROS Index Metadata]({{ "/contribute/metadata" | prepend: site.baseurl }}) for documentation on these tags.
 
 ## Opting out of Indexing
 
