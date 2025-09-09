@@ -17,13 +17,13 @@ jobs:
       uses: actions/upload-artifact@v4
       id: artifact-upload-step
       with:
-        name: html-artifacts-${{ github.event.pull_request.number }}
+        name: rosindex-test-render-${{ github.event.pull_request.number }}
         path: _site
         retention-days: 30 # default 90
         compression-level: 9 # maximum compression, default 6
         if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
 
-    - name: Find HTML artifacts link comment
+    - name: Find Site Test Render link comment
       uses: peter-evans/find-comment@v3
       id: find-comment
       # Skip if PR from fork
@@ -31,9 +31,9 @@ jobs:
       with:
         issue-number: ${{ github.event.pull_request.number }}
         comment-author: 'github-actions[bot]'
-        body-includes: "HTML artifacts:"
+        body-includes: "Site Test Render:"
 
-    - name: Create or update HTML artifacts link comment
+    - name: Create or update Site Test Render link comment
       uses: peter-evans/create-or-update-comment@v4
       # Skip if PR from fork
       if: github.repository == github.event.pull_request.head.repo.full_name
@@ -41,11 +41,12 @@ jobs:
         comment-id: ${{ steps.find-comment.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         body: |
-          HTML artifacts: ${{ steps.artifact-upload-step.outputs.artifact-url }}.
+          Site Test Render: ${{ steps.artifact-upload-step.outputs.artifact-url }}.
 
           To view the resulting site:
           1. Click on the above link to download the artifacts archive
           2. Extract it
-          3. Run `ghrocker --devel html-artifacts-${{ github.event.pull_request.number }}` Requires ghrocker installed https://github.com/tfoote/ghrocker
-          4. Open http://localhost:4000 in your favorite browser
+          3. View it using your favorite local rendering tool.
+            a. As one example: Run `ghrocker --devel rosindex-test-render-${{ github.event.pull_request.number }}` Requires ghrocker installed https://github.com/tfoote/ghrocker
+            b. Open http://localhost:4000 in your favorite browser
         edit-mode: replace
