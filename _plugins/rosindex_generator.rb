@@ -117,6 +117,7 @@ def resolve_dep(ps, ms, os, ver, data)
   if data.is_a?(Hash)
     if data.key?(os) then return resolve_dep(ps, ms, os, ver, data[os]) end
     if data.key?(ver) then return resolve_dep(ps, ms, os, ver, data[ver]) end
+    if data.key?('*') then return resolve_dep(ps, ms, os, ver, data['*']) end
     if data.key?('source') and data['source'].key?('uri') then return data['source']['uri'] end
     if data.key?('packages') then return data['packages'] end
     ms.each do |manager_name, manager_oss|
