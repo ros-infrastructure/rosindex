@@ -92,7 +92,13 @@ layout: default
                       {% assign n_found = found | size %}
                       {% if n_found > 0 %}
                         {% for p in found %}
-                          <code>{{p}}</code>
+                          {% assign pkg_name = p[0] %}
+                          {% assign pkg_link = p[1] %}
+                          {% if pkg_link %}
+                            <a href="{{pkg_link}}"><b><code>{{pkg_name}}</code></b></a>
+                          {% else %}
+                            <code>{{pkg_name}}</code>
+                          {% endif %}
                         {% endfor %}
                       {% else %}
                         <em>Not available</em>
@@ -108,7 +114,13 @@ layout: default
                     {% assign n_found = found | size %}
                     {% if n_found > 0 %}
                       {% for p in found %}
-                        <code>{{p}}</code>
+                        {% assign pkg_name = p[0] %}
+                        {% assign pkg_link = p[1] %}
+                        {% if pkg_link %}
+                          <a href="{{pkg_link}}"><b><code>{{pkg_name}}</code></b></a>
+                        {% else %}
+                          <code>{{pkg_name}}</code>
+                        {% endif %}
                       {% endfor %}
                     {% else %}
                       <em>Not available</em>

@@ -128,6 +128,34 @@ def resolve_dep(ps, ms, os, ver, data)
   return []
 end
 
+def get_package_link(platform_key, pkg_name, version_key)
+  # get a link for info on pkg_name on platform platform_key
+  case platform_key
+  when 'ubuntu'
+    if ['noble', 'jammy', 'plucky', 'questing', 'resolute'].include?(version_key) then
+      return "https://packages.ubuntu.com/#{version_key}/#{pkg_name}"
+    else
+      return nil
+    end
+  when 'debian'
+    if ['bullseye', 'bookworm', 'trixie', 'forky','sid'].include?(version_key) then
+      return "https://packages.debian.org/#{version_key}/#{pkg_name}"
+    else
+      return nil
+    end
+  when 'fedora'
+    if ['41', '42', '43'].include?(version_key) then
+      return "https://packages.fedoraproject.org/pkgs/#{pkg_name}/#{pkg_name}/"
+    else
+      return nil
+    end
+  when 'osx'
+    return "https://formulae.brew.sh/formula/#{pkg_name}"
+  end
+
+  return nil
+end
+
 def expand_package_deps(package_name, package_names, deps, distro)
   # Expand package dependencies at all levels for package_name.
   if deps.include?(package_name)
@@ -788,12 +816,21 @@ class Indexer < Jekyll::Generator
       platforms.each do |platform_key, platform_details|
         if platform_details['versions'].size > 0
           platform_data[platform_key] = {}
-          platform_details['versions'].each do |version_key, version_name|
-            platform_data[platform_key][version_key] = resolve_dep(platforms, manager_set, platform_key, version_key, dep_data)
+          platform_details['versions'].each_key do |version_key|
+            packages = resolve_dep(platforms, manager_set, platform_key, version_key, dep_data)
+            if packages.is_a?(Array)
+              platform_data[platform_key][version_key] = packages.map { |pkg_name|
+                [pkg_name, get_package_link(platform_key, pkg_name, version_key)]
+              }
+            else
+              # probably an old source entry, see libaria on debian Wheezy
+              platform_data[platform_key][version_key] = [[packages, nil]]
+            end
           end
           # Get dep description from debian
-          if platform_key == 'debian' and platform_data[platform_key].has_key?('bullseye')
-            platform_data[platform_key]['bullseye'].each do |debian_key|
+          if platform_key == 'debian'
+            platform_data[platform_key]['bullseye'].each do |key_and_link|
+              debian_key = key_and_link[0]
               # zero-length debian_descriptions indicates a failed download
               if debian_descriptions.length > 0
                 if debian_descriptions.has_key?(debian_key)
@@ -809,7 +846,11 @@ class Indexer < Jekyll::Generator
             end
           end
         else
-          platform_data[platform_key] = resolve_dep(platforms, manager_set, platform_key, 'any_version', dep_data)
+          packages = resolve_dep(platforms, manager_set, platform_key, 'any_version', dep_data)
+          # all platforms that don't have versions currently don't have links available
+          platform_data[platform_key] = packages.map { |pkg_name|
+            [pkg_name, nil]
+          }
         end
       end
       # if debian did not get a description, maybe we got it from pip
@@ -1183,15 +1224,15 @@ class Indexer < Jekyll::Generator
                 if version_name.empty?
                   version_name = version_key.capitalize
                 end
-                names_for_version.collect do |name|
-                  aliases.add(name)
-                  "#{name} (#{platform_name} #{version_name})"
+                names_for_version.collect do |name_and_link|
+                  aliases.add(name_and_link[0])
+                  "#{name_and_link[0]} (#{platform_name} #{version_name})"
                 end.join(' : ')
               end.compact.join(' : ')
             else
-              data.collect do |name|
-                aliases.add(name)
-                "#{name} (#{platform_name})"
+              data.collect do |name_and_link|
+                aliases.add(name_and_link[0])
+                "#{name_and_link[0]} (#{platform_name})"
               end.join(' : ')
             end
           end.compact.join(' : '),
