@@ -496,7 +496,7 @@ class Indexer < Jekyll::Generator
     Find.find(local_path) do |path|
       if FileTest.directory?(path)
         # skip certain paths
-        if (File.basename(path)[0] == ?.) or File.exist?(File.join(path,'CATKIN_IGNORE')) or File.exist?(File.join(path,'AMENT_IGNORE')) or File.exist?(File.join(path,'.rosindex_ignore'))
+        if (File.basename(path)[0] == ?.) or File.exist?(File.join(path,'CATKIN_IGNORE')) or File.exist?(File.join(path,'AMENT_IGNORE')) or File.exist?(File.join(path,'COLCON_IGNORE')) or File.exist?(File.join(path,'.rosindex_ignore'))
           Find.prune
         end
 
