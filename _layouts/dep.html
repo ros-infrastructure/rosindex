@@ -5,15 +5,17 @@ layout: default
 <div class="container-fluid" style="margin-top:20px">
   <div class="container-fluid">
     <div class="row">
-      <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li><a href="{{site.baseurl}}/search_deps">System Dependencies</a></li>
-        <li class="active">{{page.dep_name}}</li>
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/search_deps">System Dependencies</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{page.dep_name}}</li>
+        </ol>
+      </nav>
     </div>
     <div class="row">
-      <div class="well well-sm">
-        <table class="table">
+      <div class="card bg-light p-3 mb-3">
+        <table class="table mb-0">
           <tr>
             <td width="100px" class="text-center">
               {% comment %}<img style="width: 80px;" src="{{ '/assets/repo.png' | prepend: site.baseurl }}">{% endcomment %}
@@ -31,9 +33,9 @@ layout: default
   </div>
 </div>
 
-<div class="panel panel-default">
-  <div class="panel-heading"><h3 class="panel-title">Used in Packages</h3></div>
-  <div class="panel-body table-responsive">
+<div class="card mb-3">
+  <div class="card-header"><h3 class="card-title mb-0">Used in Packages</h3></div>
+  <div class="card-body table-responsive">
     <table class="table">
       <tbody>
         {% for distro_dependants in page.dependants_per_distro %}
@@ -43,7 +45,7 @@ layout: default
           <th scope="row">{{distro}}</th>
           <td>
             {% for dependant in dependants %}
-            <a href="{{site.baseurl}}/p/{{dependant.package.name}}/#{{distro}}" class="label label-primary pkg-label">
+            <a href="{{site.baseurl}}/p/{{dependant.package.name}}/#{{distro}}" class="badge bg-primary pkg-label">
               {{dependant.package.name}}
             </a>
             {% endfor %}
@@ -57,9 +59,9 @@ layout: default
 </div>
 
 <div class="container-fluid">
-  <div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title">Dependency Availability</h3></div>
-    <div class="panel-body" style="overflow-x: auto">
+  <div class="card mb-3">
+    <div class="card-header"><h3 class="card-title mb-0">Dependency Availability</h3></div>
+    <div class="card-body" style="overflow-x: auto">
       <div class="container-fluid">
         {% for p in site.data.common.platforms %}
           {% assign platform_key = p[0] %}
@@ -80,14 +82,14 @@ layout: default
                     {% assign version_key = v[0] %}
                     {% assign version_name = v[1] %}
                     {% assign version_name_len = version_name | size %}
-                    <div class="col-xs-6">
+                    <div class="col-6">
                       {% if version_name_len > 0 %}
                         {{version_name}}
                       {% else %}
                         {{version_key | capitalize}}
                       {% endif %}
                     </div>
-                    <div class="col-xs-6">
+                    <div class="col-6">
                       {% assign found = dep_platform_data[version_key] %}
                       {% assign n_found = found | size %}
                       {% if n_found > 0 %}
@@ -106,10 +108,10 @@ layout: default
                     </div>
                   {% endfor %}
                 {% else %}
-                  <div class="col-xs-6">
+                  <div class="col-6">
                     <em>All Versions</em>
                   </div>
-                  <div class="col-xs-6">
+                  <div class="col-6">
                     {% assign found = dep_platform_data %}
                     {% assign n_found = found | size %}
                     {% if n_found > 0 %}
@@ -136,9 +138,9 @@ layout: default
     </div>
   </div>
 
-  <div class="panel panel-default">
-    <div class="panel-heading"><h3 class="panel-title">Raw Rosdep Data</h3></div>
-    <div class="panel-body">
+  <div class="card mb-3">
+    <div class="card-header"><h3 class="card-title mb-0">Raw Rosdep Data</h3></div>
+    <div class="card-body">
       <pre>
   {{page.dep_data}}
       </pre>

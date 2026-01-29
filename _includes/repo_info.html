@@ -1,9 +1,9 @@
-<div class="well well-sm">
+<div class="card bg-light p-3 mb-3">
   <div>
     
   </div>
   
-  <table class="table">
+  <table class="table mb-0">
     <tr>
       <td width="100px" class="text-center">
         <img style="width: 80px;" src="{{ '/assets/repo.png' | prepend: site.baseurl }}" alt="Repo symbol">
@@ -11,7 +11,7 @@
       <td>
         <h3><a style="text-decoration:none;" href="{{site.baseurl }}/r/{{repo.name}}/">{{repo.name}}</a> <small>repository</small></h3>
         {% for p in repo.snapshots[rendered_distro].packages %}
-        <a class="label label-primary pkg-label" href="{{site.baseurl}}/p/{{p[1].name}}/">{{ p[1].name }}</a>
+        <a class="badge bg-primary pkg-label" href="{{site.baseurl}}/p/{{p[1].name}}/">{{ p[1].name }}</a>
         {% endfor %}
 
       </td>

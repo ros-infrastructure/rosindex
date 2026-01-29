@@ -18,7 +18,7 @@ Assumes the following are defined:
      href="{{ package.data.docs_uri }}"
      title="View API documentation on docs.ros.org"
      {% unless package.snapshot.documented %}disabled{% endunless %}>
-       <span style="margin-right: 5px;" class="glyphicon glyphicon-file"></span>
+       <i style="margin-right: 5px;" class="bi bi-file-text"></i>
        {%if hide_link_labels%}<br>{%endif%}
        API Docs
   </a>
@@ -26,7 +26,7 @@ Assumes the following are defined:
      target="_blank"
      href="{{ package.data.browse_uri }}"
      title="View source code on repository">
-       <span class="glyphicon glyphicon-folder-open" style="margin-right:5px;"></span>
+       <i class="bi bi-folder2-open" style="margin-right:5px;"></i>
        {%if hide_link_labels%}<br>{%endif%}
        Browse Code
   </a>
@@ -50,11 +50,11 @@ Assumes the following are defined:
      target="_blank"
      href="http://wiki.ros.org/{{page.package_name}}?distro={{distro}}"
      title="View this package on wiki.ros.org">
-       <span style="margin-right: 5px;" class="glyphicon glyphicon-info-sign"></span>
+       <i style="margin-right: 5px;" class="bi bi-info-circle"></i>
        {%if hide_link_labels%}<br>{%endif%}
        Wiki
   </a>
   {%endif%}
 
-  {% comment %}<a type="button" class="list-group-item {%if horizontal %}text-center{%endif%} inactive" target="_blank" ><span class="glyphicon glyphicon-fire"></span>{%if hide_link_labels%} CI{%endif%}</a>{% endcomment %}
+  {% comment %}<a type="button" class="list-group-item {%if horizontal %}text-center{%endif%} inactive" target="_blank" ><i class="bi bi-fire"></i>{%if hide_link_labels%} CI{%endif%}</a>{% endcomment %}
 </div>

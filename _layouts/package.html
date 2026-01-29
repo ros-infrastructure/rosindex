@@ -5,11 +5,13 @@ layout: default
 <div class="container-fluid" style="margin-top: 20px">
   <div class="container-fluid">
     <div class="row">
-      <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li><a href="{{site.baseurl}}/?search_packages=true">Packages</a></li>
-        <li class="active">{{page.package_instances.name}}</li>
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/?search_packages=true">Packages</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{page.package_instances.name}}</li>
+        </ol>
+      </nav>
     </div>
     <div class="row">
       {% include distro_switch.html %}
@@ -41,14 +43,14 @@ layout: default
       <div class="row">
         <div class="col-md-10">
           {% include package_header.html %}
-          <div class="visible-xs visible-sm">
+          <div class="d-md-none">
             {% assign hide_link_labels = true %}
             {% assign horizontal = true %}
             {% include package_links.html %}
           </div>
           {% include package_body.html %}
         </div>
-        <div class="col-md-2 hidden-xs hidden-sm">
+        <div class="col-md-2 d-none d-md-block">
           {% assign hide_link_labels = false %}
           {% assign horizontal = false %}
           {% include package_links.html %}

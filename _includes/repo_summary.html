@@ -2,68 +2,68 @@
 - repo
 - snapshot
 {% endcomment %}
-  <table class="table table-condensed">
+  <table class="table table-sm">
     <tr>
-      <td style="width:100px;" class="text-right"><b>Checkout URI</b></td>
-      <td><a class="label label-default" href="{{repo.uri}}">{{repo.uri}}</a></td>
+      <td style="width:100px;" class="text-end"><b>Checkout URI</b></td>
+      <td><a class="badge bg-secondary" href="{{repo.uri}}">{{repo.uri}}</a></td>
     </tr>
     <tr>
-      <td class="text-right"><b>VCS Type</b></td>
-      <td><span class="label label-default">{{repo.type}}</span></td>
+      <td class="text-end"><b>VCS Type</b></td>
+      <td><span class="badge bg-secondary">{{repo.type}}</span></td>
     </tr>
     <tr>
-      <td class="text-right"><b>VCS Version</b></td>
-      <td><span class="label label-default">{{snapshot.version}}</span></td>
+      <td class="text-end"><b>VCS Version</b></td>
+      <td><span class="badge bg-secondary">{{snapshot.version}}</span></td>
     </tr>
     <tr>
-      <td style="white-space: nowrap;" class="text-right"><b>Last Updated</b></div>
+      <td style="white-space: nowrap;" class="text-end"><b>Last Updated</b></div>
       <td>
         {% if snapshot.data.last_commit_time %}
-          <span class="label label-default"><span class="glyphicon glyphicon-time"></span> {{snapshot.data.last_commit_time}}
+          <span class="badge bg-secondary"><i class="bi bi-clock"></i> {{snapshot.data.last_commit_time}}
         {% else %}
-          <span class="label label-warning">UNKNOWN
+          <span class="badge bg-warning text-dark">UNKNOWN
         {% endif %}</span>
       </td>
     </tr>
     <tr>
-      <td class="text-right"><b>Dev Status</b></td>
+      <td class="text-end"><b>Dev Status</b></td>
       <td>
         {% if repo.status %}
           {% if repo.status == 'maintained' %}
-            <span class="label label-primary">
+            <span class="badge bg-primary">
           {% elsif repo.status == 'developed' %}
-            <span class="label label-success">
+            <span class="badge bg-success">
           {% elsif repo.status == 'end-of-life' %}
-              <span class="label label-danger">
+              <span class="badge bg-danger">
           {% endif %}
           {{repo.status | upcase}}
         {% else %}
-          <span class="label label-warning">UNMAINTAINED
+          <span class="badge bg-warning text-dark">UNMAINTAINED
         {% endif %}</span>
       </td>
     </tr>
     <tr>
-      <td class="text-right"><b>Released</b></td>
+      <td class="text-end"><b>Released</b></td>
       <td>
         {% if snapshot.released %}
-          <span class="label label-primary"><span class="glyphicon glyphicon-flash"></span> RELEASED
+          <span class="badge bg-primary"><i class="bi bi-lightning-fill"></i> RELEASED
         {% else %}
-          <span class="label label-default">UNRELEASED
+          <span class="badge bg-secondary">UNRELEASED
         {% endif %}</span>
       </td>
     </tr>
     <tr>
-      <td class="text-right"><b>Contributing</b></td>
+      <td class="text-end"><b>Contributing</b></td>
       <td>
-        <a class="label label-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-help-wanted">
+        <a class="badge bg-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-help-wanted">
           Help Wanted (<span class="contribute-lists-help-wanted-count">-</span>)
         </a>
         <br>
-        <a class="label label-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-good-first-issue">
+        <a class="badge bg-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-good-first-issue">
           Good First Issues (<span class="contribute-lists-good-first-issue-count">-</span>)
         </a>
         <br>
-        <a class="label label-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-pull-requests">
+        <a class="badge bg-primary" href="/r/{{repo.name}}/#{{distro}}-contribute-lists-pull-requests">
           Pull Requests to Review (<span class="contribute-lists-pull-requests-count">-</span>)
         </a>
       </td>

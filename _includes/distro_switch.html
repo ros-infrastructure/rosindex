@@ -1,23 +1,22 @@
 
 
-<div id="distro-switch" class="btn-group btn-group-justified" data-toggle="buttons">
+<div id="distro-switch" class="btn-group d-flex" role="group" data-bs-toggle="buttons">
   {% for distro in site.distros %}
-    <label id="{{ distro }}-option" class="distro-button btn btn-xs {% if page.available_distros[distro] %}btn-primary{% else %}btn-default{% endif %}" href="#{{ distro }}" data="{{ distro }}">
+    <label id="{{ distro }}-option" class="distro-button btn btn-sm flex-fill {% if page.available_distros[distro] %}btn-primary{% else %}btn-secondary{% endif %}" href="#{{ distro }}" data="{{ distro }}">
       <input type="radio" name="options" id="{{ distro }}-radio" autocomplete="off"> {{ distro }}
     </label>
   {% endfor %}
 
   <!-- Older distros -->
   <div class="btn-group dropdown">
-    <label type="button" class="btn btn-xs dropdown-toggle {% if page.n_available_older_distros > 0 %}btn-primary{% else %}btn-default{% endif %}" data-toggle="dropdown" id="older-distro-button">
+    <label type="button" class="btn btn-sm dropdown-toggle {% if page.n_available_older_distros > 0 %}btn-primary{% else %}btn-secondary{% endif %}" data-bs-toggle="dropdown" id="older-distro-button">
         <input type="radio" name="options" autocomplete="off">
       <span id="older-label">Older</span>
-      <span class="caret"></span>
     </label>
     <ul class="dropdown-menu" role="menu">
       {% for distro in site.old_distros %}
         <li data="{{ distro }}" id="{{ distro }}-option" class="{% unless page.available_older_distros[distro] %}disabled{% endunless %} older-distro-option"  href="#{{ distro }}">
-          <a href="#{{ distro }}" data="{{ distro }}" id="{{ distro }}-button">{{ distro }}</a>
+          <a class="dropdown-item" href="#{{ distro }}" data="{{ distro }}" id="{{ distro }}-button">{{ distro }}</a>
         </li>
       {% endfor %}
     </ul>

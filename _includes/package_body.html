@@ -7,26 +7,26 @@ Assumes distro and package are defined
 {% endif %}
 
 <ul class="nav nav-tabs nav-justified" id="{{distro}}-tabs" style="margin-bottom:20px">
-  <li class="better-tabs active">
-    <a href="#{{distro}}-overview" data-toggle="tab">Overview</a>
+  <li class="nav-item better-tabs">
+    <a class="nav-link active" href="#{{distro}}-overview" data-bs-toggle="tab">Overview</a>
   </li>
-  <li class="better-tabs">
+  <li class="nav-item better-tabs">
     {% assign n_launch = package.data.launch_data | size %}
     {% assign n_msgs = package.data.msg_files | size %}
     {% assign n_srvs = package.data.srv_files | size %}
     {% assign n_plugins = package.data.plugin_data | size %}
     {% assign n_assets = n_launch | plus: n_srvs | plus: n_msgs | plus: n_plugins %}
-    <a href="#{{distro}}-assets" data-toggle="tab"><span class="label label-{%if n_assets == 0%}default{%else%}primary{%endif%}">{{n_assets}}</span> Assets</a>
+    <a class="nav-link" href="#{{distro}}-assets" data-bs-toggle="tab"><span class="badge {%if n_assets == 0%}bg-secondary{%else%}bg-primary{%endif%}">{{n_assets}}</span> Assets</a>
   </li>
-  <li class="better-tabs">
+  <li class="nav-item better-tabs">
     {% assign n_dependants = package.data.dependants | size %}
     {% assign n_pkg_deps = package.data.pkg_deps | size %}
     {% assign n_system_deps = package.data.system_deps | size %}
     {% assign n_deps = n_pkg_deps | plus: n_system_deps %}
-    <a href="#{{distro}}-deps" data-toggle="tab"><span class="label label-{%if n_deps == 0%}default{%else%}primary{%endif%}">{{n_deps}}</span> Dependencies</a>
+    <a class="nav-link" href="#{{distro}}-deps" data-bs-toggle="tab"><span class="badge {%if n_deps == 0%}bg-secondary{%else%}bg-primary{%endif%}">{{n_deps}}</span> Dependencies</a>
   </li>
-  <li class="better-tabs">
-    <a href="#{{distro}}-questions" data-toggle="tab"><span id="{{distro}}-questions-count" class="label label-primary">0</span> Q & A</a>
+  <li class="nav-item better-tabs">
+    <a class="nav-link" href="#{{distro}}-questions" data-bs-toggle="tab"><span id="{{distro}}-questions-count" class="badge bg-primary">0</span> Q & A</a>
   </li>
 </ul>
 
@@ -34,7 +34,7 @@ Assumes distro and package are defined
   <div class="tab-pane active" id="{{distro}}-overview">
     {% if package.repo.release_manifests[distro] %}
       <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
           <div class="alert alert-info">
             <h4>Third-Party Package</h4>
             This third-party package's source repository does not contain a package manifest. Instead, its package manifest is stored in its <em>release repository</em>.
@@ -44,60 +44,60 @@ Assumes distro and package are defined
       </div>
     {% endif %}
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h4 class="panel-title">Package Summary</h4></div>
-          <div class="panel-body">
-            <table class="table table-condensed">
+      <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header"><h4 class="card-title mb-0">Package Summary</h4></div>
+          <div class="card-body">
+            <table class="table table-sm">
               <tr>
-                <td style="width:100px;" class="text-right"><strong>Version</strong></td>
+                <td style="width:100px;" class="text-end"><strong>Version</strong></td>
                 <td>{{ package.data.version }}</td>
               </tr>
               <tr>
-                <td class="text-right"><strong>License</strong></td>
+                <td class="text-end"><strong>License</strong></td>
                 <td>{{ package.data.license }}</td>
               </tr>
               <tr>
-                <td class="text-right"><strong>Build type</strong></td>
+                <td class="text-end"><strong>Build type</strong></td>
                 <td>
                   {% if package.data.pkg_type == 'catkin' %}
-                    <span class="label label-info">
+                    <span class="badge bg-info">
                   {% else %}
-                    <span class="label label-default">
+                    <span class="badge bg-secondary">
                   {% endif %}
                     {{package.data.pkg_type | upcase}}</span>
                 </td>
               </tr>
               <tr>
-                <td class="text-right"><strong>Use</strong></td>
+                <td class="text-end"><strong>Use</strong></td>
                 <td>
                 {% if package.data.deprecated and package.data.deprecated != '' %}
-                  <span class="label label-warning">DEPRECATED</span>
+                  <span class="badge bg-warning text-dark">DEPRECATED</span>
                 {%else%}
-                  <span class="label label-success">RECOMMENDED</span>
+                  <span class="badge bg-success">RECOMMENDED</span>
                 {%endif%}
                 </td>
               </tr>
             </table>
           </div>
-          <div class="panel-heading"><h3 class="panel-title">Repository Summary</h3></div>
-          <div class="panel-body">
+          <div class="card-header"><h3 class="card-title mb-0">Repository Summary</h3></div>
+          <div class="card-body">
             {% assign repo = package.repo %}
             {% assign snapshot = package.snapshot %}
             {% include repo_summary.html %}
           </div>
         </div>
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">Package Description</h3></div>
-          <div class="panel-body">
+      <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+        <div class="card mb-3">
+          <div class="card-header"><h3 class="card-title mb-0">Package Description</h3></div>
+          <div class="card-body">
             {{ package.data.description}}
           </div>
           {% assign n_urls = package.data.urls | size %}
           {% if n_urls > 0 %}
-          <div class="panel-heading"><h4 class="panel-title">Additional Links</h4></div>
-          <div class="panel-body">
+          <div class="card-header"><h4 class="card-title mb-0">Additional Links</h4></div>
+          <div class="card-body">
             <ul class="list-unstyled">
               {% for url in package.data.urls %}
                 <li><a href="{{url.uri}}">{%if url.type%}{{url.type | capitalize}}{%else%}{{url.domain}}{%endif%}</a></li>
@@ -105,8 +105,8 @@ Assumes distro and package are defined
             </ul>
           </div>
           {% endif %}
-          <div class="panel-heading"><h4 class="panel-title">Maintainers</h4></div>
-          <div class="panel-body">
+          <div class="card-header"><h4 class="card-title mb-0">Maintainers</h4></div>
+          <div class="card-body">
             {% assign n_maintainers = package.data.maintainers | size %}
             {% if n_maintainers > 0 %}
               <ul class="list-unstyled">
@@ -118,8 +118,8 @@ Assumes distro and package are defined
               <em>No known maintainers.</em>
             {% endif %}
           </div>
-          <div class="panel-heading"><h4 class="panel-title">Authors</h4></div>
-          <div class="panel-body">
+          <div class="card-header"><h4 class="card-title mb-0">Authors</h4></div>
+          <div class="card-body">
             {% assign n_authors = package.data.authors | size %}
             {% if n_authors > 0 %}
               <ul class="list-unstyled">
@@ -137,10 +137,10 @@ Assumes distro and package are defined
     {% unless package.data.readmes == empty %}
       {% for readme in package.data.readmes %}
         <div class="row">
-          <div class="col-xs-12">
-            <div class="panel panel-default">
-              <div class="panel-heading"><span class="glyphicon glyphicon-file"></span><a href="{{readme.browse_uri}}" title="Open in git repository">{{ readme.relpath }}</a></div>
-              <div class="panel-body">
+          <div class="col-12">
+            <div class="card mb-3">
+              <div class="card-header"><i class="bi bi-file-text"></i><a href="{{readme.browse_uri}}" title="Open in git repository">{{ readme.relpath }}</a></div>
+              <div class="card-body">
                     {{ readme.readme_rendered }}
               </div>
             </div>
@@ -149,10 +149,10 @@ Assumes distro and package are defined
       {% endfor %}
     {% else %}
       <div class="row">
-        <div class="col-xs-12">
-          <div class="panel panel-default">
-            <div class="panel-heading"><span class="glyphicon glyphicon-file"></span> README </div>
-            <div class="panel-body">
+        <div class="col-12">
+          <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-file-text"></i> README </div>
+            <div class="card-body">
             <em>No README found.</em>
             {% if package.snapshot.data.readme_rendered %} <em><a href="{{site.baseurl}}/r/{{package.repo.name}}/#{{distro}}">See repository README.</a></em>
             {% else %}
@@ -164,10 +164,10 @@ Assumes distro and package are defined
       </div>
     {% endunless %}
     <div class="row">
-      <div class="col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading"><span class="glyphicon glyphicon-list"></span> CHANGELOG</div>
-          <div class="panel-body">
+      <div class="col-12">
+        <div class="card mb-3">
+          <div class="card-header"><i class="bi bi-list-ul"></i> CHANGELOG</div>
+          <div class="card-body">
             {% if package.data.changelog_rendered %}
               {{ package.data.changelog_rendered }}
             {% else %}
@@ -182,13 +182,13 @@ Assumes distro and package are defined
   <div class="tab-pane" id="{{distro}}-deps">
     <div class="row">
       <div class="col-sm-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Package Dependencies</h3>
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title mb-0">Package Dependencies</h3>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             {% if n_pkg_deps > 0 %}
-              <table class="table table-condensed table-striped">
+              <table class="table table-sm table-striped">
                 <thead>
                   <th class="text-center">Deps</th>
                   <th style="width: 100%">Name</th>
@@ -201,7 +201,7 @@ Assumes distro and package are defined
                         <td class="text-center">
                           {% assign n_2nd_order_deps = p[1].snapshots[distro].data.pkg_deps | size %}
                           <a href="{{site.baseurl}}/p/{{p[0]}}/#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
-                            <span class="glyphicon glyphicon-arrow-left" title="Package dependencies"></span>
+                            <i class="bi bi-arrow-left" title="Package dependencies"></i>
                           </a>
                         </td>
                         <td><a href="{{site.baseurl}}/p/{{p[0]}}/#{{distro}}">{{p[0]}} {{n_2nd_order_pdeps}} {{n_2nd_order_sdeps}}</a></td>
@@ -219,12 +219,12 @@ Assumes distro and package are defined
               <em>No dependencies on ROS packages.</em>
             {% endif %}
           </div>
-          <div class="panel-heading">
-            <h3 class="panel-title">System Dependencies</h3>
+          <div class="card-header">
+            <h3 class="card-title mb-0">System Dependencies</h3>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             {% if n_system_deps > 0 %}
-              <table class="table table-condensed table-striped">
+              <table class="table table-sm table-striped">
                 <thead>
                   <th>Name</th>
                 </thead>
@@ -250,13 +250,13 @@ Assumes distro and package are defined
       </div>
 
       <div class="col-sm-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Dependant Packages</h3>
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title mb-0">Dependant Packages</h3>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             {% if n_dependants > 0 %}
-              <table class="table table-condensed table-striped">
+              <table class="table table-sm table-striped">
                 <thead>
                   <th>Name</th>
                   <th class="text-center">Deps</th>
@@ -270,7 +270,7 @@ Assumes distro and package are defined
                       <td class="text-center">
                         {% assign n_2nd_order_deps = dep_instance.package.data.dependants | size %}
                         <a href="{{site.baseurl}}/p/{{dep_name}}/#{{distro}}-deps" {% if n_2nd_order_deps == 0 %}class="endoftree"{% endif %}>
-                          <span class="glyphicon glyphicon-arrow-right"></span>
+                          <i class="bi bi-arrow-right"></i>
                         </a>
                       </td>
                     </tr>
@@ -288,11 +288,11 @@ Assumes distro and package are defined
   </div>
 
   <div class="tab-pane" id="{{distro}}-assets">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Launch files</h3>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Launch files</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if n_launch > 0 %}
           <ul>
             {% for f in package.data.launch_data %}
@@ -320,11 +320,11 @@ Assumes distro and package are defined
       </div>
     </div>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Messages</h3>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Messages</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if n_msgs > 0 %}
           <ul>
             {% for f in package.data.msg_files %}
@@ -337,11 +337,11 @@ Assumes distro and package are defined
       </div>
     </div>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Services</h3>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Services</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if n_srvs > 0 %}
           <ul>
             {% for f in package.data.srv_files %}
@@ -354,11 +354,11 @@ Assumes distro and package are defined
       </div>
     </div>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Plugins</h3>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Plugins</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if n_plugins > 0 %}
           <ul>
             {% for f in package.data.plugin_data %}
@@ -373,14 +373,14 @@ Assumes distro and package are defined
   </div>
 
   <div class="tab-pane" id="{{distro}}-questions">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Recent questions tagged <kbd>{{package.name}}</kbd> at <strong><a href="https://robotics.stackexchange.com/" target="_blank">Robotics Stack Exchange</a></strong></h3>      </div>
-      <div id="{{distro}}-question-list" class="panel-body" style="display: none;"></div>
-      <div id="{{distro}}-no-question-list" class="panel-body" style="display: none;">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Recent questions tagged <kbd>{{package.name}}</kbd> at <strong><a href="https://robotics.stackexchange.com/" target="_blank">Robotics Stack Exchange</a></strong></h3>      </div>
+      <div id="{{distro}}-question-list" class="card-body" style="display: none;"></div>
+      <div id="{{distro}}-no-question-list" class="card-body" style="display: none;">
         <p>No questions yet, <a href="https://robotics.stackexchange.com/questions/tagged/{{package.name}}+{{distro}}">you can ask one on Robotics Stack Exchange</a>.</p>
       </div>
-      <div id="{{distro}}-get-question-fail" class="panel-body alert alert-warning" style="display: none;">
+      <div id="{{distro}}-get-question-fail" class="card-body alert alert-warning" style="display: none;">
         <p>Failed to get question list, <a href="https://github.com/ros-infrastructure/rosindex/issues/new" target="_blank" class="alert-link">you can ticket an issue on the github issue tracker</a>.</p>
       </div>
     </div>

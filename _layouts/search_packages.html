@@ -4,49 +4,51 @@ layout: default
 <div class="container-fluid" style="margin-top:20px; height:100%;">
   <div class="container-fluid" style="height:100%;">
     <div class="row" style="height:var(--breadcrumb-height);">
-      <ol class="breadcrumb showAsHome" style="display:none">
-        <li class="active">Home</li>
-      </ol>
-      <ol class="breadcrumb showAsSearch" style="display:none">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li id="breadcrumb-name" class="active">Package List</li>
-      </ol>
+      <nav aria-label="breadcrumb" class="showAsHome" style="display:none">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active" aria-current="page">Home</li>
+        </ol>
+      </nav>
+      <nav aria-label="breadcrumb" class="showAsSearch" style="display:none">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+          <li id="breadcrumb-name" class="breadcrumb-item active" aria-current="page">Package List</li>
+        </ol>
+      </nav>
     </div>
     <div class="row" style="height:var(--distro-height);">
       {% include distro_switch.html %}
     </div>
     <div class="row" style="height:var(--search-height);">
-      <div class="panel panel-default" style="height:100%;">
-        <div class="panel-heading" style="height:100%;">
+      <div class="card" style="height:100%;">
+        <div class="card-header" style="height:100%;">
           <div class="row" style="height:100%;">
-            <div class="col-xs-6">
+            <div class="col-6">
               <div class="input-group">
                 <input id="search-query" type="text" class="form-control"
                         autocomplete="off" placeholder="Search packages">
-                <span class="input-group-btn">
-                  <button id="search-button" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search"></span>
-                  </button>
-                </span>
-                <span class="input-group-addon showCellAsSearch" style="display:none">
-                  <input type="checkbox" id="search-enable-box"/>
-                  <span class="hidden-xs"> Enable search </span>
+                <button id="search-button" class="btn btn-secondary">
+                  <i class="bi bi-search"></i>
+                </button>
+                <span class="input-group-text showCellAsSearch" style="display:none">
+                  <input type="checkbox" class="form-check-input" id="search-enable-box"/>
+                  <span class="d-none d-sm-inline ms-1"> Enable search </span>
                 </span>
               </div>
             </div>
-            <div class="col-xs-4" style="line-height:35px;">
+            <div class="col-4" style="line-height:35px;">
               <p class="showAsSearch" style="display:none;">
-                <span class="hidden-xs">Showing </span>
+                <span class="d-none d-sm-inline">Showing </span>
                 <span id="table-filtered-count">0</span> of
                 <span id="table-unfiltered-count">0</span>
-                <span id="filtered-type" class="hidden-xs"> packages</span>
+                <span id="filtered-type" class="d-none d-sm-inline"> packages</span>
               </p>
             </div>
-            <div class="col-xs-2 text-right" style="line-height:35px">
+            <div class="col-2 text-end" style="line-height:35px">
               <p>
                 <a href="{{site.baseurl}}/help/package_list/">
-                  <span class="glyphicon glyphicon-question-sign"></span>
-                  <span class="hidden-xs"> Help</span>
+                  <i class="bi bi-question-circle"></i>
+                  <span class="d-none d-sm-inline"> Help</span>
                 </a>
               </p>
             </div>
