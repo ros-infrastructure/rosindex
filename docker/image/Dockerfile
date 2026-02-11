@@ -28,7 +28,7 @@ RUN apt-get update && \
         pandoc \
         pkg-config \
         python3-pip \
-        python3-vcstool \
+        python3-vcs2l \
         ruby \
         ruby-dev \
         rubygems-integration && \
