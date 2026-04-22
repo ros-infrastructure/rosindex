@@ -328,7 +328,10 @@ Assumes distro and package are defined
         {% if n_msgs > 0 %}
           <ul>
             {% for f in package.data.msg_files %}
-              <li><a href="{{package.data.browse_uri}}/{{f}}" target="_blank">{{f}}</a></li>
+            {% assign msg_name = f | split: '/' | last | split: '.' | first %}
+            <li><a href="https://docs.ros.org/en/{{distro}}/p/{{package.name}}/msg/{{msg_name}}.html"
+                target="_blank"><strong>{{msg_name}}</strong></a> [<a href="{{package.data.browse_uri}}/{{f}}"
+                target="_blank">Source</a>]</li>
             {%endfor%}
           </ul>
         {% else %}
@@ -345,7 +348,10 @@ Assumes distro and package are defined
         {% if n_srvs > 0 %}
           <ul>
             {% for f in package.data.srv_files %}
-              <li><a href="{{package.data.browse_uri}}/{{f}}" target="_blank">{{f}}</a></li>
+            {% assign srv_name = f | split: '/' | last | split: '.' | first %}
+            <li><a href="https://docs.ros.org/en/{{distro}}/p/{{package.name}}/srv/{{srv_name}}.html"
+                target="_blank"><strong>{{srv_name}}</strong></a> [<a href="{{package.data.browse_uri}}/{{f}}"
+                target="_blank">Source</a>]</li>
             {%endfor%}
           </ul>
         {% else %}
