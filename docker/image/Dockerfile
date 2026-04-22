@@ -29,6 +29,7 @@ RUN apt-get update && \
         pkg-config \
         python3-pip \
         python3-vcs2l \
+        python3-venv \
         ruby \
         ruby-dev \
         rubygems-integration && \

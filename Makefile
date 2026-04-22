@@ -16,8 +16,10 @@ search_config=_config/search_index.yml
 
 .DEFAULT_GOAL := build
 .PHONY: build rebuild-dep-descriptions prepare-sources discover \
-        update scrape serve serve-devel test-build clean-sources clean-cache clean
+        update scrape serve serve-devel test-build clean-sources clean-cache clean \
+				rosdistro-cache
 
+ROSDISTRO_CACHE := _artifacts/rosdistro_cache.json
 PIP_FILE := _artifacts/pip_packages.json
 PIP_SCRIPT := _scripts/pip_packages.py
 DEBIAN_FILE := _artifacts/debian_packages.json
@@ -25,6 +27,22 @@ DEBIAN_SCRIPT := _scripts/debian_descriptions.rb
 DISCOVERY_SCRIPT = _ruby_libs/discovery.rb
 DISCOVERY_RESULTS = _artifacts/discovery.json
 DISCOVERY_ERRORS = _artifacts/discovery_errors.json
+
+ROSDISTRO_ENV = _artifacts/rosdistro_env
+ROSDISTRO_INDEX_URL = https://raw.githubusercontent.com/ros/rosdistro/refs/heads/master/index-v4.yaml
+ROSDISTRO_DISTROS =  humble jazzy kilted rolling
+ROSDISTRO_CACHES = $(foreach distro, $(ROSDISTRO_DISTROS), $(cache_dir)/$(distro)-cache.yaml)
+
+$(ROSDISTRO_ENV):
+	python3 -m venv $(ROSDISTRO_ENV)
+	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache
+
+rosdistro-cache: $(ROSDISTRO_CACHES)
+
+$(ROSDISTRO_CACHES): $(ROSDISTRO_ENV)
+	@echo "Get rosdistro cache files"
+
+	cd $(cache_dir) && ../$(ROSDISTRO_ENV)/bin/python -m rosdistro.cli.rosdistro_build_cache  --limit 100 --include-source $(ROSDISTRO_INDEX_URL) $(ROSDISTRO_DISTROS)
 
 $(PIP_FILE):
 	@echo "Get pip descriptions file"
