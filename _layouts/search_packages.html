@@ -269,7 +269,7 @@ layout: default
     repoColumn =
       { title:"Repo", field:"repo", width:100,
         formatter:"link", formatterParams:{labelField:"repo", url:(cell) => {
-          return `{{site.baseurl}}/r/${cell.getValue()}/#${distro}`}}
+          return `{{site.baseurl}}/r/${cell.getValue()}/#${gDistro}`}}
       };
 
     tableColumns = [ //Define Table Columns
@@ -316,7 +316,7 @@ layout: default
       tableOptions['groupHeader'] = (value, count, data, group) => {
         header = 
           `<span style='color:#d00;'>${data[0]['last_commit_time']}</span>` +
-          `<span style='margin-left:11px;'><a href="/r/${value}/#${distro}">${value}</span>`;
+          `<span style='margin-left:11px;'><a href="/r/${value}/#${gDistro}">${value}</span>`;
         return header;
       }
     }
@@ -366,11 +366,6 @@ layout: default
     gQuery = query;
     const isRepos = getIsRepos();
     if (distro != gDistro) {
-      // Some of the table links depend on distro. Let's just rebuild the whole thing.
-      if (gTable) {
-        gTable.destroy();
-      }
-      gTable = null;
       gRepoCount = null;
     }
     gDistro = distro;
@@ -397,6 +392,7 @@ layout: default
       }
 
       if (gTable) {
+        gTable.blockRedraw();
         if (searchArray) {
           if (isRepos) {
             gTable.setFilter('repo', 'in', searchArray);
@@ -408,7 +404,10 @@ layout: default
           gTable.clearFilter(true);
           gTable.setSort(isRepos ? REPO_SORT : PACKAGE_SORT);
         }
-        gTable.replaceData(data).then(console.log('table data replaced'));
+        gTable.replaceData(data).then(() => {
+          console.log('table data replaced')
+          gTable.restoreRedraw();
+        });
       }
       else {
         makeBuiltTable(distro, data, searchArray).then(table => {
