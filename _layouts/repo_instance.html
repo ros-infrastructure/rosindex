@@ -5,11 +5,13 @@ layout: default
 <div class="container-fluid" style="margin-top:20px">
   <div class="container-fluid">
     <div class="row">
-      <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li><a href="{{site.baseurl}}/?search_repos=true">Repos</a></li>
-        <li class="active">{{page.repo.name}}</li>
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/?search_repos=true">Repos</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{page.repo.name}}</li>
+        </ol>
+      </nav>
     </div>
     <div class="row">
       {% include distro_switch.html %}
@@ -39,19 +41,19 @@ layout: default
       {% if page.available_distros[rendered_distro] or page.available_older_distros[rendered_distro] %}
         {% assign repo = page.instances.defaults[rendered_distro] %}
         {% include repo_info.html %}
-        <div class="panel panel-default">
+        <div class="card mb-3">
           {% assign snapshot = repo.snapshots[rendered_distro] %}
-          <div class="panel-heading"><h3 class="panel-title">Repository Summary</h3></div>
-          <div class="panel-body" style="overflow-x: auto">
+          <div class="card-header"><h3 class="card-title mb-0">Repository Summary</h3></div>
+          <div class="card-body" style="overflow-x: auto">
             {% include repo_summary.html %}
           </div>
         </div>
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">Packages</h3></div>
-          <div class="panel-body">
+        <div class="card mb-3">
+          <div class="card-header"><h3 class="card-title mb-0">Packages</h3></div>
+          <div class="card-body">
             {% assign n_packages = repo.snapshots[rendered_distro].packages | size %}
             {% if n_packages > 0 %}
-              <table class="table table-condensed table-hover table-striped">
+              <table class="table table-sm table-hover table-striped">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -73,9 +75,9 @@ layout: default
           </div>
         </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">README</h3></div>
-          <div class="panel-body">
+        <div class="card mb-3">
+          <div class="card-header"><h3 class="card-title mb-0">README</h3></div>
+          <div class="card-body">
             {% if repo.snapshots[rendered_distro].data.readme %}
               {{ repo.snapshots[rendered_distro].data.readme_rendered }}
             {% else %}
@@ -84,9 +86,9 @@ layout: default
           </div>
         </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading"><h3 class="panel-title">CONTRIBUTING</h3></div>
-          <div class="panel-body">
+        <div class="card mb-3">
+          <div class="card-header"><h3 class="card-title mb-0">CONTRIBUTING</h3></div>
+          <div class="card-body">
             {% if repo.snapshots[rendered_distro].data.contributing_rendered %}
               {{ repo.snapshots[rendered_distro].data.contributing_rendered }}
             {% else %}
@@ -94,14 +96,14 @@ layout: default
             {% endif %}
             <hr id="{{rendered_distro}}-contribute-lists">
             <ul class="nav nav-tabs nav-justified" id="{{rendered_distro}}-contribute-lists-tabs">
-              <li class="better-tabs active">
-                <a href="#{{rendered_distro}}-contribute-lists-help-wanted" data-toggle="tab"><span class="contribute-lists-help-wanted-count label label-primary">-</span> Help Wanted</a>
+              <li class="nav-item better-tabs">
+                <a class="nav-link active" href="#{{rendered_distro}}-contribute-lists-help-wanted" data-bs-toggle="tab"><span class="contribute-lists-help-wanted-count badge bg-primary">-</span> Help Wanted</a>
               </li>
-              <li class="better-tabs">
-                <a href="#{{rendered_distro}}-contribute-lists-good-first-issue" data-toggle="tab"><span class="contribute-lists-good-first-issue-count label label-primary">-</span> Good First Issue</a>
+              <li class="nav-item better-tabs">
+                <a class="nav-link" href="#{{rendered_distro}}-contribute-lists-good-first-issue" data-bs-toggle="tab"><span class="contribute-lists-good-first-issue-count badge bg-primary">-</span> Good First Issue</a>
               </li>
-              <li class="better-tabs">
-                <a href="#{{rendered_distro}}-contribute-lists-pull-requests" data-toggle="tab"><span class="contribute-lists-pull-requests-count label label-primary">-</span> Pull Requests to Review</a>
+              <li class="nav-item better-tabs">
+                <a class="nav-link" href="#{{rendered_distro}}-contribute-lists-pull-requests" data-bs-toggle="tab"><span class="contribute-lists-pull-requests-count badge bg-primary">-</span> Pull Requests to Review</a>
               </li>
             </ul>
             <div class="tab-content contribute-lists">
@@ -120,9 +122,9 @@ layout: default
 
         {% assign n_errors = repo.errors | size %}
         {% if n_errors > 0 %}
-          <div class="panel panel-danger">
-            <div class="panel-heading"><h3 class="panel-title">Indexing Errors</h3></div>
-            <div class="panel-body">
+          <div class="card border-danger mb-3">
+            <div class="card-header bg-danger text-white"><h3 class="card-title mb-0">Indexing Errors</h3></div>
+            <div class="card-body">
               <ul>
                 {% for e in repo.errors %}
                   <li><em>{{e}}</em></li>

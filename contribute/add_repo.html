@@ -7,11 +7,13 @@ permalink: /contribute/add_repo/
 <div class="container-fluid" style="margin-top:20px">
   <div class="container-fluid">
     <div class="row">
-      <ol class="breadcrumb">
-        <li><a href="/">Home</a></li>
-        <li><a href="/contribute">Contribute</a></li>
-        <li class="active">{{ page.title }}</li>
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item"><a href="/contribute">Contribute</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ page.title }}</li>
+        </ol>
+      </nav>
     </div>
   </div>
 </div>
@@ -29,9 +31,9 @@ permalink: /contribute/add_repo/
         the buttons below to either create a new fork (left) or designate
         that you already have a fork (right).
         </p>
-      <div class="btn-group btn-group-justified">
-        <a id="fork_button" class="btn btn-success" href="https://github.com/ros/rosdistro/fork" target="_blank">Fork rosdistro</a>
-        <a id="already_fork_button" class="btn btn-success">I Already Have a Fork</a>
+      <div class="btn-group d-flex">
+        <a id="fork_button" class="btn btn-success flex-fill" href="https://github.com/ros/rosdistro/fork" target="_blank">Fork rosdistro</a>
+        <a id="already_fork_button" class="btn btn-success flex-fill">I Already Have a Fork</a>
       </div>
     </div>
   </div>
@@ -45,9 +47,7 @@ permalink: /contribute/add_repo/
       </p>
       <div style="width: 100%" class="input-group">
         <input type="text" disabled class="form-control" id="ns_input" placeholder="GitHub Username or Organization">
-        <span  style="width: 50%"class="input-group-btn">
-          <button disabled id="set_ns_button" class="btn btn-default btn-block" type="button">Set Namespace</button>
-        </span>
+        <button disabled id="set_ns_button" class="btn btn-secondary" type="button">Set Namespace</button>
       </div>
     </div>
   </div>
@@ -60,7 +60,7 @@ permalink: /contribute/add_repo/
       show you all of those differences, and will allow you to synchronize your
       fork with the official repo.
       <br><br>
-      <button disabled id="sync_fork_button" class="btn btn-default btn-block" href="" target="_blank">Synchronize Fork</button>
+      <button disabled id="sync_fork_button" class="btn btn-secondary btn-block" href="" target="_blank">Synchronize Fork</button>
       </p>
     </div>
   </div>
@@ -171,7 +171,7 @@ permalink: /contribute/add_repo/
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <button id="generate_yaml_button" type="submit" class="btn btn-default btn-block">Generate YAML Description</button>
+            <button id="generate_yaml_button" type="submit" class="btn btn-secondary btn-block">Generate YAML Description</button>
           </div>
         </div>
       </div>
@@ -182,9 +182,9 @@ permalink: /contribute/add_repo/
   </div>
   <div class="row">
     <div class="col-sm-offset-2 col-sm-10">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Repository YAML Description</h3></div>
-        <div class="panel-body">
+      <div class="card mb-3">
+        <div class="card-header"><h3 class="card-title mb-0">Repository YAML Description</h3></div>
+        <div class="card-body">
             <textarea readonly="true" style="cursor: crosshair;" class="form-control" id="yaml_src" placeholder="CLICK BUTTON ABOVE TO GENERATE" rows="5"></textarea>
         </div>
       </div>
@@ -201,7 +201,7 @@ permalink: /contribute/add_repo/
       the changes with the button at the bottom of the page. This will only
       modify your copy of the index.
       <br><br>
-      <button disabled id="edit_button" class="btn btn-default btn-block">Open Fork of Distribution File For Editing</button>
+      <button disabled id="edit_button" class="btn btn-secondary btn-block">Open Fork of Distribution File For Editing</button>
       </p>
     </div>
   </div>
@@ -213,7 +213,7 @@ permalink: /contribute/add_repo/
       that you've proposed some additions to the index. Feel free to add
       any additional comments to the pull request.
       <br><br>
-      <button disabled id="pr_button" class="btn btn-default btn-block">Create Pull Request</button>
+      <button disabled id="pr_button" class="btn btn-secondary btn-block">Create Pull Request</button>
       </p>
     </div>
   </div>
@@ -238,12 +238,12 @@ $(function () {
       'click',
       function(e) {
         // enable the  set ns button
-        $(this).addClass('btn-default');
+        $(this).addClass('btn-secondary');
         $(this).removeClass('btn-success');
-        $('#already_fork_button').addClass('btn-default');
+        $('#already_fork_button').addClass('btn-secondary');
         $('#already_fork_button').removeClass('btn-success');
         $('#set_ns_button').addClass('btn-success');
-        $('#set_ns_button').removeClass('btn-default');
+        $('#set_ns_button').removeClass('btn-secondary');
         $('#set_ns_button').prop('disabled',false);
         $('#ns_input').prop('disabled',false);
       });
@@ -251,12 +251,12 @@ $(function () {
       'click',
       function(e) {
         // enable the  set ns button
-        $(this).addClass('btn-default');
+        $(this).addClass('btn-secondary');
         $(this).removeClass('btn-success');
-        $('#fork_button').addClass('btn-default');
+        $('#fork_button').addClass('btn-secondary');
         $('#fork_button').removeClass('btn-success');
         $('#set_ns_button').addClass('btn-success');
-        $('#set_ns_button').removeClass('btn-default');
+        $('#set_ns_button').removeClass('btn-secondary');
         $('#set_ns_button').prop('disabled',false);
         $('#ns_input').prop('disabled',false);
       });
@@ -267,21 +267,21 @@ $(function () {
         // alert if it's empty
         // update the synchronize fork button url
         // enable the synchronize fork button
-        $('#set_ns_button').addClass('btn-default');
+        $('#set_ns_button').addClass('btn-secondary');
         $('#set_ns_button').removeClass('btn-success');
 
         $('#sync_fork_button').prop('disabled',false);
         $('#sync_fork_button').addClass('btn-success');
-        $('#sync_fork_button').removeClass('btn-default');
+        $('#sync_fork_button').removeClass('btn-secondary');
       });
   $('#sync_fork_button').on(
       'click',
       function(e) {
         // enable the yaml generation form
         window.open('https://github.com/ros/rosdistro/compare/'+$('#ns_input').val()+':master...ros:master?title=Synchronize');
-        $('#sync_fork_button').addClass('btn-default');
+        $('#sync_fork_button').addClass('btn-secondary');
         $('#sync_fork_button').removeClass('btn-success');
-        $('#generate_yaml_button').removeClass('btn-default');
+        $('#generate_yaml_button').removeClass('btn-secondary');
         $('#generate_yaml_button').addClass('btn-success');
         $("#yaml_form :input").prop("disabled", false);
       });
@@ -304,10 +304,10 @@ $(function () {
         // update the open fork button
         // update the create pr button
         // enable the edit button
-        $('#generate_yaml_button').addClass('btn-default');
+        $('#generate_yaml_button').addClass('btn-secondary');
         $('#generate_yaml_button').removeClass('btn-success');
         $('#edit_button').addClass('btn-success');
-        $('#edit_button').removeClass('btn-default');
+        $('#edit_button').removeClass('btn-secondary');
         $("#edit_button").prop("disabled", false);
         e.preventDefault();
       });
@@ -329,10 +329,10 @@ $(function () {
       function(e) {
         window.open("https://github.com/"+$('#ns_input').val()+"/rosdistro/edit/master/"+$('#distro_select').val()+"/distribution.yaml?message=Adding%20new%20repository%20for%20indexing%3A%20"+$('#repo_name_input').val());
         // enable the pr button
-        $('#edit_button').addClass('btn-default');
+        $('#edit_button').addClass('btn-secondary');
         $('#edit_button').removeClass('btn-success');
         $('#pr_button').addClass('btn-success');
-        $('#pr_button').removeClass('btn-default');
+        $('#pr_button').removeClass('btn-secondary');
         $("#pr_button").prop("disabled", false);
       });
 
@@ -341,7 +341,7 @@ $(function () {
       function(e) {
         window.open("https://github.com/"+$('#ns_input').val()+"/rosdistro/compare/ros:master...master?expand=1&title=New%20Repository%20For%20Indexing%3A%20"+$('#repo_name_input').val());
         // enable the pr button
-        $('#pr_button').addClass('btn-default');
+        $('#pr_button').addClass('btn-secondary');
         $('#pr_button').removeClass('btn-success');
       });
   });

@@ -3,24 +3,26 @@ layout: default
 ---
 <div class="container-fluid" style="margin:20px">
   <div class="row">
-    <ol class="breadcrumb">
-      <li><a href="{{site.baseurl}}/">Home</a></li>
-      <li><a href="{{site.baseurl}}/stats">Stats</a></li>
-      <li class="active">Errors</li>
-    </ol>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/stats">Stats</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Errors</li>
+      </ol>
+    </nav>
   </div>
   <div class="row">
     &nbsp;
   </div>
   <div class="row">
-    <div class="panel panel-danger">
-      <div class="panel-heading"><h3 class="panel-title">Indexing Errors</h3></div>
-      <div class="panel-body" style="overflow-x:auto;">
+    <div class="card border-danger mb-3">
+      <div class="card-header bg-danger text-white"><h3 class="card-title mb-0">Indexing Errors</h3></div>
+      <div class="card-body" style="overflow-x:auto;">
         {% assign n_errors = page.errors | size %}
         {% if n_errors == 0 %}
           <em>Hooray! No errors!</em>
         {% else %}
-          <table class="table table-condensed table-striped">
+          <table class="table table-sm table-striped">
             <thead>
               <tr>
                 <th>Repository</th>

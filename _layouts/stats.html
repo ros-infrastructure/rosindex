@@ -4,18 +4,20 @@ layout: default
 <div class="container-fluid" style="margin-top:20px">
   <div class="container-fluid">
     <div class="row">
-      <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li class="active">Statistics</li>
-      </ol>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Statistics</li>
+        </ol>
+      </nav>
     </div>
     <div class="row">
       &nbsp;
     </div>
     <div class="row">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Index</h3></div>
-        <div class="panel-body" style="overflow-x:auto;">
+      <div class="card mb-3">
+        <div class="card-header"><h3 class="card-title mb-0">Index</h3></div>
+        <div class="card-body" style="overflow-x:auto;">
           <ul>
             <li><strong>Repositories:</strong> {{page.n_repos}}</li>
             <li><strong>Packages:</strong> {{page.n_packages}}</li>
@@ -25,9 +27,9 @@ layout: default
       </div>
     </div>
     <div class="row">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Known Packages</h3></div>
-        <div class="panel-body" style="overflow-x:auto;">
+      <div class="card mb-3">
+        <div class="card-header"><h3 class="card-title mb-0">Known Packages</h3></div>
+        <div class="card-body" style="overflow-x:auto;">
           <div class="venn text-center"></div>
         </div>
       </div>
@@ -36,9 +38,9 @@ layout: default
       &nbsp;
     </div>
     <div class="row">
-      <div class="panel panel-default">
-        <div class="panel-heading"><h3 class="panel-title">Distro Activity</h3></div>
-        <div class="panel-body" style="overflow-x:auto;">
+      <div class="card mb-3">
+        <div class="card-header"><h3 class="card-title mb-0">Distro Activity</h3></div>
+        <div class="card-body" style="overflow-x:auto;">
           <p>
           Below are histograms of repositories updated over the last 2000 days in each distro.
           </p>

@@ -4,19 +4,19 @@
 <div class="list-group-item">
   <a href="{{ site.baseurl }}{{ include.root_page.url }}">{{ include.root_page.title }}</a>
   {% unless include.root_page.indexed_child_pages == empty %}
-  <a href="#{{ root_page_id }}_children" class="list-group-toggle pull-right"
-     data-toggle="collapse" aria-expanded="false">
+  <a href="#{{ root_page_id }}_children" class="list-group-toggle float-end"
+     data-bs-toggle="collapse" aria-expanded="false">
     {% if in_current_page_path %}
-    <span class="glyphicon glyphicon-chevron-up"></span>
+    <i class="bi bi-chevron-up"></i>
     {% else %}
-    <span class="glyphicon glyphicon-chevron-down"></span>
+    <i class="bi bi-chevron-down"></i>
     {% endif %}
   </a>
   {% endunless %}
 </div>
 {% unless include.root_page.indexed_child_pages == empty %}
   {% if in_current_page_path %}
-<div id="{{ root_page_id }}_children" class="list-group collapse in">
+<div id="{{ root_page_id }}_children" class="list-group collapse show">
   {% else %}
 <div id="{{ root_page_id }}_children" class="list-group collapse">
   {% endif %}

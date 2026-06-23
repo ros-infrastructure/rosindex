@@ -5,20 +5,19 @@
 <div class="btn-group btn-group-sm" role="group" aria-label="...">
   <!-- Older distros -->
   <div class="btn-group btn-group-sm" role="group">
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
       Older
-      <span class="caret"></span>
     </button>
 
     <ul class="dropdown-menu" role="menu">
       {% for distro in site.old_distros %}
-        <li><a href="#">{{ distro }}</a></li>
+        <li><a class="dropdown-item" href="#">{{ distro }}</a></li>
       {% endfor %}
     </ul>
   </div>
 
   <!-- Current distros -->
   {% for distro in site.distros %}
-    <button type="button" class="btn btn-default">{{ distro }}</button>
+    <button type="button" class="btn btn-secondary">{{ distro }}</button>
   {% endfor %}
 </div>
