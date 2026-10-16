@@ -1,14 +1,15 @@
 function setupDistroSwitch(default_distro) {
-  $('#distro-switch label').click(function (e) {
-    console.log(e.target)
+  $('#distro-switch .distro-button').click(function (e) {
     // get the distro and set the cookie
-    var distro = $('#'+e.target.id).attr('data');
+    var distro = $(this).attr('data');
     console.log('selecting distro: '+distro)
 
     if(distro) {
       $('.distro').not('.distro-'+distro).hide(0, function(){
         $('.distro-'+distro).fadeIn('fast');
       });
+      $('.distro-button').removeClass("active");
+      $(this).addClass("active");
       $('#older-distro-button').removeClass("active");
       $('.older-distro-option').removeClass("active");
       $('#older-label').text('Older');

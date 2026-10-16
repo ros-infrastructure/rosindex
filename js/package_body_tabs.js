@@ -2,14 +2,12 @@
 $(function() {
   var url = document.location.toString();
   if (url.match('#')) {
-      $('.nav-tabs a[href="#'+url.split('#')[1]+'"]').tab('show') ;
+      var href = '#' + url.split('#')[1];
+      $('.nav-tabs a').filter(function() { return $(this).attr('href') === href; })
+        .each(function() { bootstrap.Tab.getOrCreateInstance(this).show(); });
   }
 
-  // Change hash for page-reload
-  $('.nav-tabs a').on('shown', function (e) {
-      window.location.hash = e.target.hash;
-  });
-
+  // Update the URL so a reload returns to the same tab
   $("a[href^='#']").on("click", function(e) {
      e.preventDefault();
      history.pushState({}, "", this.href);

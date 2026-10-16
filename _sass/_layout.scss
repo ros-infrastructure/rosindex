@@ -266,7 +266,7 @@
 /**
  * Make tables look more like github.
  */
-table > tbody > tr > td, table > thead > tr > th {
+table:not(.table) > tbody > tr > td, table:not(.table) > thead > tr > th {
     padding-top: 6px;
     padding-right: 13px;
     padding-bottom: 6px;

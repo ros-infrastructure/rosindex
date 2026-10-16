@@ -6,3 +6,6 @@ _remotes
 _plugins_data
 _artifacts
 rubygems
+tests/node_modules
+tests/test-results
+tests/playwright-report
