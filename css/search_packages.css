@@ -11,3 +11,10 @@
 .tabulator-row.tabulator-group span {
     margin-left: 0px;
 }
+
+/**
+ * Column chooser dropdown
+ */
+#column-chooser label.dropdown-item {
+    cursor: pointer;
+}

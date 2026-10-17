@@ -22,6 +22,9 @@ breadcrumbs: ['help']
 - Maintainers: Names listed in package.xml as maintainers.
 - Repo: Repository containing this package.
 - Org: Organization that is the parent of the package's repository.
+- Version: Package version from package.xml.
+
+Use the **Columns** menu above the table to choose which fields are shown. By default Released, Dependency count, Used-by count, Core, Version, Authors and Maintainers are hidden. Your choice is remembered in your browser. The Package List and the Repository List each keep their own choice.
 
 ## Searching
 
