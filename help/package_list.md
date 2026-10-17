@@ -23,8 +23,9 @@ breadcrumbs: ['help']
 - Repo: Repository containing this package.
 - Org: Organization that is the parent of the package's repository.
 - Version: Package version from package.xml.
+- License: Licenses from the `<license>` tags in package.xml, shown as [SPDX](https://spdx.org/licenses/) identifiers. Common non-SPDX spellings (for example "Apache License 2.0" or "BSD") are mapped to their SPDX equivalent; anything not recognized is shown as written.
 
-Use the **Columns** menu above the table to choose which fields are shown. By default Released, Dependency count, Used-by count, Core, Version, Authors and Maintainers are hidden. Your choice is remembered in your browser. The Package List and the Repository List each keep their own choice.
+Use the **Columns** menu above the table to choose which fields are shown. By default Released, Dependency count, Used-by count, Core, Version, License, Authors and Maintainers are hidden. Your choice is remembered in your browser. The Package List and the Repository List each keep their own choice.
 
 ## Searching
 
@@ -42,6 +43,7 @@ The package name is split by underscore (_), and those individual terms are adde
 - authors
 - repo
 - org
+- license
 
 These fields are additionally searched:
 - readme: The 'readme' file included in the package repository.
@@ -54,5 +56,6 @@ These fields are additionally searched:
 - `package:ament_package` packages with the name 'ament_package' (shows only the package ament_package)
 - `authors:josh maintainers:josh` packages with 'Josh' as either an author, or a maintainer.
 - `org:ros2`: packages in the organization ros2
+- `license:gpl`: packages with a GPL license, such as GPL-3.0-or-later. Dashes split terms, so `Apache-2.0` is indexed as 'apache' and '2.0', and LGPL licenses need `license:lgpl`.
 - `msgs`: packages containing 'msgs' in any field. Since packages names are split by '_' into tags, any package with a name like *_msgs will have 'msgs' as a tag, and thus show in this search result.
 

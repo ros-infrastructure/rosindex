@@ -354,6 +354,7 @@ class Indexer < Jekyll::Generator
 
       # extract manifest metadata (same for manifest.xml and package.xml)
       license = REXML::XPath.first(manifest_doc, "/package/license/text()").to_s
+      licenses = REXML::XPath.each(manifest_doc, "/package/license").map { |elem| elem.text.to_s.strip }.reject(&:empty?)
       description = REXML::XPath.first(manifest_doc, "/package/description/text()").to_s
       maintainers = REXML::XPath.each(manifest_doc, "/package/maintainer/text()").map { |m| m.to_s.sub('@', ' <AT> ') }
       authors = REXML::XPath.each(manifest_doc, "/package/author/text()").map { |a| a.to_s.sub('@', ' <AT> ') }
@@ -456,6 +457,7 @@ class Indexer < Jekyll::Generator
         # required package info
         'version' => version,
         'license' => license,
+        'licenses' => licenses,
         'description' => description,
         'maintainers' => maintainers,
         # optional package info
@@ -736,6 +738,16 @@ class Indexer < Jekyll::Generator
         site.static_files << PackageManifestFile.new(site, site.dest, '/'+manifest_path, 'package.xml')
       end
     end
+  end
+
+  def spdx_licenses(site, package_data)
+    # Returns the package's licenses as SPDX strings, joined for display.
+    # Non-SPDX strings found in package.xml files are mapped through
+    # _data/license_aliases.json; unknown strings are shown as is.
+    aliases = (site.data['license_aliases'] || {})['aliases'] || {}
+    # Package data from an older db cache only has the first license.
+    raw_licenses = package_data['licenses'] || [package_data['license'].to_s.strip]
+    raw_licenses.reject(&:empty?).map { |l| aliases.fetch(l, l) }.uniq.join(', ')
   end
 
   def strip_stopwords(text)
@@ -1161,6 +1173,7 @@ class Indexer < Jekyll::Generator
               'core' => core,
               'released' => if repo_snapshot.released then 'released' else '' end,
               'version' => p['version'],
+              'license' => spdx_licenses(site, p),
               'description' => p['description'].strip,
               'maintainers' => p['maintainers'] * ", ",
               'authors' => p['authors'] * ", ",
@@ -1180,7 +1193,7 @@ class Indexer < Jekyll::Generator
       reference_field = 'id'
       indexed_fields = [
         'tags:100', 'package:100', 'description:50', 'maintainers', 'authors',
-        'readme', 'released', 'org', 'repo', 'core'
+        'readme', 'released', 'org', 'repo', 'core', 'license'
       ]
       site.static_files.push(*precompile_lunr_index(
         site, packages_index, reference_field, indexed_fields,

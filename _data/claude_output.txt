@@ -1,0 +1,1103 @@
+
+/clear
+
+a ros distribution consists of a list of repos, which may in turn have a number of folders containing ros packages. A ros package is something that has a package.xml file in it.
+
+The package.xml has a license field in it <license>
+
+/srv/repos/jazzy contains code for all of the repos and packages in the jazzy distro. Scan all packages there, collecting the strings used to define licenses. Many of the license fields will not contain SPDX standard license strings. propose aliases for license strings that do not match spdx standards, mapping each to a standard SPDX license string.
+
+The result of this should be a report showing the results, as well as a json file containing the aliases.
+Show more
+Bash
+IN
+cat /home/kent/.claude/plans/the-goal-of-this-encapsulated-badger.md | head -50; ls /srv/repos/jazzy | head; ls /srv/repos/jazzy | wc -l; find /srv/repos/jazzy -name package.xml -not -path '*/.git/*' | wc -l
+
+OUT
+Command did not complete within its 120s timeout and was moved to the background (ID: bp8io5kcg). Output is being written to: /tmp/claude-1000/-home-kent-github-rkent-rosindex/0f7cadcb-bb8d-42e5-98fb-293520f222af/tasks/bp8io5kcg.output. You will be notified when it completes. To check interim output, use Read on that file path.
+Bash
+IN
+cat /tmp/claude-1000/-home-kent-github-rkent-rosindex/0f7cadcb-bb8d-42e5-98fb-293520f222af/tasks/bp8io5kcg.output | head -80
+
+OUT
+# Plan: "Contribute" list page (open PRs, help wanted, good first issue)
+
+## Context
+`_artifacts/github_scrape.json` (from `_scripts/github_scrape.py`, added in c34f6249) already holds, per GitHub repo, lists of open `pull_requests`, `help_wanted` and `good_first_issue` items. Today they only appear per-repo (and are fetched live by `js/contribution_suggestions.js`). Goal: a new top-level list page, alongside Package List / Repository List / System Dependencies, showing all three kinds combined in one searchable, sortable Tabulator table.
+
+Decisions (from user):
+- URL `/search_contribute/`; header gets a **Contribute** button. Existing `/contribute/` (contribute.md) untouched.
+- Extend the scrape with created/updated dates, author, and PR draft flag.
+- No distro switch: each GitHub repo's items appear once.
+
+Closest existing pattern: System Dependencies — `SearchDepsListPage` (`_ruby_libs/pages.rb:103`), `_layouts/search_deps.html`, and the `search/deps/` lunr index built with `precompile_lunr_index` (`_ruby_libs/lunr.rb`) in `generate` (`_plugins/rosindex_generator.rb:~1290-1347`).
+
+## 1. Scrape script — `_scripts/github_scrape.py`
+- Split `LIST_FIELDS` into
+  - `ISSUE_LIST_FIELDS = 'totalCount nodes { number title url createdAt updatedAt author { login } }'`
+  - `PR_LIST_FIELDS = '... same ... isDraft'` (isDraft only exists on PullRequest).
+  Use them in `REPO_FIELDS` for helpWanted/goodFirstIssue vs pullRequests.
+- `contribution_list(connection)`: add `created_at`, `updated_at` (ISO strings → keep `YYYY-MM-DD`), `author` (`(node['author'] or {}).get('login', '')` — author is null for deleted users), and `draft` when present.
+- Update the module docstring example.
+- Keep `html_url` etc. so `js/contribution_suggestions.js` consumers are unaffected.
+- Then re-run `docker/run.sh make test-github-scrape` (needs `GITHUB_TOKEN`).
+
+## 2. Generator — `_plugins/rosindex_generator.rb`
+- New method `generate_contribute_index(site)` called inside the `unless site.config['skip_search_index']` block, after the deps index:
+  - Iterate `@all_repos.each_value`; for each repo with a URI, get `info = github_repo_info(site, repo.uri)` (`rosindex_generator.rb:537`, already maps cleaned URIs). Dedupe by `cleanup_uri(repo.uri)` so a repo shared by several instances is listed once; skip repos with empty info.
+  - For each of the three lists, build rows keyed by `html_url` so an issue labeled both "help wanted" and "good first issue" becomes **one** row with `type` = both labels (space-joined, e.g. `"help_wanted good_first_issue"`), and a display string.
+  - Row fields: `id`, `type`, `number`, `title`, `html_url`, `repo` (repo.name, links to `/r/<name>/`), `org` (`URI(repo.uri).path.split('/')[1]`, as in the packages index), `stars`, `repo_description`, `tags` (repo topics + repo name split on `_`, space-joined), `author`, `created_at`, `updated_at`, `draft`, `score: 0.0`.
+  - `precompile_lunr_index(site, {'0' => rows}, 'id', ['title:100', 'repo:50', 'tags:50', 'org', 'author', 'repo_description', 'type'], 'search/contribute/', ['0'])`.
+- New page registration next to `generate_search_deps_list(site)` (`:1120`): `site.pages << SearchContributeListPage.new(site)`.
+
+## 3. Page class — `_ruby_libs/pages.rb`
+`SearchContributeListPage` copied from `SearchDepsListPage`: `@dir = 'search_contribute/'`, layout file `search_contribute.html`, title `'Contribute'`.
+
+## 4. Layout — `_layouts/search_contribute.html` (new)
+Based on `_layouts/search_deps.html` (same breadcrumb/search card/lunr search/`?contribute=` query param/enable-search checkbox/count display; fetches `search/contribute/data.0.json` and `index.0.json`). Additions:
+- **Type filter** in the card header: three Bootstrap `btn-check` toggle buttons (Pull requests / Help wanted / Good first issue), all on by default, plus a **Hide drafts** checkbox. Implemented as one Tabulator custom filter function (row passes if any of its types is enabled, and not (hideDrafts && draft)), combined with the lunr `id in` filter. State kept in URL params like the search query.
+- Columns: Type (badge per type, colored by Bootstrap `text-bg-*`), `#` (number, link to `html_url`), Title (link to `html_url`, minWidth 300), Repo (link to `{{site.baseurl}}/r/<repo>/`), Org, ★ Stars (same K formatter as search_packages.html), Author, Created, Updated (`sorter:"date"`, `yyyy-MM-dd`), hidden `score`.
+- Default sort: `updated_at` desc; search sort: score desc.
+- Help link → `/help/contribute_list/`.
+- Column chooser: not included initially (can be ported from search_packages.html later).
+
+## 5. Navigation & help
+- `_includes/header.html`: add "Contribute" button to the md+ btn-group and a dropdown item in the small-screen "Lists" menu, both → `{{site.baseurl}}/search_contribute`. Leave About ▸ Contribute (the how-to page) as is.
+- `help/contribute_list.md` (modeled on `help/system_dependencies.md`): what the three types mean, filters, search fields, that data is a snapshot from the last scrape. Link it from `help/index.md`.
+- Add a short link from `contribute.md` to the new list ("Find open issues and pull requests across ROS repos").
+
+## 6. Tests — `tests/specs/contribute_list.spec.js` (new)
+Behavior tests (not class names), following `column_chooser.spec.js`/`helpers.js`:
+- Page loads, table has rows, count text matches.
+- Toggling a type off removes rows of that type; Hide drafts removes draft PRs.
+acado_vendor
+ackermann_msgs
+ackermann_nlmpc
+actuator_msgs
+adaptive_bridge
+adaptive_component
+adi_iio
+adi_imu
+ads_vendor
+agni_tf_tools
+839
+Bash
+IN
+mkdir -p /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && cat > /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad/scan.py <<'EOF'
+import os, sys, json, xml.etree.ElementTree as ET
+root = sys.argv[1]
+out = []
+for repo in sorted(os.listdir(root)):
+    rp = os.path.join(root, repo)
+    if not os.path.isdir(rp): continue
+    for d, dirs, files in os.walk(rp):
+        dirs[:] = [x for x in dirs if not x.startswith('.')]
+        ignored = any(f in files for f in ('COLCON_IGNORE','AMENT_IGNORE','CATKIN_IGNORE'))
+        if 'package.xml' in files:
+            p = os.path.join(d, 'package.xml')
+            try:
+                t = ET.parse(p).getroot()
+                name = (t.findtext('name') or '').strip()
+                lic = [{'text': (l.text or '').strip(), 'file': l.get('file')} for l in t.findall('license')]
+                out.append({'repo': repo, 'path': os.path.relpath(p, root), 'name': name,
+                            'format': t.get('format'), 'ignored': ignored, 'licenses': lic})
+            except Exception as e:
+                out.append({'repo': repo, 'path': os.path.relpath(p, root), 'error': str(e)})
+            dirs[:] = []  # packages don't nest
+json.dump(out, open(sys.argv[2], 'w'), indent=1)
+print(len(out))
+EOF
+cd /tmp && python3 -I /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad/scan.py /srv/repos/jazzy /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad/packages.json
+
+OUT
+Command running in background with ID: bgqbe3rx4. Output is being written to: /tmp/claude-1000/-home-kent-github-rkent-rosindex/0f7cadcb-bb8d-42e5-98fb-293520f222af/tasks/bgqbe3rx4.output. You will be notified when it completes — do not poll that file or sleep while waiting. Read the file only if the user asks for progress, or if you need a line it prints before you can go on, such as a server's ready line or port.
+Session cwd remains /home/kent/github/rkent/rosindex; directory changes made by the backgrounded command do not apply to subsequent commands.
+12:13 PM
+Meanwhile, I'll check whether the repo already has any license handling and whether an SPDX license list is available locally.
+
+
+
+Bash
+IN
+cd /home/kent/github/rkent/rosindex; grep -rn -i "spdx\|licen" --include=*.rb --include=*.py --include=*.yml --include=*.json . 2>/dev/null | grep -v _remotes | grep -v node_modules | head -30; python3 -c "import license_expression; print(license_expression.__file__)" 2>&1; pip list 2>/dev/null | grep -i -E "spdx|license"
+
+OUT
+_ruby_libs/dependency_descriptions.rb:3:# Licensed under the Apache License, Version 2.0 (the "License");
+_ruby_libs/dependency_descriptions.rb:4:# you may not use this file except in compliance with the License.
+_ruby_libs/dependency_descriptions.rb:5:# You may obtain a copy of the License at
+_ruby_libs/dependency_descriptions.rb:7:#    http://www.apache.org/licenses/LICENSE-2.0
+_ruby_libs/dependency_descriptions.rb:10:# distributed under the License is distributed on an "AS IS" BASIS,
+_ruby_libs/dependency_descriptions.rb:12:# See the License for the specific language governing permissions and
+_ruby_libs/dependency_descriptions.rb:13:# limitations under the License.
+_plugins/rosindex_generator.rb:356:      license = REXML::XPath.first(manifest_doc, "/package/license/text()").to_s
+_plugins/rosindex_generator.rb:458:        'license' => license,
+_scripts/debian_descriptions.rb:4:# Licensed under the Apache License, Version 2.0 (the "License");
+_scripts/debian_descriptions.rb:5:# you may not use this file except in compliance with the License.
+_scripts/debian_descriptions.rb:6:# You may obtain a copy of the License at
+_scripts/debian_descriptions.rb:8:#    http://www.apache.org/licenses/LICENSE-2.0
+_scripts/debian_descriptions.rb:11:# distributed under the License is distributed on an "AS IS" BASIS,
+_scripts/debian_descriptions.rb:13:# See the License for the specific language governing permissions and
+_scripts/debian_descriptions.rb:14:# limitations under the License.
+_scripts/pip_packages.py:5:# Licensed under the Apache License, Version 2.0 (the "License");
+_scripts/pip_packages.py:6:# you may not use this file except in compliance with the License.
+_scripts/pip_packages.py:7:# You may obtain a copy of the License at
+_scripts/pip_packages.py:9:#     http://www.apache.org/licenses/LICENSE-2.0
+_scripts/pip_packages.py:12:# distributed under the License is distributed on an "AS IS" BASIS,
+_scripts/pip_packages.py:14:# See the License for the specific language governing permissions and
+_scripts/pip_packages.py:15:# limitations under the License.
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'license_expression'
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && mkdir -p spdx && curl -sSfL -o spdx/licenses.json https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json && curl -sSfL -o spdx/exceptions.json https://raw.githubusercontent.com/spdx/license-list-data/main/json/exceptions.json && python3 -I -c "import json;d=json.load(open('spdx/licenses.json'));print(d['licenseListVersion'],len(d['licenses']))"
+
+OUT
+3.29.0 740
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Bash
+IN
+cat /tmp/claude-1000/-home-kent-github-rkent-rosindex/0f7cadcb-bb8d-42e5-98fb-293520f222af/tasks/bgqbe3rx4.output
+
+OUT
+(Bash completed with no output)
+Monitor
+IN
+{
+  "description": "package.xml scan of jazzy finishing",
+  "timeout_ms": 1800000,
+  "command": "f=/tmp/claude-1000/-home-kent-github-rkent-rosindex/0f7cadcb-bb8d-42e5-98fb-293520f222af/tasks/bgqbe3rx4.output; until [ -s $f ]; do sleep 2; done; cat $f"
+}
+OUT
+Monitor started (task b03w1wg26, expires in 30m unless the source ends first; you get one notice at expiry — re-arm if you still need the watch). You will be notified on each event. Keep working — do not poll or sleep. Events may arrive while you are waiting for the user — an event is not their reply.
+12:14 PM
+Scan is still running over 839 repos. I'll wait for it to finish.
+
+
+
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && python3 -I - <<'EOF'
+import json, collections
+P=json.load(open('packages.json'))
+L={l['licenseId'] for l in json.load(open('spdx/licenses.json'))['licenses']}
+print('errors',[p for p in P if 'error' in p][:5])
+c=collections.Counter(); nolic=0; ign=0
+for p in P:
+    if 'error' in p: continue
+    if p['ignored']: ign+=1
+    if not p['licenses']: nolic+=1
+    for l in p['licenses']: c[l['text']]+=1
+print('pkgs',len(P),'ignored',ign,'nolicense',nolic,'distinct',len(c))
+for k,v in c.most_common():
+    print(v, repr(k), 'SPDX' if k in L else '')
+EOF
+
+OUT
+errors []
+pkgs 2942 ignored 34 nolicense 0 distinct 77
+789 'Apache License 2.0' 
+634 'BSD' 
+495 'Apache-2.0' SPDX
+282 'MIT' SPDX
+223 'Apache 2.0' 
+204 'BSD-3-Clause' SPDX
+152 'GPL-3.0-or-later' SPDX
+40 'Apache License, Version 2.0' 
+38 'GPLv3' 
+38 'Apache 2' 
+15 'BSD-2-Clause' SPDX
+14 'LGPLv3' 
+9 'Apache2' 
+8 'GPL-3.0-only' SPDX
+7 'Apache-2' 
+6 'MIT-0' SPDX
+5 'LGPL' 
+4 'zlib' 
+3 'Apache 2.0 License' 
+3 'BSD 3-clause' 
+3 'BSD-3' 
+3 'GPL-2.0-or-later' SPDX
+3 'Public Domain' 
+3 'MPL-2.0' SPDX
+3 'GPL' 
+3 'GPL-3.0' SPDX
+3 'BSD 3-Clause' 
+3 'Zlib' SPDX
+3 'LGPL-2.1-or-later' SPDX
+3 'MIT License' 
+3 'GPLv2' 
+2 'BSL-1.0' SPDX
+2 'BSD-2' 
+2 'CC-BY-3.0' SPDX
+2 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License' 
+2 'GNU Lesser Public License 2.1' 
+2 'LGPL v2.1' 
+1 'Apache License Version 2.0' 
+1 'LGPLv2.1' 
+1 'MPL-1.1' SPDX
+1 'GPLv2+ license' 
+1 'CC0-1.0' SPDX
+1 'Eclipse Public License 2.0' 
+1 'Eclipse Distribution License 1.0' 
+1 'GPL-2.0' SPDX
+1 'zlib License' 
+1 'AGPL-3.0-only' SPDX
+1 'Zlib License' 
+1 'LGPL-3.0' SPDX
+1 'LGPL-3.0-or-later' SPDX
+1 'BSD-1-Clause' SPDX
+1 'BSD 3 Clause' 
+1 'CC-BY-NC-SA-3.0' SPDX
+1 'CC-BY-NC-SA-4.0' SPDX
+1 'WTFPL' SPDX
+1 'apache 2.0' 
+1 'BSD, LGPL' 
+1 'AGPLv3' 
+1 'Apache Licence 2.0' 
+1 'Apache license 2.0' 
+1 'LGPL-v3' 
+1 'HPND' SPDX
+1 'CC0' 
+1 'BSD Clause 3' 
+1 'GNU Lesser General Public License v3.0 (LGPL-3.0)' 
+1 'BSD 3-Clause License' 
+1 'Unlicense' SPDX
+1 'MyLicense' 
+1 'MPL-2.0 license' 
+1 'BSD 2-clause' 
+1 'BSD License 2.0' 
+1 'GNU General Public License v2.0' 
+1 'Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation' 
+1 'GPL-2' 
+1 'TODO: License declaration' 
+1 'EPL-2.0' SPDX
+1 'Mozilla Public License 2.0'
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Monitor "package.xml scan of jazzy finishing" stream ended
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && python3 -I - <<'EOF'
+import json, collections
+P=json.load(open('packages.json'))
+D={l['licenseId']:l for l in json.load(open('spdx/licenses.json'))['licenses']}
+print([k for k in D if D[k]['isDeprecatedLicenseId'] and k in ('GPL-3.0','GPL-2.0','LGPL-3.0','LGPL-2.1')])
+multi=[p for p in P if len(p['licenses'])>1]
+print('multi',len(multi))
+for p in multi[:40]: print(p['path'], [l['text'] for l in p['licenses']])
+print('with file attr', sum(1 for p in P for l in p['licenses'] if l['file']))
+print('formats', collections.Counter(p['format'] for p in P))
+dup=collections.Counter(p['name'] for p in P); print('dup names', [(k,v) for k,v in dup.items() if v>1][:20])
+for s in ['MyLicense','TODO: License declaration','Public Domain','Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation','BSD, LGPL','BSD License 2.0','GNU Lesser Public License 2.1','LGPL','GPL']:
+  print(s, [p['path'] for p in P if any(l['text']==s for l in p['licenses'])])
+EOF
+
+OUT
+['GPL-2.0', 'GPL-3.0', 'LGPL-2.1', 'LGPL-3.0']
+multi 85
+ament_lint/ament_cpplint/package.xml ['Apache License 2.0', 'BSD']
+ament_lint/ament_pep257/package.xml ['Apache License 2.0', 'MIT']
+autoware_core/localization/autoware_ndt_scan_matcher/package.xml ['Apache License 2.0', 'BSD']
+boost_sml_vendor/package.xml ['MIT', 'BSL-1.0']
+clips_executive/extensions/pddl/cx_z3_vendor/package.xml ['Apache-2.0', 'MIT']
+compass/magnetic_model/package.xml ['BSD-3-Clause', 'Public Domain']
+console_bridge_vendor/package.xml ['Apache License 2.0', 'BSD']
+cyclonedds/package.xml ['Eclipse Public License 2.0', 'Eclipse Distribution License 1.0']
+easynav_playgrounds/playground_kobuki/easynav_playground_kobuki_worlds/package.xml ['Apache-2.0', 'MIT-0']
+easynav_playgrounds/playground_summit/easynav_playground_summit_worlds/package.xml ['Apache-2.0', 'GPL-3.0-only', 'MIT-0']
+easynav_playgrounds/playground_tiago/easynav_playground_tiago_worlds/package.xml ['Apache-2.0', 'MIT-0']
+easynav_playgrounds/playground_omni/easynav_playground_omni_worlds/package.xml ['MIT', 'Apache-2.0']
+ess_imu_driver2/package.xml ['BSD-3', 'Public Domain']
+flir_camera_driver/spinnaker_camera_driver/package.xml ['Apache-2', 'BSD']
+foonathan_memory_vendor/package.xml ['Apache License 2.0', 'zlib License']
+geometry_tutorials/turtle_tf2_py/package.xml ['Apache License, Version 2.0', 'BSD']
+gtsam/package.xml ['BSD-3-Clause', 'BSD-3-Clause', 'MPL-2.0', 'Apache-2.0', 'MPL-2.0']
+gz_dartsim_vendor/package.xml ['Apache License 2.0', 'BSD-2']
+gz_ogre_next_vendor/package.xml ['Apache License 2.0', 'MIT']
+hash_library_vendor/package.xml ['Apache License 2.0', 'Zlib License']
+image_transport_plugins/compressed_depth_image_transport/package.xml ['BSD', 'MIT']
+imu_pipeline/imu_pipeline/package.xml ['BSD', 'GPL']
+imu_tools/imu_tools/package.xml ['BSD-3-Clause', 'GPL-3.0-or-later']
+jrl_cmakemodules/package.xml ['GPL-3.0', 'LGPL-3.0', 'BSD-3-Clause', 'MIT', 'Apache-2.0']
+launch/launch_testing_ament_cmake/package.xml ['Apache License 2.0', 'BSD']
+libcaer_vendor/package.xml ['Apache License 2.0', 'BSD-2']
+libyaml_vendor/package.xml ['Apache License 2.0', 'MIT']
+live555_vendor/package.xml ['LGPL-3.0-or-later', 'BSD-1-Clause']
+mavros/mavros/package.xml ['GPLv3', 'LGPLv3', 'BSD']
+mavros/mavros_msgs/package.xml ['GPLv3', 'LGPLv3', 'BSD']
+mavros/libmavconn/package.xml ['GPLv3', 'LGPLv3', 'BSD']
+mavros/mavros_extras/package.xml ['GPLv3', 'LGPLv3', 'BSD']
+mavros/test_mavros/package.xml ['BSD', 'GPLv3', 'LGPLv3']
+mavros/mavros_examples/package.xml ['GPLv3', 'LGPLv3', 'BSD']
+mimick_vendor/package.xml ['Apache License 2.0', 'MIT']
+mir_robot/mir_driver/package.xml ['BSD', 'Apache 2.0']
+mola_test_datasets/package.xml ['BSD-3-Clause', 'BSD-3-Clause', 'CC-BY-NC-SA-3.0', 'CC-BY-3.0', 'CC-BY-3.0', 'CC-BY-NC-SA-4.0']
+mp_units_vendor/package.xml ['Apache-2.0', 'MIT']
+mrpt3/modules/mrpt_imgui_vendor/package.xml ['BSD', 'MIT', 'MIT', 'WTFPL', 'Zlib', 'Apache-2.0']
+multisensor_calibration/small_gicp_vendor/package.xml ['MIT', 'BSD']
+with file attr 139
+formats Counter({'3': 2481, '2': 454, None: 7})
+dup names [('mola_input_euroc_dataset', 2), ('scenario_execution_dataops', 2), ('mola_input_mulran_dataset', 2), ('mola_input_paris_luco_dataset', 2), ('mola_input_kitti_dataset', 2), ('gripper_controllers', 2), ('kitti_metrics_eval', 2), ('mola_input_kitti360_dataset', 2), ('scenario_execution_network', 2), ('scenario_execution_sim', 2), ('coal', 2), ('crazyflie_server_py', 2), ('crazyflie_server_cpp', 2), ('crazyflie_interfaces', 2), ('crazyflie_sim', 2), ('crazyflie_py', 2), ('crazyflie_description', 2), ('crazyflie', 2), ('crazyflie_examples', 2), ('battery_state_broadcaster', 2)]
+MyLicense ['smacc2/smacc2_performance_tools/performance_tests/sm_coretest_transition_speed_1/package.xml']
+TODO: License declaration ['wato_monorepo/src/action/wato_trajectory_msgs/package.xml']
+Public Domain ['compass/magnetic_model/package.xml', 'ess_imu_driver2/package.xml', 'tango_icons_vendor/package.xml']
+Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation ['ur_description/package.xml']
+BSD, LGPL ['phidgets_drivers/phidgets_drivers/package.xml']
+BSD License 2.0 ['teleop_twist_keyboard/package.xml']
+GNU Lesser Public License 2.1 ['realtime_support/tlsf_cpp/package.xml', 'tlsf/tlsf/package.xml']
+LGPL ['lms1xx/package.xml', 'phidgets_drivers/libphidget22/package.xml', 'qpoases_vendor/package.xml', 'ros_canopen/ros_canopen/package.xml', 'slam_toolbox/package.xml']
+GPL ['imu_pipeline/imu_pipeline/package.xml', 'imu_pipeline/imu_transformer/package.xml', 'joystick_drivers/wiimote/package.xml']
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && cat > evidence.py <<'EOF'
+import json, os, re, sys, collections
+ROOT='/srv/repos/jazzy'
+P=json.load(open('packages.json'))
+L={l['licenseId'] for l in json.load(open('spdx/licenses.json'))['licenses']}
+LICNAMES=re.compile(r'^(LICEN[CS]E|COPYING|COPYRIGHT)([._-].*)?$', re.I)
+def classify(t):
+    u=' '.join(t.split())
+    r=set()
+    if re.search(r'GNU LESSER GENERAL PUBLIC LICENSE', u, re.I) or 'GNU Library General' in u:
+        m=re.search(r'Version (\d(\.\d)?)', u); r.add('LGPL-'+(m.group(1) if m else '?'))
+    elif re.search(r'GNU AFFERO GENERAL PUBLIC LICENSE', u, re.I): r.add('AGPL-3')
+    elif re.search(r'GNU GENERAL PUBLIC LICENSE', u, re.I):
+        m=re.search(r'Version (\d)', u); r.add('GPL-'+(m.group(1) if m else '?'))
+    if re.search(r'Apache License,? Version 2\.0', u, re.I) or 'www.apache.org/licenses/LICENSE-2.0' in u: r.add('Apache-2.0')
+    if 'Redistribution and use in source and binary forms' in u:
+        if re.search(r'advertising materials', u, re.I): r.add('BSD-4-Clause')
+        elif re.search(r'Neither the name|names of (its|the) contributors may|name of the copyright holder nor|may not be used to endorse', u, re.I): r.add('BSD-3-Clause')
+        else: r.add('BSD-2-Clause')
+    if 'Permission is hereby granted, free of charge' in u: r.add('MIT')
+    if 'Mozilla Public License' in u: r.add('MPL')
+    return sorted(r)
+def lic_files(pkgdir, repodir):
+    out=[]; d=pkgdir
+    while True:
+        try: fs=os.listdir(d)
+        except: fs=[]
+        for f in fs:
+            if LICNAMES.match(f) and os.path.isfile(os.path.join(d,f)): out.append(os.path.join(d,f))
+        if out or d==repodir: break
+        d=os.path.dirname(d)
+    return out
+SRCEXT=('.c','.cc','.cpp','.cxx','.h','.hpp','.hh','.py','.cmake','.txt')
+def later_scan(pkgdir):
+    later=only=0; n=0
+    for d,ds,fs in os.walk(pkgdir):
+        ds[:]=[x for x in ds if not x.startswith('.')]
+        for f in fs:
+            if not f.endswith(SRCEXT): continue
+            n+=1
+            if n>400: return later,only
+            try: h=open(os.path.join(d,f),errors='ignore').read(4000)
+            except: continue
+            hh=' '.join(h.split())
+            if 'General Public License' in hh:
+                if re.search(r'(any later version|or later)', hh, re.I): later+=1
+                elif re.search(r'version [23](\.1)?', hh, re.I): only+=1
+    return later,only
+res={}
+for p in P:
+    nonspdx=[l['text'] for l in p['licenses'] if l['text'] not in L or l['text'] in ('GPL-3.0','GPL-2.0','LGPL-3.0','LGPL-2.1')]
+    if not nonspdx: continue
+    pkgdir=os.path.join(ROOT, os.path.dirname(p['path'])); repodir=os.path.join(ROOT,p['repo'])
+    files=lic_files(pkgdir, repodir)
+    for l in p['licenses']:
+        if l['file']:
+            f=os.path.join(pkgdir,l['file'])
+            if os.path.isfile(f) and f not in files: files.append(f)
+    ev={os.path.relpath(f,ROOT): classify(open(f,errors='ignore').read()) for f in files}
+    gp=None
+    if any('GPL' in s or 'General Public' in s for s in nonspdx): gp=later_scan(pkgdir)
+    res[p['path']]={'licenses':[l['text'] for l in p['licenses']],'files':ev,'gpl_headers':gp}
+json.dump(res,open('evidence.json','w'),indent=1)
+print(len(res))
+EOF
+python3 -I evidence.py
+
+OUT
+1817
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Background command "cat /home/kent/.claude/plans/the-goal-of-this-encapsulated-badger.md | head -50; ls /srv/repos/jazzy | head; ls /srv/repos/jazzy | wc -l; find /srv/repos/jazzy -name package.xml -not -path '*/.git/*' | wc -l" completed (exit code 0)
+12:17 PM
+Now I'll summarize what the license files say for each ambiguous string.
+
+
+
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && python3 -I - <<'EOF'
+import json, collections
+E=json.load(open('evidence.json'))
+by=collections.defaultdict(collections.Counter); gpl=collections.defaultdict(lambda:[0,0,0])
+for path,e in E.items():
+    cls=set(c for v in e['files'].values() for c in v)
+    for s in set(e['licenses']):
+        key='+'.join(sorted(cls)) if cls else '(no license file)'
+        by[s][key]+=1
+        if e['gpl_headers'] and ('GPL' in s or 'General' in s):
+            g=gpl[s]; g[0]+=1; g[1]+=e['gpl_headers'][0]>0; g[2]+=e['gpl_headers'][1]>0
+for s in sorted(by, key=lambda s:-sum(by[s].values())):
+    print(repr(s), dict(by[s].most_common(8)), 'gpl pkgs/later/only:' , gpl.get(s))
+EOF
+
+OUT
+'Apache License 2.0' {'Apache-2.0': 749, '(no license file)': 13, 'Apache-2.0+BSD-3-Clause': 11, 'BSD-3-Clause': 8, 'Apache-2.0+MIT': 3, 'Apache-2.0+LGPL-2': 2, 'Apache-2.0+BSD-2-Clause': 2} gpl pkgs/later/only: None
+'BSD' {'BSD-3-Clause': 503, '(no license file)': 67, 'BSD-3-Clause+LGPL-3': 21, 'Apache-2.0': 14, 'Apache-2.0+BSD-3-Clause': 13, 'BSD-2-Clause': 9, 'BSD-4-Clause+MIT': 2, 'BSD-3-Clause+MIT': 2} gpl pkgs/later/only: None
+'Apache 2.0' {'Apache-2.0': 215, '(no license file)': 3, 'Apache-2.0+BSD-3-Clause': 2, 'BSD-3-Clause': 2, 'Apache-2.0+LGPL-2': 1} gpl pkgs/later/only: None
+'Apache License, Version 2.0' {'Apache-2.0': 36, '(no license file)': 3, 'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'GPLv3' {'LGPL-3': 32, 'BSD-3-Clause+LGPL-3': 6} gpl pkgs/later/only: [38, 4, 3]
+'Apache 2' {'Apache-2.0': 38} gpl pkgs/later/only: None
+'MIT' {'Apache-2.0': 7, 'BSD-3-Clause': 4, 'LGPL-3': 1, 'Apache-2.0+BSD-3-Clause+MIT': 1, '(no license file)': 1} gpl pkgs/later/only: None
+'LGPLv3' {'LGPL-3': 6, 'BSD-3-Clause+LGPL-3': 6, 'LGPL-3+MIT': 1, '(no license file)': 1} gpl pkgs/later/only: [14, 3, 1]
+'Apache2' {'Apache-2.0': 9} gpl pkgs/later/only: None
+'Apache-2' {'Apache-2.0': 7} gpl pkgs/later/only: None
+'BSD-3-Clause' {'BSD-3-Clause': 2, 'Apache-2.0': 2, 'LGPL-3': 1, 'Apache-2.0+BSD-3-Clause': 1} gpl pkgs/later/only: None
+'LGPL' {'(no license file)': 1, 'BSD-3-Clause+LGPL-3': 1, 'Apache-2.0': 1, 'LGPL-3': 1, 'LGPL-2.1': 1} gpl pkgs/later/only: [5, 2, 0]
+'zlib' {'(no license file)': 4} gpl pkgs/later/only: None
+'Apache 2.0 License' {'Apache-2.0': 3} gpl pkgs/later/only: None
+'BSD 3-clause' {'BSD-3-Clause': 3} gpl pkgs/later/only: None
+'BSD-3' {'BSD-3-Clause': 3} gpl pkgs/later/only: None
+'Public Domain' {'BSD-3-Clause': 2, 'Apache-2.0': 1} gpl pkgs/later/only: None
+'GPL' {'(no license file)': 1, 'LGPL-3': 1, 'LGPL-2': 1} gpl pkgs/later/only: [3, 1, 1]
+'GPL-3.0' {'LGPL-3': 2, 'GPL-?': 1} gpl pkgs/later/only: [3, 1, 1]
+'Apache-2.0' {'LGPL-3': 1, 'Apache-2.0+BSD-3-Clause+MIT': 1, 'Apache-2.0': 1} gpl pkgs/later/only: None
+'BSD 3-Clause' {'BSD-3-Clause': 2, 'BSD-2-Clause': 1} gpl pkgs/later/only: None
+'MIT License' {'MIT': 2, 'Apache-2.0': 1} gpl pkgs/later/only: None
+'GPLv2' {'LGPL-2': 2, 'Apache-2.0': 1} gpl pkgs/later/only: [3, 2, 1]
+'BSD-2' {'Apache-2.0': 2} gpl pkgs/later/only: None
+'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License' {'Apache-2.0': 2} gpl pkgs/later/only: None
+'LGPL-2.1-or-later' {'Apache-2.0': 2} gpl pkgs/later/only: None
+'GNU Lesser Public License 2.1' {'(no license file)': 1, 'LGPL-2.1': 1} gpl pkgs/later/only: None
+'LGPL v2.1' {'LGPL-2.1': 2} gpl pkgs/later/only: [2, 0, 0]
+'Apache License Version 2.0' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'LGPLv2.1' {'LGPL-2.1': 1} gpl pkgs/later/only: [1, 0, 0]
+'GPLv2+ license' {'Apache-2.0+LGPL-2': 1} gpl pkgs/later/only: [1, 0, 0]
+'Eclipse Public License 2.0' {'BSD-3-Clause+GPL-2': 1} gpl pkgs/later/only: None
+'Eclipse Distribution License 1.0' {'BSD-3-Clause+GPL-2': 1} gpl pkgs/later/only: None
+'GPL-2.0' {'LGPL-2': 1} gpl pkgs/later/only: [1, 0, 0]
+'zlib License' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'Zlib License' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'LGPL-3.0' {'LGPL-3': 1} gpl pkgs/later/only: [1, 1, 1]
+'BSD 3 Clause' {'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'WTFPL' {'Apache-2.0+BSD-3-Clause+MIT': 1} gpl pkgs/later/only: None
+'Zlib' {'Apache-2.0+BSD-3-Clause+MIT': 1} gpl pkgs/later/only: None
+'apache 2.0' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'BSD, LGPL' {'BSD-3-Clause+LGPL-3': 1} gpl pkgs/later/only: [1, 0, 0]
+'AGPLv3' {'AGPL-3': 1} gpl pkgs/later/only: [1, 0, 0]
+'Apache Licence 2.0' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'Apache license 2.0' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'LGPL-v3' {'LGPL-3': 1} gpl pkgs/later/only: [1, 1, 0]
+'HPND' {'(no license file)': 1} gpl pkgs/later/only: None
+'CC0' {'(no license file)': 1} gpl pkgs/later/only: None
+'BSD Clause 3' {'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'GNU Lesser General Public License v3.0 (LGPL-3.0)' {'LGPL-3': 1} gpl pkgs/later/only: [1, 1, 0]
+'BSD 3-Clause License' {'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'MyLicense' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'MPL-2.0 license' {'LGPL-2.1': 1} gpl pkgs/later/only: None
+'BSD 2-clause' {'BSD-2-Clause': 1} gpl pkgs/later/only: None
+'BSD License 2.0' {'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'GNU General Public License v2.0' {'Apache-2.0': 1} gpl pkgs/later/only: [1, 0, 0]
+'Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation' {'BSD-3-Clause': 1} gpl pkgs/later/only: None
+'GPL-2' {'LGPL-2': 1} gpl pkgs/later/only: [1, 0, 0]
+'TODO: License declaration' {'Apache-2.0': 1} gpl pkgs/later/only: None
+'Mozilla Public License 2.0' {'Apache-2.0': 1} gpl pkgs/later/only: None
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && python3 -I - <<'EOF'
+s=open('evidence.py').read()
+s=s.replace("""    if re.search(r'GNU LESSER GENERAL PUBLIC LICENSE', u, re.I) or 'GNU Library General' in u:
+        m=re.search(r'Version (\\d(\\.\\d)?)', u); r.add('LGPL-'+(m.group(1) if m else '?'))
+    elif re.search(r'GNU AFFERO GENERAL PUBLIC LICENSE', u, re.I): r.add('AGPL-3')
+    elif re.search(r'GNU GENERAL PUBLIC LICENSE', u, re.I):
+        m=re.search(r'Version (\\d)', u); r.add('GPL-'+(m.group(1) if m else '?'))""",
+"""    h=u[:600]
+    if re.search(r'GNU (LESSER|LIBRARY) GENERAL PUBLIC LICENSE', h, re.I):
+        m=re.search(r'Version (\\d(\\.\\d)?)', h); r.add('LGPL-'+(m.group(1) if m else '?'))
+    elif re.search(r'GNU AFFERO GENERAL PUBLIC LICENSE', h, re.I): r.add('AGPL-3')
+    elif re.search(r'GNU GENERAL PUBLIC LICENSE', h, re.I):
+        m=re.search(r'Version (\\d)', h); r.add('GPL-'+(m.group(1) if m else '?'))""")
+assert "h=u[:600]" in s
+open('evidence.py','w').write(s)
+EOF
+python3 -I evidence.py && python3 -I - <<'EOF'
+import json, collections
+E=json.load(open('/tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad/evidence.json'))
+for path,e in E.items():
+    if any(('GPL' in s or 'General' in s or s in('BSD, LGPL',)) for s in e['licenses']):
+        print(path, e['licenses'], e['files'], e['gpl_headers'])
+EOF
+
+OUT
+1817
+_release/mola_input_mulran_dataset/package.xml ['GPLv3'] {'_release/mola_input_mulran_dataset/LICENSE': ['GPL-3']} [0, 0]
+_release/mola_input_paris_luco_dataset/package.xml ['GPLv3'] {'_release/mola_input_paris_luco_dataset/LICENSE': ['GPL-3']} [0, 0]
+_release/mola_input_kitti_dataset/package.xml ['GPLv3'] {'_release/mola_input_kitti_dataset/LICENSE': ['GPL-3']} [0, 0]
+_release/mola_input_kitti360_dataset/package.xml ['GPLv3'] {'_release/mola_input_kitti360_dataset/LICENSE': ['GPL-3']} [0, 0]
+apriltag_mit/package.xml ['LGPLv2.1'] {'apriltag_mit/LICENSE': ['LGPL-2.1']} [0, 0]
+clips_executive/cx_plugins/executive_plugin/package.xml ['GPLv2+ license'] {'clips_executive/LICENSE.gpl': ['GPL-2'], 'clips_executive/LICENSE': ['Apache-2.0']} [0, 0]
+control_box_rst/package.xml ['GPLv3'] {'control_box_rst/COPYING.md': ['GPL-3'], 'control_box_rst/LICENSE': ['GPL-3']} [148, 0]
+doom_ros/package.xml ['GPL-2.0'] {'doom_ros/LICENSE': ['GPL-2']} [0, 0]
+eiquadprog/package.xml ['LGPLv3'] {'eiquadprog/COPYING.LESSER': ['LGPL-3'], 'eiquadprog/COPYING': ['GPL-3']} [7, 2]
+hector_rviz_overlay/hector_rviz_overlay_demo/package.xml ['GPLv3'] {'hector_rviz_overlay/LICENSE': ['GPL-3']} [8, 0]
+hector_rviz_overlay/hector_rviz_overlay_controls/package.xml ['GPLv3'] {'hector_rviz_overlay/LICENSE': ['GPL-3']} [8, 0]
+hector_rviz_overlay/hector_rviz_overlay/package.xml ['GPLv3'] {'hector_rviz_overlay/LICENSE': ['GPL-3']} [75, 0]
+imu_pipeline/imu_pipeline/package.xml ['BSD', 'GPL'] {} [0, 0]
+imu_pipeline/imu_transformer/package.xml ['GPL'] {'imu_pipeline/imu_transformer/LICENSE': ['GPL-3']} [0, 0]
+joystick_drivers/wiimote/package.xml ['GPL'] {'joystick_drivers/wiimote/LICENSE': ['GPL-2']} [11, 1]
+jrl_cmakemodules/package.xml ['GPL-3.0', 'LGPL-3.0', 'BSD-3-Clause', 'MIT', 'Apache-2.0'] {'jrl_cmakemodules/LICENSE': ['LGPL-3']} [1, 56]
+lms1xx/package.xml ['LGPL'] {} [6, 0]
+mavlink/package.xml ['LGPLv3'] {'mavlink/COPYING': ['MIT']} [2, 0]
+mavros/mavros/package.xml ['GPLv3', 'LGPLv3', 'BSD'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mavros/mavros_msgs/package.xml ['GPLv3', 'LGPLv3', 'BSD'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mavros/libmavconn/package.xml ['GPLv3', 'LGPLv3', 'BSD'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mavros/mavros_extras/package.xml ['GPLv3', 'LGPLv3', 'BSD'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mavros/test_mavros/package.xml ['BSD', 'GPLv3', 'LGPLv3'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mavros/mavros_examples/package.xml ['GPLv3', 'LGPLv3', 'BSD'] {'mavros/LICENSE-BSD.txt': ['BSD-3-Clause'], 'mavros/LICENSE-LGPLv3.txt': ['LGPL-3'], 'mavros/LICENSE.md': [], 'mavros/LICENSE-GPLv3.txt': ['GPL-3']} [0, 0]
+mola/mola_viz_imgui/package.xml ['GPLv3'] {'mola/mola_viz_imgui/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_pose_list/package.xml ['GPLv3'] {'mola/mola_pose_list/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_input_video/package.xml ['GPLv3'] {'mola/mola_input_video/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_launcher/package.xml ['GPLv3'] {'mola/mola_launcher/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_input_rosbag2/package.xml ['GPLv3'] {'mola/mola_input_rosbag2/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_input_lidar_bin_dataset/package.xml ['GPLv3'] {'mola/mola_input_lidar_bin_dataset/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_relocalization/package.xml ['GPLv3'] {'mola/mola_relocalization/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_viz/package.xml ['GPLv3'] {'mola/mola_viz/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_kernel/package.xml ['GPLv3'] {'mola/mola_kernel/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_metric_maps/package.xml ['GPLv3'] {'mola/mola_metric_maps/LICENSE': ['GPL-3']} [0, 1]
+mola/mola_input_rawlog/package.xml ['GPLv3'] {'mola/mola_input_rawlog/LICENSE': ['GPL-3']} [0, 0]
+mola/mola_msgs/package.xml ['GPLv3'] {'mola/mola_msgs/LICENSE': ['GPL-3']} [0, 0]
+mola_academic_datasets/mola_input_mulran_dataset/package.xml ['GPLv3'] {'mola_academic_datasets/mola_input_mulran_dataset/LICENSE': ['GPL-3']} [0, 0]
+mola_academic_datasets/mola_input_paris_luco_dataset/package.xml ['GPLv3'] {'mola_academic_datasets/mola_input_paris_luco_dataset/LICENSE': ['GPL-3']} [0, 0]
+mola_academic_datasets/mola_input_kitti_dataset/package.xml ['GPLv3'] {'mola_academic_datasets/mola_input_kitti_dataset/LICENSE': ['GPL-3']} [0, 0]
+mola_academic_datasets/mola_input_kitti360_dataset/package.xml ['GPLv3'] {'mola_academic_datasets/mola_input_kitti360_dataset/LICENSE': ['GPL-3']} [0, 0]
+mola_imu_preintegration/package.xml ['GPLv3'] {'mola_imu_preintegration/LICENSE': ['GPL-3']} [0, 0]
+mola_input_ouster/package.xml ['GPL-3.0'] {'mola_input_ouster/LICENSE': ['GPL-?']} [0, 0]
+mola_lidar_odometry/package.xml ['GPLv3'] {'mola_lidar_odometry/LICENSE': ['GPL-3']} [0, 0]
+mola_sm_loop_closure/package.xml ['GPLv3'] {'mola_sm_loop_closure/LICENSE': ['GPL-3']} [0, 2]
+mola_state_estimation/mola_state_estimation_simple/package.xml ['GPLv3'] {'mola_state_estimation/mola_state_estimation_simple/LICENSE': ['GPL-3']} [0, 0]
+mola_state_estimation/mola_state_estimation_smoother/package.xml ['GPLv3'] {'mola_state_estimation/mola_state_estimation_smoother/LICENSE': ['GPL-3']} [0, 0]
+mola_state_estimation/mola_georeferencing/package.xml ['GPLv3'] {'mola_state_estimation/mola_georeferencing/LICENSE': ['GPL-3']} [0, 0]
+mola_state_estimation/mola_gtsam_factors/package.xml ['GPLv3'] {'mola_state_estimation/mola_gtsam_factors/LICENSE': ['GPL-3']} [0, 0]
+octomap/octovis/package.xml ['GPLv2'] {'octomap/octovis/LICENSE.txt': ['GPL-2']} [54, 25]
+orocos_kdl_vendor/python_orocos_kdl_vendor/package.xml ['Apache License 2.0', 'LGPL-2.1-or-later'] {'orocos_kdl_vendor/LICENSE': ['Apache-2.0']} None
+orocos_kdl_vendor/orocos_kdl_vendor/package.xml ['Apache License 2.0', 'LGPL-2.1-or-later'] {'orocos_kdl_vendor/LICENSE': ['Apache-2.0']} None
+phidgets_drivers/phidgets_drivers/package.xml ['BSD, LGPL'] {'phidgets_drivers/LICENSE.bsd': ['BSD-3-Clause'], 'phidgets_drivers/LICENSE.gplv3': ['GPL-3'], 'phidgets_drivers/LICENSE.lgplv3': ['LGPL-3'], 'phidgets_drivers/LICENSE': []} [0, 0]
+phidgets_drivers/libphidget22/package.xml ['LGPL'] {'phidgets_drivers/LICENSE.bsd': ['BSD-3-Clause'], 'phidgets_drivers/LICENSE.gplv3': ['GPL-3'], 'phidgets_drivers/LICENSE.lgplv3': ['LGPL-3'], 'phidgets_drivers/LICENSE': []} [0, 0]
+plotjuggler_ros/package.xml ['AGPLv3'] {'plotjuggler_ros/LICENSE': ['AGPL-3']} [0, 0]
+popf/package.xml ['GPLv2'] {'popf/LICENCE': ['GPL-2']} [152, 0]
+qpoases_vendor/package.xml ['Apache License 2.0', 'LGPL'] {'qpoases_vendor/LICENSE': ['Apache-2.0']} [0, 0]
+rmw_desert/package.xml ['GPLv3'] {'rmw_desert/LICENSE': ['GPL-3']} [0, 16]
+ros2_canopen/canopen_402_driver/package.xml ['LGPL-v3'] {'ros2_canopen/canopen_402_driver/LICENSE': ['LGPL-3']} [24, 0]
+ros_canopen/canopen_chain_node/package.xml ['LGPLv3'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_canopen/canopen_master/package.xml ['LGPLv3'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_canopen/socketcan_interface/package.xml ['LGPLv3'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_canopen/canopen_402/package.xml ['LGPLv3'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_canopen/canopen_motor_node/package.xml ['LGPLv3'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_canopen/ros_canopen/package.xml ['LGPL'] {'ros_canopen/LICENSE': ['LGPL-3']} [0, 0]
+ros_snapd_interfaces/package.xml ['GPL-3.0'] {'ros_snapd_interfaces/LICENSE': ['GPL-3']} [0, 0]
+rosbag2/liblz4_vendor/package.xml ['Apache License 2.0', 'BSD', 'GPLv2'] {'rosbag2/LICENSE': ['Apache-2.0']} [0, 0]
+rqt_dotgraph/package.xml ['LGPLv3', 'CC0'] {'rqt_dotgraph/LICENSE': []} [1, 0]
+rqt_multiplot/package.xml ['GNU Lesser General Public License v3.0 (LGPL-3.0)'] {'rqt_multiplot/LICENSE': ['LGPL-3']} [195, 0]
+slam_toolbox/package.xml ['LGPL'] {'slam_toolbox/LICENSE': ['LGPL-2.1']} [7, 0]
+spatio_temporal_voxel_layer/openvdb_vendor/package.xml ['LGPL v2.1', 'MPL-2.0 license'] {'spatio_temporal_voxel_layer/LICENSE': ['LGPL-2.1']} [0, 0]
+spatio_temporal_voxel_layer/spatio_temporal_voxel_layer/package.xml ['LGPL v2.1'] {'spatio_temporal_voxel_layer/LICENSE': ['LGPL-2.1']} [0, 0]
+uncrustify_vendor/package.xml ['Apache License 2.0', 'GNU General Public License v2.0'] {'uncrustify_vendor/LICENSE': ['Apache-2.0']} [0, 0]
+video_to_image_msg_publisher/package.xml ['GPL-2'] {'video_to_image_msg_publisher/LICENSE': ['GPL-2']} [0, 0]
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Bash
+IN
+cd /home/kent/github/rkent/rosindex; ls; ls _data _artifacts 2>&1 | head; cat .gitignore
+
+OUT
+404.html
+about
+about.md
+_artifacts
+assets
+_cache
+CLAUDE.md
+CNAME
+_config
+_config_devel.yml
+_config.yml
+contribute
+contribute.md
+css
+_data
+docker
+feed.xml
+Gemfile
+Gemfile.lock
+google2363892c5dcb7a68.html
+help
+_includes
+index.yml
+js
+_layouts
+LICENSE
+Makefile
+node_modules
+packages
+_plugins
+_plugins_data
+privacy.txt
+README.md
+_remotes
+_ruby_libs
+_sass
+_scripts
+_site
+_stopwords
+tests
+_artifacts:
+debian_packages.json
+discovery_errors.json
+discovery.json
+github_scrape_errors.json
+github_scrape.json
+Nodes
+Nodes_old
+package_downloads.json
+pip_package_names.json
+_site
+.sass-cache
+_devel
+_cache
+_remotes
+_plugins_data
+_artifacts
+rubygems
+tests/node_modules
+tests/test-results
+tests/playwright-report
+12:18 PM
+Now I'll write the alias table and generate both outputs from it.
+
+
+
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && cat > build.py <<'EOF'
+import json, collections, sys
+P=json.load(open('packages.json')); E=json.load(open('evidence.json'))
+LD=json.load(open('spdx/licenses.json')); SP={l['licenseId']:l for l in LD['licenses']}
+H,M,LO='high','medium','low'
+A=collections.OrderedDict()
+def a(spdx,conf,why,*keys):
+    for k in keys: A[k]=(spdx,conf,why)
+a('Apache-2.0',H,'Spelling variant of the Apache License 2.0; license files agree.',
+  'Apache License 2.0','Apache 2.0','Apache License, Version 2.0','Apache 2','Apache2','Apache-2',
+  'Apache 2.0 License','Apache License Version 2.0','apache 2.0','Apache Licence 2.0','Apache license 2.0')
+a('BSD-3-Clause',M,'Unversioned "BSD". In ROS this conventionally means the 3-clause license: 503 of the 567 packages with a detectable license file have BSD-3-Clause text, 9 have BSD-2-Clause, 67 have no license file.','BSD')
+a('BSD-3-Clause',H,'Spelling variant of BSD-3-Clause.','BSD 3-clause','BSD-3','BSD 3-Clause','BSD 3 Clause','BSD Clause 3','BSD 3-Clause License')
+a('BSD-3-Clause',M,'"BSD License 2.0" is an old name for the revised (3-clause) BSD license; the one package using it (teleop_twist_keyboard) ships BSD-3-Clause text.','BSD License 2.0')
+a('BSD-2-Clause',H,'Spelling variant of BSD-2-Clause.','BSD-2','BSD 2-clause')
+a('MIT',H,'Spelling variant of MIT.','MIT License')
+a('Zlib',H,'Case/spelling variant of Zlib.','zlib','zlib License','Zlib License')
+a('MPL-2.0',H,'Spelling variant of MPL-2.0.','MPL-2.0 license','Mozilla Public License 2.0')
+a('EPL-2.0',H,'Full name of EPL-2.0.','Eclipse Public License 2.0')
+a('BSD-3-Clause',H,'SPDX has no EDL identifier; the Eclipse Distribution License 1.0 is the BSD-3-Clause text and SPDX directs it to BSD-3-Clause.','Eclipse Distribution License 1.0')
+a('CC0-1.0',H,'CC0 has only one version.','CC0')
+a('CC-BY-NC-ND-4.0',H,'Full name of CC-BY-NC-ND-4.0.','Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License')
+a('GPL-3.0-only',M,'GPL version 3 with no "or later" stated. Taken literally this is -only; source headers in some packages (control_box_rst, hector_rviz_overlay) say "or any later version", so those packages would be better declared GPL-3.0-or-later upstream.','GPLv3')
+a('GPL-3.0-only',H,'Deprecated SPDX id; SPDX defines it as identical to GPL-3.0-only.','GPL-3.0')
+a('GPL-2.0-only',M,'GPL version 2 with no "or later" stated; taken literally as -only. octovis and popf headers mostly say "or later".','GPLv2','GPL-2','GNU General Public License v2.0')
+a('GPL-2.0-only',H,'Deprecated SPDX id; SPDX defines it as identical to GPL-2.0-only.','GPL-2.0')
+a('GPL-2.0-or-later',H,'"v2+" means version 2 or later.','GPLv2+ license')
+a('LGPL-3.0-only',M,'LGPL version 3 with no "or later" stated; taken literally as -only.','LGPLv3','LGPL-v3','GNU Lesser General Public License v3.0 (LGPL-3.0)')
+a('LGPL-3.0-only',H,'Deprecated SPDX id; SPDX defines it as identical to LGPL-3.0-only.','LGPL-3.0')
+a('LGPL-2.1-only',M,'LGPL version 2.1 with no "or later" stated; taken literally as -only.','LGPLv2.1','LGPL v2.1','GNU Lesser Public License 2.1')
+a('AGPL-3.0-only',M,'AGPL version 3 with no "or later" stated; taken literally as -only.','AGPLv3')
+a('GPL-1.0-or-later',LO,'No version given. The GPL lets the recipient pick any published version when none is specified, so the literal SPDX mapping is GPL-1.0-or-later. The three packages actually ship GPL-3 (imu_transformer), GPL-2 (wiimote) and nothing (imu_pipeline); they should be fixed upstream.','GPL')
+a('LGPL-2.0-or-later',LO,'No version given; literal mapping is LGPL-2.0-or-later (the earliest LGPL). The five packages actually ship LGPL-3 (ros_canopen, libphidget22), LGPL-2.1 (slam_toolbox, qpoases upstream) and nothing (lms1xx); they should be fixed upstream.','LGPL')
+a('BSD-3-Clause AND LGPL-3.0-only',LO,'Two licenses in one tag. Only used by the phidgets_drivers metapackage, whose repo ships BSD-3-Clause and LGPL-3 license files. Written as an SPDX expression.','BSD, LGPL')
+a('LicenseRef-Public-Domain',M,'SPDX has no identifier for public domain dedications; a LicenseRef- id is the SPDX-sanctioned way to name it.','Public Domain')
+a('LicenseRef-UR-Graphical-Documentation',M,'Proprietary Universal Robots terms with no SPDX id; a LicenseRef- id names it.','Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation')
+UNMAPPED={'MyLicense':'Template placeholder (smacc2 performance test package). Nothing to map; should be fixed upstream.',
+          'TODO: License declaration':'ros2 pkg create placeholder (wato_trajectory_msgs). Nothing to map; should be fixed upstream.'}
+
+def valid_expr(s):
+    for tok in s.replace('(',' ').replace(')',' ').split():
+        if tok in ('AND','OR','WITH'): continue
+        if tok.startswith('LicenseRef-'): continue
+        if tok not in SP or SP[tok]['isDeprecatedLicenseId']: return False
+    return True
+
+cnt=collections.Counter(); pk=collections.defaultdict(list); repos=collections.defaultdict(set)
+for p in P:
+    for l in {l['text'] for l in p['licenses']}:
+        cnt[l]+=1; pk[l].append(p['path']); repos[l].add(p['repo'])
+for k in cnt:
+    if (k not in SP or SP[k]['isDeprecatedLicenseId']) and k not in A and k not in UNMAPPED: sys.exit('missing '+k)
+for k,(s,_,_) in A.items():
+    assert valid_expr(s), s
+    assert k in cnt, k
+
+# json
+out={'_comment':'Aliases from non-SPDX <license> strings found in ROS 2 Jazzy package.xml files to SPDX license expressions. Match on the tag text with surrounding whitespace stripped.',
+     'spdx_license_list_version':LD['licenseListVersion'],'distro':'jazzy',
+     'aliases':{k:v[0] for k,v in A.items()},
+     'details':{k:{'spdx':v[0],'confidence':v[1],'packages':cnt[k],'note':v[2]} for k,v in A.items()},
+     'unmapped':{k:{'packages':cnt[k],'note':v} for k,v in UNMAPPED.items()}}
+json.dump(out,open(sys.argv[1],'w'),indent=2,ensure_ascii=False); open(sys.argv[1],'a').write('\n')
+
+# report
+total=len(P); ninst=sum(cnt.values())
+spdx_ok={k:v for k,v in cnt.items() if k in SP and not SP[k]['isDeprecatedLicenseId']}
+pk_all_ok=sum(1 for p in P if all(l['text'] in spdx_ok for l in p['licenses']))
+pk_after=sum(1 for p in P if all(l['text'] in spdx_ok or l['text'] in A for l in p['licenses']))
+r=[]; w=r.append
+w('# License strings in ROS 2 Jazzy package.xml files\n')
+w(f'Scanned `/srv/repos/jazzy` on 2026-10-17: **{len(set(p["repo"] for p in P))} repositories, {total} packages** (every directory containing a `package.xml`, skipping hidden directories; {sum(p["ignored"] for p in P)} of them sit in `COLCON_IGNORE`/`AMENT_IGNORE`/`CATKIN_IGNORE` directories and are included anyway). Packages with the same name in more than one repo (e.g. `_release` copies) are counted separately. Compared against the SPDX License List {LD["licenseListVersion"]}.\n')
+w('## Summary\n')
+w('| | Count |\n|---|---:|')
+w(f'| Packages | {total} |')
+w(f'| Packages with more than one `<license>` tag | {sum(1 for p in P if len(p["licenses"])>1)} |')
+w(f'| Packages with no `<license>` tag | {sum(1 for p in P if not p["licenses"])} |')
+w(f'| Distinct license strings | {len(cnt)} |')
+w(f'| … that are current SPDX ids | {len(spdx_ok)} |')
+w(f'| … that are deprecated SPDX ids | {sum(1 for k in cnt if k in SP and SP[k]["isDeprecatedLicenseId"])} |')
+w(f'| … that are not SPDX ids | {sum(1 for k in cnt if k not in SP)} |')
+w(f'| Packages whose licenses are all valid SPDX today | {pk_all_ok} ({100*pk_all_ok/total:.0f}%) |')
+w(f'| Packages whose licenses are all valid SPDX after aliasing | {pk_after} ({100*pk_after/total:.1f}%) |')
+w('')
+w('Packages are counted once per distinct string they use. The biggest wins are `Apache License 2.0` (%d packages), `BSD` (%d) and `Apache 2.0` (%d).\n' % (cnt['Apache License 2.0'],cnt['BSD'],cnt['Apache 2.0']))
+w('## How the aliases were chosen\n')
+w('- **Evidence.** For every package using a non-SPDX string, the nearest `LICENSE*`/`COPYING*`/`LICENCE*` files (package directory, then parents up to the repo root, plus any `<license file="...">`) were classified by their text. For GPL-family strings, source file headers in the package were also checked for "or any later version".')
+w('- **Versioned GPL-family strings without "+" or "or later"** (`GPLv3`, `LGPLv3`, ...) are mapped to `-only`. That is what the string says, and it is how SPDX defines its deprecated bare ids (`GPL-3.0` = `GPL-3.0-only`). Where headers say "or later" the package is under-declaring, which should be fixed upstream, not by the alias.')
+w('- **Unversioned GPL/LGPL** are mapped literally (the license lets you pick any version, so `GPL-1.0-or-later` / `LGPL-2.0-or-later`). Low confidence: the packages actually ship different versions.')
+w('- **`BSD`** is mapped to `BSD-3-Clause`, the ROS convention, backed by the license files (table below).')
+w('- **No SPDX id exists** for public domain or proprietary terms, so these get `LicenseRef-` ids, which are valid in SPDX expressions.')
+w('- Confidence: **high** = only the spelling differs; **medium** = a conventional reading of an ambiguous string; **low** = the string does not have enough information and the packages disagree.\n')
+w('## Proposed aliases\n')
+w('| package.xml string | SPDX | Pkgs | Confidence | Note |\n|---|---|---:|---|---|')
+for k,(s,c,why) in sorted(A.items(), key=lambda kv:(-cnt[kv[0]],kv[0])):
+    w(f'| `{k}` | `{s}` | {cnt[k]} | {c} | {why} |')
+w('')
+w('### Not mapped\n')
+w('| package.xml string | Pkgs | Package | Note |\n|---|---:|---|---|')
+for k,v in UNMAPPED.items(): w(f'| `{k}` | {cnt[k]} | `{pk[k][0]}` | {v} |')
+w('')
+w('## Evidence for `BSD`\n')
+bc=collections.Counter()
+for path in pk['BSD']:
+    cls=sorted(set(c for v in E[path]['files'].values() for c in v)); bc['+'.join(cls) if cls else '(no license file found)']+=1
+w('License text found near the %d packages declaring `BSD`:\n' % cnt['BSD'])
+w('| License file text | Packages |\n|---|---:|')
+for k,v in bc.most_common(): w(f'| {k} | {v} |')
+w('\nThe Apache-only and BSD-2-Clause matches are mostly vendor packages and multi-license repos, where the repo-level file covers the wrapper and not the vendored code.\n')
+w('## GPL-family packages that may be under-declared\n')
+w('These declare a version without "or later", but their source headers mostly say "or any later version". The alias still maps them to `-only` (what they declare); upstream may want to change the tag.\n')
+w('| Package | Declared | Headers "or later" / version only |\n|---|---|---|')
+for path,e in sorted(E.items()):
+    g=e['gpl_headers']
+    if g and g[0]>=5 and g[0]>g[1] and any(A.get(s,('',))[0].endswith('-only') for s in e['licenses']):
+        w(f'| `{path}` | {", ".join("`"+s+"`" for s in e["licenses"])} | {g[0]} / {g[1]} |')
+w('')
+w('## Low-confidence strings: affected packages\n')
+for k,(s,c,_) in A.items():
+    if c!=LO: continue
+    w(f'**`{k}`** → `{s}`\n')
+    for path in pk[k]:
+        f=E[path]['files']; desc='; '.join(f'{fp}: {"+".join(v) or "unrecognized"}' for fp,v in f.items()) or 'no license file found'
+        w(f'- `{path}` ({desc})')
+    w('')
+w('## Strings that are already SPDX\n')
+w('| String | Pkgs | Status |\n|---|---:|---|')
+for k,v in sorted(cnt.items(), key=lambda kv:-kv[1]):
+    if k in SP: w(f'| `{k}` | {v} | {"deprecated, aliased" if SP[k]["isDeprecatedLicenseId"] else "current"} |')
+w('')
+w('## Other observations\n')
+w(f'- `_plugins/rosindex_generator.rb` reads only the first `<license>` tag (`REXML::XPath.first`), so {sum(1 for p in P if len(p["licenses"])>1)} packages currently show only part of their licensing.')
+w('- Several packages declare a valid SPDX id that disagrees with the license file in the repo (e.g. `MIT` declared next to an Apache-2.0 repo LICENSE). Most are vendor packages where the tag describes the vendored library. Aliasing can\'t detect or fix these, so they are left as is.')
+w('- Some packages list the same license twice (e.g. `gtsam`, `mola_test_datasets`); dedupe when building an expression.')
+open(sys.argv[2],'w').write('\n'.join(r)+'\n')
+print('ok', len(A), pk_all_ok, pk_after)
+EOF
+python3 -I build.py /home/kent/github/rkent/rosindex/_data/license_aliases.json /home/kent/github/rkent/rosindex/_data/license_aliases_report.md
+
+OUT
+ok 51 1125 2940
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+Bash
+IN
+cd /home/kent/github/rkent/rosindex/_data && sed -n 1,200p license_aliases_report.md
+
+OUT
+# License strings in ROS 2 Jazzy package.xml files
+
+Scanned `/srv/repos/jazzy` on 2026-10-17: **831 repositories, 2942 packages** (every directory containing a `package.xml`, skipping hidden directories; 34 of them sit in `COLCON_IGNORE`/`AMENT_IGNORE`/`CATKIN_IGNORE` directories and are included anyway). Packages with the same name in more than one repo (e.g. `_release` copies) are counted separately. Compared against the SPDX License List 3.29.0.
+
+## Summary
+
+| | Count |
+|---|---:|
+| Packages | 2942 |
+| Packages with more than one `<license>` tag | 85 |
+| Packages with no `<license>` tag | 0 |
+| Distinct license strings | 77 |
+| … that are current SPDX ids | 24 |
+| … that are deprecated SPDX ids | 3 |
+| … that are not SPDX ids | 50 |
+| Packages whose licenses are all valid SPDX today | 1125 (38%) |
+| Packages whose licenses are all valid SPDX after aliasing | 2940 (99.9%) |
+
+Packages are counted once per distinct string they use. The biggest wins are `Apache License 2.0` (788 packages), `BSD` (634) and `Apache 2.0` (223).
+
+## How the aliases were chosen
+
+- **Evidence.** For every package using a non-SPDX string, the nearest `LICENSE*`/`COPYING*`/`LICENCE*` files (package directory, then parents up to the repo root, plus any `<license file="...">`) were classified by their text. For GPL-family strings, source file headers in the package were also checked for "or any later version".
+- **Versioned GPL-family strings without "+" or "or later"** (`GPLv3`, `LGPLv3`, ...) are mapped to `-only`. That is what the string says, and it is how SPDX defines its deprecated bare ids (`GPL-3.0` = `GPL-3.0-only`). Where headers say "or later" the package is under-declaring, which should be fixed upstream, not by the alias.
+- **Unversioned GPL/LGPL** are mapped literally (the license lets you pick any version, so `GPL-1.0-or-later` / `LGPL-2.0-or-later`). Low confidence: the packages actually ship different versions.
+- **`BSD`** is mapped to `BSD-3-Clause`, the ROS convention, backed by the license files (table below).
+- **No SPDX id exists** for public domain or proprietary terms, so these get `LicenseRef-` ids, which are valid in SPDX expressions.
+- Confidence: **high** = only the spelling differs; **medium** = a conventional reading of an ambiguous string; **low** = the string does not have enough information and the packages disagree.
+
+## Proposed aliases
+
+| package.xml string | SPDX | Pkgs | Confidence | Note |
+|---|---|---:|---|---|
+| `Apache License 2.0` | `Apache-2.0` | 788 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `BSD` | `BSD-3-Clause` | 634 | medium | Unversioned "BSD". In ROS this conventionally means the 3-clause license: 503 of the 567 packages with a detectable license file have BSD-3-Clause text, 9 have BSD-2-Clause, 67 have no license file. |
+| `Apache 2.0` | `Apache-2.0` | 223 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `Apache License, Version 2.0` | `Apache-2.0` | 40 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `Apache 2` | `Apache-2.0` | 38 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `GPLv3` | `GPL-3.0-only` | 38 | medium | GPL version 3 with no "or later" stated. Taken literally this is -only; source headers in some packages (control_box_rst, hector_rviz_overlay) say "or any later version", so those packages would be better declared GPL-3.0-or-later upstream. |
+| `LGPLv3` | `LGPL-3.0-only` | 14 | medium | LGPL version 3 with no "or later" stated; taken literally as -only. |
+| `Apache2` | `Apache-2.0` | 9 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `Apache-2` | `Apache-2.0` | 7 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `LGPL` | `LGPL-2.0-or-later` | 5 | low | No version given; literal mapping is LGPL-2.0-or-later (the earliest LGPL). The five packages actually ship LGPL-3 (ros_canopen, libphidget22), LGPL-2.1 (slam_toolbox, qpoases upstream) and nothing (lms1xx); they should be fixed upstream. |
+| `zlib` | `Zlib` | 4 | high | Case/spelling variant of Zlib. |
+| `Apache 2.0 License` | `Apache-2.0` | 3 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `BSD 3-Clause` | `BSD-3-Clause` | 3 | high | Spelling variant of BSD-3-Clause. |
+| `BSD 3-clause` | `BSD-3-Clause` | 3 | high | Spelling variant of BSD-3-Clause. |
+| `BSD-3` | `BSD-3-Clause` | 3 | high | Spelling variant of BSD-3-Clause. |
+| `GPL` | `GPL-1.0-or-later` | 3 | low | No version given. The GPL lets the recipient pick any published version when none is specified, so the literal SPDX mapping is GPL-1.0-or-later. The three packages actually ship GPL-3 (imu_transformer), GPL-2 (wiimote) and nothing (imu_pipeline); they should be fixed upstream. |
+| `GPL-3.0` | `GPL-3.0-only` | 3 | high | Deprecated SPDX id; SPDX defines it as identical to GPL-3.0-only. |
+| `GPLv2` | `GPL-2.0-only` | 3 | medium | GPL version 2 with no "or later" stated; taken literally as -only. octovis and popf headers mostly say "or later". |
+| `MIT License` | `MIT` | 3 | high | Spelling variant of MIT. |
+| `Public Domain` | `LicenseRef-Public-Domain` | 3 | medium | SPDX has no identifier for public domain dedications; a LicenseRef- id is the SPDX-sanctioned way to name it. |
+| `BSD-2` | `BSD-2-Clause` | 2 | high | Spelling variant of BSD-2-Clause. |
+| `Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License` | `CC-BY-NC-ND-4.0` | 2 | high | Full name of CC-BY-NC-ND-4.0. |
+| `GNU Lesser Public License 2.1` | `LGPL-2.1-only` | 2 | medium | LGPL version 2.1 with no "or later" stated; taken literally as -only. |
+| `LGPL v2.1` | `LGPL-2.1-only` | 2 | medium | LGPL version 2.1 with no "or later" stated; taken literally as -only. |
+| `AGPLv3` | `AGPL-3.0-only` | 1 | medium | AGPL version 3 with no "or later" stated; taken literally as -only. |
+| `Apache Licence 2.0` | `Apache-2.0` | 1 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `Apache License Version 2.0` | `Apache-2.0` | 1 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `Apache license 2.0` | `Apache-2.0` | 1 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `BSD 2-clause` | `BSD-2-Clause` | 1 | high | Spelling variant of BSD-2-Clause. |
+| `BSD 3 Clause` | `BSD-3-Clause` | 1 | high | Spelling variant of BSD-3-Clause. |
+| `BSD 3-Clause License` | `BSD-3-Clause` | 1 | high | Spelling variant of BSD-3-Clause. |
+| `BSD Clause 3` | `BSD-3-Clause` | 1 | high | Spelling variant of BSD-3-Clause. |
+| `BSD License 2.0` | `BSD-3-Clause` | 1 | medium | "BSD License 2.0" is an old name for the revised (3-clause) BSD license; the one package using it (teleop_twist_keyboard) ships BSD-3-Clause text. |
+| `BSD, LGPL` | `BSD-3-Clause AND LGPL-3.0-only` | 1 | low | Two licenses in one tag. Only used by the phidgets_drivers metapackage, whose repo ships BSD-3-Clause and LGPL-3 license files. Written as an SPDX expression. |
+| `CC0` | `CC0-1.0` | 1 | high | CC0 has only one version. |
+| `Eclipse Distribution License 1.0` | `BSD-3-Clause` | 1 | high | SPDX has no EDL identifier; the Eclipse Distribution License 1.0 is the BSD-3-Clause text and SPDX directs it to BSD-3-Clause. |
+| `Eclipse Public License 2.0` | `EPL-2.0` | 1 | high | Full name of EPL-2.0. |
+| `GNU General Public License v2.0` | `GPL-2.0-only` | 1 | medium | GPL version 2 with no "or later" stated; taken literally as -only. octovis and popf headers mostly say "or later". |
+| `GNU Lesser General Public License v3.0 (LGPL-3.0)` | `LGPL-3.0-only` | 1 | medium | LGPL version 3 with no "or later" stated; taken literally as -only. |
+| `GPL-2` | `GPL-2.0-only` | 1 | medium | GPL version 2 with no "or later" stated; taken literally as -only. octovis and popf headers mostly say "or later". |
+| `GPL-2.0` | `GPL-2.0-only` | 1 | high | Deprecated SPDX id; SPDX defines it as identical to GPL-2.0-only. |
+| `GPLv2+ license` | `GPL-2.0-or-later` | 1 | high | "v2+" means version 2 or later. |
+| `LGPL-3.0` | `LGPL-3.0-only` | 1 | high | Deprecated SPDX id; SPDX defines it as identical to LGPL-3.0-only. |
+| `LGPL-v3` | `LGPL-3.0-only` | 1 | medium | LGPL version 3 with no "or later" stated; taken literally as -only. |
+| `LGPLv2.1` | `LGPL-2.1-only` | 1 | medium | LGPL version 2.1 with no "or later" stated; taken literally as -only. |
+| `MPL-2.0 license` | `MPL-2.0` | 1 | high | Spelling variant of MPL-2.0. |
+| `Mozilla Public License 2.0` | `MPL-2.0` | 1 | high | Spelling variant of MPL-2.0. |
+| `Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation` | `LicenseRef-UR-Graphical-Documentation` | 1 | medium | Proprietary Universal Robots terms with no SPDX id; a LicenseRef- id names it. |
+| `Zlib License` | `Zlib` | 1 | high | Case/spelling variant of Zlib. |
+| `apache 2.0` | `Apache-2.0` | 1 | high | Spelling variant of the Apache License 2.0; license files agree. |
+| `zlib License` | `Zlib` | 1 | high | Case/spelling variant of Zlib. |
+
+### Not mapped
+
+| package.xml string | Pkgs | Package | Note |
+|---|---:|---|---|
+| `MyLicense` | 1 | `smacc2/smacc2_performance_tools/performance_tests/sm_coretest_transition_speed_1/package.xml` | Template placeholder (smacc2 performance test package). Nothing to map; should be fixed upstream. |
+| `TODO: License declaration` | 1 | `wato_monorepo/src/action/wato_trajectory_msgs/package.xml` | ros2 pkg create placeholder (wato_trajectory_msgs). Nothing to map; should be fixed upstream. |
+
+## Evidence for `BSD`
+
+License text found near the 634 packages declaring `BSD`:
+
+| License file text | Packages |
+|---|---:|
+| BSD-3-Clause | 503 |
+| (no license file found) | 67 |
+| BSD-3-Clause+GPL-3+LGPL-3 | 21 |
+| Apache-2.0 | 14 |
+| Apache-2.0+BSD-3-Clause | 13 |
+| BSD-2-Clause | 9 |
+| BSD-4-Clause+MIT | 2 |
+| BSD-3-Clause+MIT | 2 |
+| LGPL-3 | 2 |
+| Apache-2.0+BSD-3-Clause+MIT | 1 |
+
+The Apache-only and BSD-2-Clause matches are mostly vendor packages and multi-license repos, where the repo-level file covers the wrapper and not the vendored code.
+
+## GPL-family packages that may be under-declared
+
+These declare a version without "or later", but their source headers mostly say "or any later version". The alias still maps them to `-only` (what they declare); upstream may want to change the tag.
+
+| Package | Declared | Headers "or later" / version only |
+|---|---|---|
+| `control_box_rst/package.xml` | `GPLv3` | 148 / 0 |
+| `eiquadprog/package.xml` | `LGPLv3` | 7 / 2 |
+| `hector_rviz_overlay/hector_rviz_overlay/package.xml` | `GPLv3` | 75 / 0 |
+| `hector_rviz_overlay/hector_rviz_overlay_controls/package.xml` | `GPLv3` | 8 / 0 |
+| `hector_rviz_overlay/hector_rviz_overlay_demo/package.xml` | `GPLv3` | 8 / 0 |
+| `octomap/octovis/package.xml` | `GPLv2` | 54 / 25 |
+| `popf/package.xml` | `GPLv2` | 152 / 0 |
+| `ros2_canopen/canopen_402_driver/package.xml` | `LGPL-v3` | 24 / 0 |
+| `rqt_multiplot/package.xml` | `GNU Lesser General Public License v3.0 (LGPL-3.0)` | 195 / 0 |
+
+## Low-confidence strings: affected packages
+
+**`GPL`** → `GPL-1.0-or-later`
+
+- `imu_pipeline/imu_pipeline/package.xml` (no license file found)
+- `imu_pipeline/imu_transformer/package.xml` (imu_pipeline/imu_transformer/LICENSE: GPL-3)
+- `joystick_drivers/wiimote/package.xml` (joystick_drivers/wiimote/LICENSE: GPL-2)
+
+**`LGPL`** → `LGPL-2.0-or-later`
+
+- `lms1xx/package.xml` (no license file found)
+- `phidgets_drivers/libphidget22/package.xml` (phidgets_drivers/LICENSE.bsd: BSD-3-Clause; phidgets_drivers/LICENSE.gplv3: GPL-3; phidgets_drivers/LICENSE.lgplv3: LGPL-3; phidgets_drivers/LICENSE: unrecognized)
+- `qpoases_vendor/package.xml` (qpoases_vendor/LICENSE: Apache-2.0)
+- `ros_canopen/ros_canopen/package.xml` (ros_canopen/LICENSE: LGPL-3)
+- `slam_toolbox/package.xml` (slam_toolbox/LICENSE: LGPL-2.1)
+
+**`BSD, LGPL`** → `BSD-3-Clause AND LGPL-3.0-only`
+
+- `phidgets_drivers/phidgets_drivers/package.xml` (phidgets_drivers/LICENSE.bsd: BSD-3-Clause; phidgets_drivers/LICENSE.gplv3: GPL-3; phidgets_drivers/LICENSE.lgplv3: LGPL-3; phidgets_drivers/LICENSE: unrecognized)
+
+## Strings that are already SPDX
+
+| String | Pkgs | Status |
+|---|---:|---|
+| `Apache-2.0` | 495 | current |
+| `MIT` | 280 | current |
+| `BSD-3-Clause` | 202 | current |
+| `GPL-3.0-or-later` | 152 | current |
+| `BSD-2-Clause` | 15 | current |
+| `GPL-3.0-only` | 8 | current |
+| `MIT-0` | 6 | current |
+| `GPL-2.0-or-later` | 3 | current |
+| `GPL-3.0` | 3 | deprecated, aliased |
+| `Zlib` | 3 | current |
+| `LGPL-2.1-or-later` | 3 | current |
+| `BSL-1.0` | 2 | current |
+| `MPL-2.0` | 2 | current |
+| `MPL-1.1` | 1 | current |
+| `CC0-1.0` | 1 | current |
+| `GPL-2.0` | 1 | deprecated, aliased |
+| `AGPL-3.0-only` | 1 | current |
+| `LGPL-3.0` | 1 | deprecated, aliased |
+| `LGPL-3.0-or-later` | 1 | current |
+| `BSD-1-Clause` | 1 | current |
+| `CC-BY-NC-SA-3.0` | 1 | current |
+| `CC-BY-NC-SA-4.0` | 1 | current |
+| `CC-BY-3.0` | 1 | current |
+| `WTFPL` | 1 | current |
+| `HPND` | 1 | current |
+| `Unlicense` | 1 | current |
+| `EPL-2.0` | 1 | current |
+
+## Other observations
+
+- `_plugins/rosindex_generator.rb` reads only the first `<license>` tag (`REXML::XPath.first`), so 85 packages currently show only part of their licensing.
+- Several packages declare a valid SPDX id that disagrees with the license file in the repo (e.g. `MIT` declared next to an Apache-2.0 repo LICENSE). Most are vendor packages where the tag describes the vendored library. Aliasing can't detect or fix these, so they are left as is.
+- Some packages list the same license twice (e.g. `gtsam`, `mola_test_datasets`); dedupe when building an expression.
+12:19 PM
+A few notes in the report overstate the evidence (the BSD counts, and the "vendor packages" claims). I'll fix those and regenerate.
+
+
+
+Bash
+IN
+cd /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad && python3 -I - <<'EOF'
+s=open('build.py').read()
+rep=[
+("'Spelling variant of the Apache License 2.0; license files agree.'","'Spelling variant of the Apache License 2.0.'"),
+("503 of the 567 packages with a detectable license file have BSD-3-Clause text, 9 have BSD-2-Clause, 67 have no license file.","540 of the 567 packages with a license file nearby have BSD-3-Clause text (alone or next to another license), 9 have only BSD-2-Clause; 67 have no license file.'"[:-1]),
+("""a('GPL-2.0-only',M,'GPL version 2 with no "or later" stated; taken literally as -only. octovis and popf headers mostly say "or later".','GPLv2','GPL-2','GNU General Public License v2.0')""",
+ """a('GPL-2.0-only',M,'GPL version 2 with no "or later" stated; taken literally as -only. Headers in octovis and popf mostly say "or later".','GPLv2')
+a('GPL-2.0-only',M,'GPL version 2 with no "or later" stated; taken literally as -only.','GPL-2','GNU General Public License v2.0')"""),
+("so those packages would be better declared GPL-3.0-or-later upstream.","so those packages should probably declare GPL-3.0-or-later upstream."),
+("w('\\nThe Apache-only and BSD-2-Clause matches are mostly vendor packages and multi-license repos, where the repo-level file covers the wrapper and not the vendored code.\\n')",
+ "w('\\nWhere only Apache-2.0 or another license was found, the nearest file is often at repo level and may not describe that package.\\n')"),
+(" Most are vendor packages where the tag describes the vendored library.",""),
+]
+for a,b in rep:
+    assert a in s, a; s=s.replace(a,b)
+open('build.py','w').write(s)
+EOF
+python3 -I build.py /home/kent/github/rkent/rosindex/_data/license_aliases.json /home/kent/github/rkent/rosindex/_data/license_aliases_report.md && grep -n "540\|nearest file\|octovis" /home/kent/github/rkent/rosindex/_data/license_aliases_report.md | head; head -30 /home/kent/github/rkent/rosindex/_data/license_aliases.json; python3 -I -c "import json;d=json.load(open('/home/kent/github/rkent/rosindex/_data/license_aliases.json'));print(len(d['aliases']))"
+
+OUT
+ok 51 1125 2940
+35:| `BSD` | `BSD-3-Clause` | 634 | medium | Unversioned "BSD". In ROS this conventionally means the 3-clause license: 540 of the 567 packages with a license file nearby have BSD-3-Clause text (alone or next to another license), 9 have only BSD-2-Clause; 67 have no license file. |
+51:| `GPLv2` | `GPL-2.0-only` | 3 | medium | GPL version 2 with no "or later" stated; taken literally as -only. Headers in octovis and popf mostly say "or later". |
+110:Where only Apache-2.0 or another license was found, the nearest file is often at repo level and may not describe that package.
+123:| `octomap/octovis/package.xml` | `GPLv2` | 54 / 25 |
+{
+  "_comment": "Aliases from non-SPDX <license> strings found in ROS 2 Jazzy package.xml files to SPDX license expressions. Match on the tag text with surrounding whitespace stripped.",
+  "spdx_license_list_version": "3.29.0",
+  "distro": "jazzy",
+  "aliases": {
+    "Apache License 2.0": "Apache-2.0",
+    "Apache 2.0": "Apache-2.0",
+    "Apache License, Version 2.0": "Apache-2.0",
+    "Apache 2": "Apache-2.0",
+    "Apache2": "Apache-2.0",
+    "Apache-2": "Apache-2.0",
+    "Apache 2.0 License": "Apache-2.0",
+    "Apache License Version 2.0": "Apache-2.0",
+    "apache 2.0": "Apache-2.0",
+    "Apache Licence 2.0": "Apache-2.0",
+    "Apache license 2.0": "Apache-2.0",
+    "BSD": "BSD-3-Clause",
+    "BSD 3-clause": "BSD-3-Clause",
+    "BSD-3": "BSD-3-Clause",
+    "BSD 3-Clause": "BSD-3-Clause",
+    "BSD 3 Clause": "BSD-3-Clause",
+    "BSD Clause 3": "BSD-3-Clause",
+    "BSD 3-Clause License": "BSD-3-Clause",
+    "BSD License 2.0": "BSD-3-Clause",
+    "BSD-2": "BSD-2-Clause",
+    "BSD 2-clause": "BSD-2-Clause",
+    "MIT License": "MIT",
+    "zlib": "Zlib",
+    "zlib License": "Zlib",
+    "Zlib License": "Zlib",
+51
+Shell cwd was reset to /home/kent/github/rkent/rosindex
+12:20 PM
+I scanned all 2,942 packages in 831 repos under /srv/repos/jazzy and wrote two files: a report and the alias JSON. If you apply the aliases, packages whose license tags are all valid SPDX go from 1,125 (38%) to 2,940 (99.9%).
+
+Report: _data/license_aliases_report.md
+Aliases: _data/license_aliases.json. It has a flat aliases map from the package.xml string to SPDX, a details section with the confidence, package count and reasoning for each alias, and an unmapped section. I put it in _data/ so the generator can read it as site.data['license_aliases']. Nothing is committed.
+What the scan found
+
+There are 77 distinct license strings. 24 are current SPDX IDs, 3 are deprecated SPDX IDs (GPL-3.0, GPL-2.0, LGPL-3.0) and 50 are not SPDX at all.
+I propose 51 aliases. Three strings cover most of the affected packages:
+Apache License 2.0 (788 packages) → Apache-2.0
+BSD (634) → BSD-3-Clause
+Apache 2.0 (223) → Apache-2.0
+To check the guesses, I read the license files near each package and the license headers in source files.
+Choices you may want to review
+
+BSD → BSD-3-Clause: this is the usual ROS meaning. Of the 567 BSD packages that have a license file nearby, 540 contain BSD-3-Clause text and 9 contain only BSD-2-Clause.
+Version given without "or later" (GPLv3, LGPLv3, GPLv2, …): I map these to -only, because that is what the string says. Nine packages, such as control_box_rst and popf, have source headers saying "or any later version". The report lists them as probably declared wrongly upstream.
+Low confidence, no version given: GPL → GPL-1.0-or-later and LGPL → LGPL-2.0-or-later. These follow the license's own rule that you may pick any version when none is stated. The 8 packages using them actually ship different versions, so these really need upstream fixes.
+No SPDX ID exists: Public Domain and the Universal Robots terms get LicenseRef- IDs, which SPDX allows for licenses it doesn't list.
+Left unmapped: MyLicense and TODO: License declaration, which are template placeholders.
+Related issue: _plugins/rosindex_generator.rb:356 reads only the first <license> tag, so the 85 packages that declare more than one license show only part of their licensing today.
+
+The scan scripts and the SPDX License List 3.29.0 files are in /tmp/claude-1000/-home-kent-github-rkent-rosindex/c3830ec4-1869-4081-adb5-a9edba74b8a2/scratchpad/ if you want to re-run this for another distro.
+
+
+
