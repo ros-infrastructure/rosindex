@@ -1,3 +1,86 @@
+/**
+ * Keep the look of the Bootswatch Lumen 3 theme under Lumen 5
+ */
+// Lumen 3 used a 14px base; Bootstrap 5 sizes are in rem.
+html {
+  font-size: 14px;
+}
+
+:root {
+  --bs-body-color: #555555;
+  --bs-body-color-rgb: 85, 85, 85;
+  --bs-heading-color: #333333;
+}
+
+// Bootstrap 3 rows only padded their .col-* children; Bootstrap 5 pads every child.
+// :where() keeps this at the specificity of Bootstrap's .row > *.
+.row > :where(:not([class*="col-"]):not(.col)) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// Links are underlined only on hover; :where() keeps this from beating
+// component classes such as .btn or .nav-link.
+a {
+  text-decoration: none;
+}
+a:where(:hover) {
+  text-decoration: underline;
+}
+
+.breadcrumb {
+  --bs-breadcrumb-divider: '>';
+  padding: 8px 15px;
+}
+
+// Lumen 5 gives disabled dropdown items the same grey as enabled ones;
+// Lumen 3 drew them much lighter.
+.dropdown-menu {
+  --bs-dropdown-link-disabled-color: #eeeeee;
+}
+
+// Bootstrap 3 panels, wells and list groups were spaced apart.
+.card,
+.list-group {
+  margin-bottom: 20px;
+}
+
+// Bootstrap 3 tables were transparent, so they took the card/well colour.
+.table {
+  --bs-table-bg: transparent;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  small {
+    font-size: 65%;
+    font-weight: normal;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.badge {
+  font-weight: normal;
+}
+
+// Lumen 5 secondary is near-white; Lumen 3 .label-default was mid grey.
+.badge.text-bg-secondary {
+  color: #fff !important;
+  background-color: #999 !important;
+}
+
+.site-header .btn-link {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+// Equal-width distro buttons, as with Bootstrap 3 .btn-group-justified
+#distro-switch > .btn,
+#distro-switch > .btn-group {
+  flex: 1 1 0;
+}
+#distro-switch > .btn-group > .btn {
+  width: 100%;
+}
 
 .list-group-horizontal.list-group-sm {
   a {
@@ -28,16 +111,7 @@
     border-radius: 1em;
 }
 
-.label {
-  line-height: 24px
-}
-
-.glyphicon-none:before {
-    content: "\2122";
-    color: transparent !important;
-}
-
-table.table a.label {
+table.table a.badge {
   text-decoration: none;
 }
 
@@ -76,7 +150,7 @@ a.endoftree {
   text-decoration: none;
 }
 
-table.table a .glyphicon {
+table.table a .bi {
   text-decoration: none;
 }
 
@@ -92,12 +166,18 @@ table.table {
   margin-bottom: 0px;
 }
 
-div.panel-heading {
+div.card-header {
   padding-left: 10px;
   padding-right: 10px;
 }
 
-div.panel-body {
+// Bootstrap 3 .panel-title dimensions
+.card-header .card-title {
+  margin: 0;
+  font-size: 16px;
+}
+
+div.card-body {
   padding: 10px;
   overflow-x: auto;
 }
@@ -120,7 +200,7 @@ div code {
   white-space: nowrap;
 }
 
-label.control-label {
+label.col-form-label {
   font-weight: bold;
 }
 
@@ -136,26 +216,19 @@ table.table thead a:not(.btn) {
   color: #555555;
 }
 
-.nav-tabs>li.better-tabs.active>a {
-  background-color: #ffffff;
-}
-
-.nav-tabs>li.better-tabs>a {
+.nav-tabs .better-tabs>.nav-link {
   background-color: #eeeeee;
 }
 
-.list-group-horizontal.list-group-justified {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+.nav-tabs .better-tabs>.nav-link.active {
+  background-color: #ffffff;
 }
 
 .list-group-horizontal>a.list-group-item {
-  display: table-cell;
   overflow-x: hidden;
 }
 
-.list-group-horizontal>a.list-group-item>span.glyphicon {
+.list-group-horizontal>a.list-group-item>span.bi {
   margin: 0px;
 }
 
@@ -406,23 +479,6 @@ code {
     }
 }
 
-.list-group-horizontal .list-group-item {
-  display: inline;
-}
-.list-group-horizontal .list-group-item {
-  margin-bottom: 0;
-  margin-left:-4px;
-  margin-right: 0;
-}
-.list-group-horizontal .list-group-item:first-child {
-  border-top-right-radius:0;
-  border-bottom-left-radius:4px;
-}
-.list-group-horizontal .list-group-item:last-child {
-  border-top-right-radius:4px;
-  border-bottom-left-radius:0;
-}
-
 .list-group.list-group-root {
   padding: 0;
   margin-bottom: 0;
@@ -447,6 +503,22 @@ code {
     padding-left: 60px;
 }
 
+// Bootstrap 5 dropped .btn-xs; these are the Bootstrap 3 dimensions.
+.btn-xs {
+  --bs-btn-padding-y: 1px;
+  --bs-btn-padding-x: 5px;
+  --bs-btn-font-size: 12px;
+  --bs-btn-border-radius: 3px;
+  line-height: 1.5;
+}
+
+// Older distros dropdown: JS marks the <li>, Bootstrap 5 styles the item.
+// Unavailable distros use Bootstrap's own .dropdown-item.disabled.
+.older-distro-option.active > .dropdown-item {
+  color: var(--bs-dropdown-link-active-color);
+  background-color: var(--bs-dropdown-link-active-bg);
+}
+
 .btn-primary.active:hover,
 .btn-primary.active:focus {
   background-color: #106a8c;
@@ -462,19 +534,6 @@ a.question-description-toggle {
 }
 a.question-link {
   float: right;
-}
-
-/* Collapsable filter and search. */
-.collapsed .collapsing-icon::before {
-  // glyphicon-chevron-down
-  content: "\e114";
-}
-.collapsing-icon::before {
-  // glyphicon-chevron-up
-  content: "\e113";
-}
-.collapsing-header:hover {
-  text-decoration: underline;
 }
 
 /* checkbox in search_package */

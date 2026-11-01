@@ -5,48 +5,46 @@ layout: default
   <div class="container-fluid" style="height:100%;">
     <div class="row" style="height:var(--breadcrumb-height);">
       <ol class="breadcrumb showAsHome" style="display:none">
-        <li class="active">Home</li>
+        <li class="breadcrumb-item active" aria-current="page">Home</li>
       </ol>
       <ol class="breadcrumb showAsSearch" style="display:none">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li id="breadcrumb-name" class="active">Package List</li>
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+        <li id="breadcrumb-name" class="breadcrumb-item active" aria-current="page">Package List</li>
       </ol>
     </div>
     <div class="row" style="height:var(--distro-height);">
       {% include distro_switch.html %}
     </div>
     <div class="row" style="height:var(--search-height);">
-      <div class="panel panel-default" style="height:100%;">
-        <div class="panel-heading" style="height:100%;">
+      <div class="card" style="height:100%;">
+        <div class="card-header" style="height:100%;">
           <div class="row" style="height:100%;">
-            <div class="col-xs-6">
+            <div class="col-6">
               <div class="input-group">
                 <input id="search-query" type="text" class="form-control"
                         autocomplete="off" placeholder="Search packages">
-                <span class="input-group-btn">
-                  <button id="search-button" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search"></span>
-                  </button>
-                </span>
-                <span class="input-group-addon showCellAsSearch" style="display:none">
+                <button id="search-button" class="btn btn-light">
+                  <span class="bi bi-search"></span>
+                </button>
+                <span class="input-group-text showCellAsSearch" style="display:none">
                   <input type="checkbox" id="search-enable-box"/>
-                  <span class="hidden-xs"> Enable search </span>
+                  <span class="d-none d-md-inline"> Enable search </span>
                 </span>
               </div>
             </div>
-            <div class="col-xs-4" style="line-height:35px;">
+            <div class="col-4" style="line-height:35px;">
               <p class="showAsSearch" style="display:none;">
-                <span class="hidden-xs">Showing </span>
+                <span class="d-none d-md-inline">Showing </span>
                 <span id="table-filtered-count">0</span> of
                 <span id="table-unfiltered-count">0</span>
-                <span id="filtered-type" class="hidden-xs"> packages</span>
+                <span id="filtered-type" class="d-none d-md-inline"> packages</span>
               </p>
             </div>
-            <div class="col-xs-2 text-right" style="line-height:35px">
+            <div class="col-2 text-end" style="line-height:35px">
               <p>
                 <a href="{{site.baseurl}}/help/package_list/">
-                  <span class="glyphicon glyphicon-question-sign"></span>
-                  <span class="hidden-xs"> Help</span>
+                  <span class="bi bi-question-circle"></span>
+                  <span class="d-none d-md-inline"> Help</span>
                 </a>
               </p>
             </div>
@@ -131,7 +129,7 @@ layout: default
     $(".wrapper").css("height", "auto");
     $(".showAsSearch").css("display", "none");
     $(".showCellAsSearch").css("display", "none");
-    $(".showAsHome").css("display", "block");
+    $(".showAsHome").css("display", "");
   }
 
   function setSearch() {
@@ -140,8 +138,8 @@ layout: default
     $(".page-content").css("height", "var(--content-height)");
     $(".wrapper").css("height", "100%");
     $(".showAsHome").css("display", "none");
-    $(".showAsSearch").css("display", "block");
-    $(".showCellAsSearch").css("display", "table-cell");
+    $(".showAsSearch").css("display", "");
+    $(".showCellAsSearch").css("display", "");
   }
 
   function getData(distro) {
@@ -150,7 +148,7 @@ layout: default
       return gData_promises[distro];
     }
     gData_promises[distro] =
-      fetch(`{{site.baseurl}}/search/packages/data.${distro}.json`)
+      fetch(`{{site.baseurl}}/search/packages/data.${distro}.json?v={{ site.time | date: '%s' }}`)
         .then((response) => response.json());
 
     return gData_promises[distro];
@@ -162,7 +160,7 @@ layout: default
       return gIndex_promises[distro];
     }
     gIndex_promises[distro] =
-      fetch(`{{site.baseurl}}/search/packages/index.${distro}.json`)
+      fetch(`{{site.baseurl}}/search/packages/index.${distro}.json?v={{ site.time | date: '%s' }}`)
         .then((response) => response.json())
         .then((indexData) => {
           return lunr.Index.load(indexData);
@@ -456,7 +454,7 @@ layout: default
         console.log(`hashchange ${window.location.href} distro ${distro} triggering`);
         const nodes = $('#'+distro+'-option');
         console.log(`node ${nodes[0].tagName} ${nodes[0].id}`);
-        if (nodes[0].tagName == 'LABEL') {
+        if (nodes[0].tagName == 'BUTTON') {
           // one of the current distro types
           nodes.trigger('click');
         } else {

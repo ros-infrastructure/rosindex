@@ -1,0 +1,11 @@
+{
+  "name": "rosindex-ui-tests",
+  "private": true,
+  "description": "Browser tests that pin down the Bootstrap-dependent behavior of the built site (_site)",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}

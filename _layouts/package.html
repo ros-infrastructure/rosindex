@@ -6,9 +6,9 @@ layout: default
   <div class="container-fluid">
     <div class="row">
       <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
-        <li><a href="{{site.baseurl}}/?search_packages=true">Packages</a></li>
-        <li class="active">{{page.package_instances.name}}</li>
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/?search_packages=true">Packages</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{page.package_instances.name}}</li>
       </ol>
     </div>
     <div class="row">
@@ -39,16 +39,16 @@ layout: default
       {% assign instance = page.package_instances.repos[rendered_distro] %}
 
       <div class="row">
-        <div class="col-md-10">
+        <div class="col-lg-10">
           {% include package_header.html %}
-          <div class="visible-xs visible-sm">
+          <div class="d-lg-none">
             {% assign hide_link_labels = true %}
             {% assign horizontal = true %}
             {% include package_links.html %}
           </div>
           {% include package_body.html %}
         </div>
-        <div class="col-md-2 hidden-xs hidden-sm">
+        <div class="col-lg-2 d-none d-lg-block">
           {% assign hide_link_labels = false %}
           {% assign horizontal = false %}
           {% include package_links.html %}

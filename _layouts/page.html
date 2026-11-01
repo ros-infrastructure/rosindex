@@ -6,15 +6,15 @@ layout: default
   <div class="container-fluid">
     <div class="row">
       <ol class="breadcrumb">
-        <li><a href="{{site.baseurl}}/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{site.baseurl}}/">Home</a></li>
         {% for bc in page.breadcrumbs %}
-          <li><a href="{{site.baseurl}}/{{bc}}">{{bc}}</a></li>
+          <li class="breadcrumb-item"><a href="{{site.baseurl}}/{{bc}}">{{bc}}</a></li>
         {% endfor %}
-        <li class="active">{{ page.title }}</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ page.title }}</li>
       </ol>
     </div>
     <div class="row">
-      <div class="col-md-10">
+      <div class="col-lg-10">
         {{ content }}
       </div>
     </div>

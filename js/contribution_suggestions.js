@@ -10,7 +10,7 @@ function populateContributeLists(list, response) {
   response.json().then(items => {
     if (response.ok) {
       // Write the html for the list items.
-      var html = '<table class="table table-condensed table-striped"><tbody>';
+      var html = '<table class="table table-sm table-striped"><tbody>';
       for (const item of items) {
         html += '<tr><td><a href="' + item['html_url'] + '">#';
         html += item['number'] + '</td><td>' + item['title'] + '</a></td></tr>';
@@ -79,13 +79,11 @@ function setupContributeLists(repo_uri) {
 function setupContributeListTabLinks() {
   var url = document.location.toString();
   if (url.match('#')) {
-    $('.nav-tabs a[href="#'+url.split('#')[1]+'"]').tab('show');
+    var href = '#' + url.split('#')[1];
+    $('.nav-tabs a').filter(function() { return $(this).attr('href') === href; })
+      .each(function() { bootstrap.Tab.getOrCreateInstance(this).show(); });
   }
-  // Change hash for page-reload
-  $('.nav-tabs a').on('shown', function (e) {
-      window.location.hash = e.target.hash;
-  });
-
+  // Update the URL so a reload returns to the same tab
   $("a[href^='#']").on("click", function(e) {
      e.preventDefault();
      history.pushState({}, "", this.href);

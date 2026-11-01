@@ -189,6 +189,37 @@ make serve
 **Note:** This requires a minimum of 30GB of free space for the
 `checkout` directory.
 
+## Running the UI tests
+
+`tests/` holds Playwright browser tests (tabs, dropdowns, distro switch,
+responsive layout and visual snapshots). They run in the official
+Playwright Docker image against the static site in `_site/`, so build the
+devel site first, then run the tests:
+
+```bash
+docker/run.sh make test-build
+docker/test.sh
+```
+
+The build only needs repeating when the site changes. The tests run in
+Chromium, Firefox and WebKit; the visual snapshot test (tagged `@visual`)
+runs in Chromium only.
+
+Arguments are passed through to Playwright:
+
+```bash
+docker/test.sh specs/tabs.spec.js     # one spec file
+docker/test.sh --project=firefox      # one browser: chromium, firefox or webkit
+docker/test.sh -g "distro switch"     # tests whose name matches
+docker/test.sh --update-snapshots     # re-record the visual baselines
+```
+
+Only update the snapshots when the page is meant to look different; the
+baselines in `tests/specs/__screenshots__/` must be recorded in the
+container. When a visual test fails, the expected, actual and diff images
+are written to `tests/test-results/`, along with the web server's request
+log (`http-server.log`).
+
 ## Deployment
 
 Deployment is not managed by these tools. It is to be managed
