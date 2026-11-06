@@ -24,7 +24,7 @@ PIP_FILE := _artifacts/pip_packages.json
 PIP_SCRIPT := _scripts/pip_packages.py
 DEBIAN_FILE := _artifacts/debian_packages.json
 DEBIAN_SCRIPT := _scripts/debian_descriptions.rb
-DISCOVERY_SCRIPT = _ruby_libs/discovery.rb
+DISCOVERY_SCRIPT = _scripts/discovery.py
 DISCOVERY_RESULTS = _artifacts/discovery.json
 DISCOVERY_ERRORS = _artifacts/discovery_errors.json
 
@@ -48,9 +48,9 @@ $(PIP_FILE):
 	@echo "Get pip descriptions file"
 	python3 $(PIP_SCRIPT)
 
-$(DISCOVERY_RESULTS): prepare-sources
+$(DISCOVERY_RESULTS): $(ROSDISTRO_ENV) $(ROSDISTRO_CACHES)
 	@echo "Rebuild discovery file that contains discovered repos"
-	bundle exec $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS)
+	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
   
 rebuild-dep-descriptions:
 	@echo "rebuild pip descriptions file"
@@ -62,9 +62,9 @@ $(DEBIAN_FILE):
 	@echo "Get debian descriptions file"
 	ruby $(DEBIAN_SCRIPT)
 
-discover: prepare-sources
+discover: $(ROSDISTRO_ENV) $(ROSDISTRO_CACHES)
 	@echo "Rebuild discovery file that contains discovered repos"
-	bundle exec $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file)
+	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
 
 build: rebuild-dep-descriptions discover prepare-sources
 	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(index_file)

@@ -27,7 +27,6 @@ require_relative '../_ruby_libs/pages'
 require_relative '../_ruby_libs/asset_parsers'
 require_relative '../_ruby_libs/lunr'
 require_relative '../_ruby_libs/dependency_descriptions'
-require_relative '../_ruby_libs/discovery'
 
 $fetched_uris = {}
 $debug = false
@@ -869,8 +868,7 @@ class Indexer < Jekyll::Generator
         discovery_errors = File.open(DISCOVERY_ERRORS, 'r') { |f| JSON.load(f) }
       end
     else
-      puts ("Using discovery to find repos").green
-      repos, discovery_errors = discover_repos(site.config, DISCOVERY_RESULTS, DISCOVERY_ERRORS)
+      raise RuntimeError.new("Discovery results file #{DISCOVERY_RESULTS} not found. Run 'make discover' first.")
     end
     discovery_errors.each do |distro, vals|
       vals.each { |val| @errors[distro].push(IndexException.new(val["msg"], val["repo_id"])) }
