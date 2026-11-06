@@ -31,18 +31,18 @@ DISCOVERY_ERRORS = _artifacts/discovery_errors.json
 ROSDISTRO_ENV = _artifacts/rosdistro_env
 ROSDISTRO_INDEX_URL = https://raw.githubusercontent.com/ros/rosdistro/refs/heads/master/index-v4.yaml
 ROSDISTRO_DISTROS =  humble jazzy kilted rolling
-ROSDISTRO_CACHES = $(foreach distro, $(ROSDISTRO_DISTROS), $(cache_dir)/$(distro)-cache.yaml)
+ROSDISTRO_CACHES = $(foreach distro, $(ROSDISTRO_DISTROS), $(cache_dir)/$(distro)-extended-cache.yaml)
 
 $(ROSDISTRO_ENV):
 	python3 -m venv $(ROSDISTRO_ENV)
-	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache
+	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
 
 rosdistro-cache: $(ROSDISTRO_CACHES)
 
 $(ROSDISTRO_CACHES): $(ROSDISTRO_ENV)
 	@echo "Get rosdistro cache files"
-
-	cd $(cache_dir) && ../$(ROSDISTRO_ENV)/bin/python -m rosdistro.cli.rosdistro_build_cache  --limit 100 --include-source $(ROSDISTRO_INDEX_URL) $(ROSDISTRO_DISTROS)
+	mkdir -p $(cache_dir)
+	cd $(cache_dir) && ../$(ROSDISTRO_ENV)/bin/python -m rosdistro.cli.rosdistro_build_cache  --limit 100 --extended $(ROSDISTRO_INDEX_URL) $(ROSDISTRO_DISTROS)
 
 $(PIP_FILE):
 	@echo "Get pip descriptions file"
