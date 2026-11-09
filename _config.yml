@@ -21,17 +21,12 @@ report_filename: _cache/_deploy_index_report.yaml
 report_diff_filename: _cache/_deploy_index_report_diff.yaml
 debbuild_release_path: _cache/debbuild_releases
 
-# If true, this skips updating the known repos
-skip_update: false
-# If true, this skips scraping the cloned repos
+# If true, this skips scraping the repos
 skip_scrape: false
 # If true, this skips generating the search index
 skip_search_index: false
 # Shard count for search index partitioning.
 search_index_shards: 20
-
-checkout_threads: 4
-checkout_path: _plugins_data/checkout
 
 # if non-empty, only scrape these packages (useful for debugging / partial db updates)
 repo_name_whitelist: []
