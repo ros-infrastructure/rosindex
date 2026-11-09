@@ -15,7 +15,7 @@ scrape_config=_config/scrape.yml
 search_config=_config/search_index.yml
 
 .DEFAULT_GOAL := build
-.PHONY: build rebuild-dep-descriptions prepare-sources discover \
+.PHONY: build rebuild-dep-descriptions prepare-sources discover test-discover \
         update scrape serve serve-devel test-build clean-sources clean-cache clean \
 				rosdistro-cache rosdistro-cache-devel update-rosdistro
 
@@ -75,6 +75,12 @@ discover: $(ROSDISTRO_ENV)
 	@echo "Rebuild discovery file that contains discovered repos"
 	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(CONFIG_FILES) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
 
+test-discover: $(ROSDISTRO_ENV)
+	@echo "Ensure rosdistro cache files exist (devel config)"
+	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --cache-dir=$(cache_dir) --cache-config-out=$(ROSDISTRO_CACHE_CONFIG) --skip-if-present
+	@echo "Rebuild discovery file that contains discovered repos (devel config)"
+	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
+
 build: rebuild-dep-descriptions discover prepare-sources
 	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(config_file),$(index_file)
 
@@ -98,9 +104,7 @@ serve:
 serve-devel:
 	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(index_file),$(devel_config_file) --skip-initial-build
 
-test-build: $(PIP_FILE) $(DEBIAN_FILE) $(ROSDISTRO_ENV) prepare-sources
-	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --cache-dir=$(cache_dir) --cache-config-out=$(ROSDISTRO_CACHE_CONFIG) --skip-if-present
-	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
+test-build: $(PIP_FILE) $(DEBIAN_FILE) test-discover prepare-sources
 	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(DEVEL_CONFIG_FILES)
 
 clean-sources:
