@@ -64,52 +64,36 @@ def render_md(site, readme)
 end
 
 
-def get_md_rst_txt(site, path, glob, raw_uri, browse_uri)
-
-  file_md = nil
-  file_name = nil
-
-  file_files = Dir.glob(File.join(path,glob), File::FNM_CASEFOLD)
-  file_files.each do |file_path|
-    file_name = File.basename(file_path)
-    case File.extname(file_path)
-    when '.md'
-      file_md = IO.read(file_path, :encoding=>'utf-8')
-    when '.rst'
-      file_rst = IO.read(file_path, :encoding=>'utf-8')
-      file_md = rst_to_md(file_rst)
-    when ''
-      if not File.directory?(file_path)
-        file_txt = IO.read(file_path, :encoding=>'utf-8')
-        file_md = "```\n" + file_txt + "\n```"
-      else
-        next
-      end
-    else
-      file_txt = IO.read(file_path, :encoding=>'utf-8')
-      file_md = "```\n" + file_txt + "\n```"
-    end
-    break
+def render_cached_doc(site, content, file_name, raw_uri, browse_uri)
+  if content.nil? || content.to_s.empty?
+    return nil, nil
   end
 
-  if file_md
-    max_lines = 0
-    if site.config['max_embedded_content_lines']
-      max_lines = site.config['max_embedded_content_lines']
-    end
-    # If file is longer than max_embedded_content_lines truncate it
-    lines = file_md.lines
-    if max_lines > 0 && lines.size > max_lines
-      file_md = lines.take(max_lines).join
-      file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri + '/' + file_name})"
-    end
-    # read in the file and fix links
-    file_html = render_md(site, file_md)
-    file_html = '<div class="rendered-markdown">'+file_html+"</div>"
-    file_rendered = fix_local_links(file_html, raw_uri, browse_uri)
+  file_name = (file_name || 'README.md').to_s
+  raw_text = content.to_s.dup.force_encoding(Encoding::UTF_8)
+
+  case File.extname(file_name).downcase
+  when '.md', '.markdown'
+    file_md = raw_text
+  when '.rst'
+    file_md = rst_to_md(raw_text)
   else
-    file_rendered = nil
+    file_md = "```\n" + raw_text + "\n```"
   end
+
+  max_lines = 0
+  if site.config['max_embedded_content_lines']
+    max_lines = site.config['max_embedded_content_lines']
+  end
+  lines = file_md.lines
+  if max_lines > 0 && lines.size > max_lines
+    file_md = lines.take(max_lines).join
+    file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri + '/' + file_name})"
+  end
+
+  file_html = render_md(site, file_md)
+  file_html = '<div class="rendered-markdown">' + file_html + "</div>"
+  file_rendered = fix_local_links(file_html, raw_uri, browse_uri)
 
   return file_rendered, file_md
 end
