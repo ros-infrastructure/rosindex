@@ -8,14 +8,10 @@ repo_name_always: ['variants', 'metapackages', 'geometry2']
 use_db_cache: false
 # If true, this skips finding repos based on the repo sources
 skip_discover: false
-# If true, this skips updating the known repos
-skip_update: false
-# If true, this skips scraping the cloned repos
+# If true, this skips scraping the repos
 skip_scrape: false
 # If true, this skips generating the search index
 skip_search_index: false
-
-checkout_threads: 1
 
 # if non-empty, only scrape these packages (useful for debugging / partial db updates)
 scrape_whitelist: []
