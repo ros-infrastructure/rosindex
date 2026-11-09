@@ -11,4 +11,5 @@ github_username:  ros-infrastructure/rosindex
 
 # Sources
 rosdep_path: _remotes/rosdep
+rosdistro_index_url: https://raw.githubusercontent.com/ros/rosdistro/refs/heads/master/index-v4.yaml
 

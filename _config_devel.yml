@@ -4,6 +4,9 @@ max_rosdeps: 300
 
 repo_name_always: ['variants', 'metapackages', 'geometry2']
 
+old_ros2_distros: []
+old_ros_distros: []
+
 # If true, this begins with an existing db
 use_db_cache: false
 # If true, this skips finding repos based on the repo sources
