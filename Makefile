@@ -17,7 +17,7 @@ search_config=_config/search_index.yml
 .DEFAULT_GOAL := build
 .PHONY: build rebuild-dep-descriptions prepare-sources discover \
         update scrape serve serve-devel test-build clean-sources clean-cache clean \
-				rosdistro-cache
+				rosdistro-cache update-rosdistro
 
 ROSDISTRO_CACHE := _artifacts/rosdistro_cache.json
 PIP_FILE := _artifacts/pip_packages.json
@@ -36,6 +36,9 @@ ROSDISTRO_CACHES = $(foreach distro, $(ROSDISTRO_DISTROS), $(cache_dir)/$(distro
 $(ROSDISTRO_ENV):
 	python3 -m venv $(ROSDISTRO_ENV)
 	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
+
+update-rosdistro: $(ROSDISTRO_ENV)
+	$(ROSDISTRO_ENV)/bin/python -m pip install --upgrade --force-reinstall --no-deps git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
 
 rosdistro-cache: $(ROSDISTRO_CACHES)
 

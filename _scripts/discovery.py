@@ -228,7 +228,7 @@ def _extract_package_entry(pkg_name, pkg_data, rel_res=None, release_version=Non
 
 
 def _extract_repo_packages_and_docs(cache, dist, repo_name, repo):
-    repo_cache = dist.get_source_repo_resources(repo_name) or cache.source_repo_resources.get(repo_name)
+    repo_cache = cache.source_repo_resources.get(repo_name) or dist.get_source_repo_resources(repo_name)
     release_repo = repo.release_repository
     release_version = (
         str(release_repo.version).split('-')[0]
