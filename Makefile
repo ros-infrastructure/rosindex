@@ -16,7 +16,7 @@ search_config=_config/search_index.yml
 
 .DEFAULT_GOAL := build
 .PHONY: build rebuild-dep-descriptions prepare-sources discover test-discover \
-        update scrape serve serve-devel test-build clean-sources clean-cache clean \
+        update scrape serve test-serve test-build clean-sources clean-cache clean \
 				rosdistro-cache rosdistro-cache-devel update-rosdistro
 
 CONFIG_FILES ?= $(config_file),$(index_file)
@@ -101,8 +101,8 @@ search-index: prepare-sources
 serve:
 	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(index_file) --skip-initial-build
 
-serve-devel:
-	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(config_file),$(index_file),$(devel_config_file) --skip-initial-build
+test-serve:
+	bundle exec jekyll serve --host 0.0.0.0 --no-watch --trace -d $(site_path) --config=$(DEVEL_CONFIG_FILES) --skip-initial-build
 
 test-build: $(PIP_FILE) $(DEBIAN_FILE) test-discover prepare-sources
 	bundle exec jekyll build --verbose --trace -d $(site_path) --config=$(DEVEL_CONFIG_FILES)

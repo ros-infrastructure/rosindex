@@ -168,7 +168,7 @@ Jekyll's build process (e.g. generated files are still written to site).
 Run:
 
 ```bash
-make serve-devel
+make test-serve
 ```
 
 The following can be used as a shorthand if using
