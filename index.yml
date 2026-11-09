@@ -11,4 +11,4 @@ github_username:  ros-infrastructure/rosindex
 
 # Sources
 rosdep_path: _remotes/rosdep
-rosdistro_paths: [_remotes/rosdistro]
+
