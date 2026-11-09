@@ -1,10 +1,7 @@
 # VCS repos file listing rosindex generation resources.
 repositories:
-  rosdistro:
-    type: git
-    url: https://github.com/ros/rosdistro.git
-    version: master
   rosdep:
     type: git
     url: https://github.com/ros/rosdistro.git
     version: master
+

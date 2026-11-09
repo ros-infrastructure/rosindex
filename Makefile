@@ -52,7 +52,7 @@ $(DISCOVERY_RESULTS): $(ROSDISTRO_ENV) $(ROSDISTRO_CACHES)
 	@echo "Rebuild discovery file that contains discovered repos"
 	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(config_file),$(index_file) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
   
-rebuild-dep-descriptions:
+rebuild-dep-descriptions: prepare-sources
 	@echo "rebuild pip descriptions file"
 	python3 $(PIP_SCRIPT)
 	@echo "rebuild debian descriptions file"
