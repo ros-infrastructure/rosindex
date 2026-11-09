@@ -26,6 +26,7 @@ ROSDISTRO_CACHE_CONFIG := _artifacts/rosdistro_cache_config.yaml
 ROSDISTRO_CACHE_SCRIPT := _scripts/rosdistro_cache.py
 PIP_FILE := _artifacts/pip_packages.json
 PIP_SCRIPT := _scripts/pip_packages.py
+PIP_MAX_AGE_HOURS ?= 20
 DEBIAN_FILE := _artifacts/debian_packages.json
 DEBIAN_SCRIPT := _scripts/debian_descriptions.rb
 DISCOVERY_SCRIPT = _scripts/discovery.py
@@ -51,7 +52,7 @@ rosdistro-cache-devel: $(ROSDISTRO_ENV)
 
 $(PIP_FILE):
 	@echo "Get pip descriptions file"
-	python3 $(PIP_SCRIPT)
+	python3 $(PIP_SCRIPT) --output=$(PIP_FILE) --max-age-hours=$(PIP_MAX_AGE_HOURS)
 
 $(DISCOVERY_RESULTS): $(ROSDISTRO_ENV)
 	@echo "Ensure rosdistro cache files exist"
@@ -60,8 +61,8 @@ $(DISCOVERY_RESULTS): $(ROSDISTRO_ENV)
 	$(ROSDISTRO_ENV)/bin/python $(DISCOVERY_SCRIPT) --config=$(CONFIG_FILES) --path=$(DISCOVERY_RESULTS) --errors=$(DISCOVERY_ERRORS) --cache-dir=$(cache_dir)
   
 rebuild-dep-descriptions: prepare-sources
-	@echo "rebuild pip descriptions file"
-	python3 $(PIP_SCRIPT)
+	@echo "Update pip descriptions file"
+	python3 $(PIP_SCRIPT) --output=$(PIP_FILE) --max-age-hours=$(PIP_MAX_AGE_HOURS)
 	@echo "rebuild debian descriptions file"
 	ruby $(DEBIAN_SCRIPT)
 
