@@ -13,8 +13,6 @@
 # limitations under the License.
 
 require 'json'
-require 'net/http'
-require 'uri'
 
 PIP_FILE = '_artifacts/pip_packages.json'
 DEBIAN_FILE = '_artifacts/debian_packages.json'
