@@ -97,40 +97,66 @@ def _get_cached_release_manifest(dist, release_repo):
     return None
 
 
+def _is_valid_doc(content):
+    return isinstance(content, str) and bool(content) and content != 'Missing'
+
+
+def _looks_like_rst(content):
+    if not isinstance(content, str):
+        return False
+    return (
+        content.startswith('.. ')
+        or '\n.. ' in content
+        or '`_' in content
+        or '::\n' in content
+    )
+
+
 def _extract_doc_from_mapping(mapping, candidates, fallback_key=None):
     if not isinstance(mapping, dict):
         return None, None
     for filename in candidates:
         content = mapping.get(filename)
-        if isinstance(content, str) and content:
+        if _is_valid_doc(content):
             return content, filename
     if fallback_key:
         val = mapping.get(fallback_key)
         if isinstance(val, dict):
             content = val.get('content')
             filename = val.get('filename') or candidates[0]
-            if isinstance(content, str) and content:
+            if _is_valid_doc(content):
                 return content, filename
-        elif isinstance(val, str) and val:
-            return val, candidates[0]
+        elif _is_valid_doc(val):
+            filename = candidates[1] if len(candidates) > 1 and _looks_like_rst(val) else candidates[0]
+            return val, filename
     return None, None
 
 
-def _extract_doc_from_repo_metadata(repo_cache, meta_key, candidates):
+def _extract_doc_from_repo_metadata(repo_cache, meta_key, candidates, root_pkg_data=None):
     if repo_cache is None:
         return None, None
     val = repo_cache.get_metadata(meta_key)
     if isinstance(val, dict):
         content = val.get('content')
         filename = val.get('filename') or repo_cache.get_metadata(f'{meta_key}_filename') or candidates[0]
-        if isinstance(content, str) and content:
+        if _is_valid_doc(content):
             return content, filename
-    elif isinstance(val, str) and val:
-        filename = repo_cache.get_metadata(f'{meta_key}_filename') or candidates[0]
+    elif _is_valid_doc(val):
+        filename = repo_cache.get_metadata(f'{meta_key}_filename')
+        if not filename:
+            if meta_key == 'readme' and isinstance(root_pkg_data, dict):
+                if _is_valid_doc(root_pkg_data.get('README.md')):
+                    filename = candidates[0]
+                else:
+                    filename = candidates[1] if len(candidates) > 1 else candidates[0]
+            elif _looks_like_rst(val):
+                filename = candidates[1] if len(candidates) > 1 else candidates[0]
+            else:
+                filename = candidates[0]
         return val, filename
     for filename in candidates:
         content = repo_cache.get_metadata(filename)
-        if isinstance(content, str) and content:
+        if _is_valid_doc(content):
             return content, filename
     return None, None
 
@@ -177,6 +203,10 @@ def _extract_package_entry(pkg_name, pkg_data, rel_res=None, release_version=Non
     if srv_files is None:
         srv_files = rel_res.get('srv_files') or []
 
+    action_files = pkg_data.get('action_files')
+    if action_files is None:
+        action_files = rel_res.get('action_files') or []
+
     extra_readmes = pkg_data.get('readmes') or rel_res.get('readmes')
 
     entry = {
@@ -190,6 +220,7 @@ def _extract_package_entry(pkg_name, pkg_data, rel_res=None, release_version=Non
         'launch_files': launch_files,
         'msg_files': msg_files,
         'srv_files': srv_files,
+        'action_files': action_files,
     }
     if extra_readmes:
         entry['readmes'] = extra_readmes
@@ -237,7 +268,7 @@ def _extract_repo_packages_and_docs(cache, dist, repo_name, repo):
                 packages[pkg_name] = entry
 
     repo_readme, repo_readme_filename = _extract_doc_from_repo_metadata(
-        repo_cache, 'readme', README_CANDIDATES
+        repo_cache, 'readme', README_CANDIDATES, root_pkg_data=root_pkg_data
     )
     if repo_readme is None and root_pkg_data is not None:
         repo_readme, repo_readme_filename = _extract_doc_from_mapping(
@@ -249,8 +280,14 @@ def _extract_repo_packages_and_docs(cache, dist, repo_name, repo):
             repo_readme = sole_pkg['readme']
             repo_readme_filename = sole_pkg.get('readme_filename') or 'README.md'
 
+    if repo_readme is not None:
+        for pkg_entry in packages.values():
+            if pkg_entry.get('package_path', '') in ('', '.') and not pkg_entry.get('readme'):
+                pkg_entry['readme'] = repo_readme
+                pkg_entry['readme_filename'] = repo_readme_filename or 'README.md'
+
     repo_contributing, repo_contributing_filename = _extract_doc_from_repo_metadata(
-        repo_cache, 'contributing', CONTRIBUTING_CANDIDATES
+        repo_cache, 'contributing', CONTRIBUTING_CANDIDATES, root_pkg_data=root_pkg_data
     )
     if repo_contributing is None and root_pkg_data is not None:
         repo_contributing, repo_contributing_filename = _extract_doc_from_mapping(
@@ -265,7 +302,7 @@ def _extract_repo_packages_and_docs(cache, dist, repo_name, repo):
 
     if repo_cache is not None:
         raw_commit_time = (
-            repo_cache.get_metadata('last_commit_time')
+            repo_cache.last_commit_time()
             or repo_cache.get_metadata('pushed_at')
             or repo_cache.get_metadata('last_update_time')
         )

@@ -334,6 +334,7 @@ class Indexer < Jekyll::Generator
       @errors[repo.name].concat(launch_errors) unless launch_errors.empty?
       msg_files = (pkg_cache['msg_files'] || []).map(&:to_s)
       srv_files = (pkg_cache['srv_files'] || []).map(&:to_s)
+      action_files = (pkg_cache['action_files'] || []).map(&:to_s)
       plugin_data = REXML::XPath.each(manifest_doc, '//export/*[@plugin]').map {|e| {'name'=>e.name, 'file'=>e.attributes['plugin'].sub('${prefix}','')}}
 
       if $ros_distros.include? distro
@@ -376,6 +377,7 @@ class Indexer < Jekyll::Generator
         'plugin_data' => plugin_data,
         'msg_files' => msg_files,
         'srv_files' => srv_files,
+        'action_files' => action_files,
       }
 
     rescue REXML::ParseException => e
