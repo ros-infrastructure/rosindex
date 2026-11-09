@@ -388,8 +388,8 @@ class Indexer < Jekyll::Generator
     return package_info
   end
 
-  # scrape a version of a repository for packages and their contents from the cache
-  def scrape_version(site, repo, distro, snapshot)
+  # index cached packages and documentation for a repository snapshot
+  def index_cached_version(site, repo, distro, snapshot)
 
     unless repo.uri
       puts ("WARNING: no URI for "+repo.name+" "+repo.id+" "+distro).yellow
@@ -457,36 +457,47 @@ class Indexer < Jekyll::Generator
     end
   end
 
-  def scrape_repo(site, repo)
+  def index_cached_repo(site, repo, progress_prefix = nil)
+    prefix = progress_prefix ? "#{progress_prefix} " : ""
 
     if @domain_blacklist.include? URI(repo.uri).hostname
       msg = "Repo instance " + repo.id + " has a blacklisted hostname: " + repo.uri.to_s
-      puts ('WARNING:' + msg).yellow
+      puts ("#{prefix}WARNING: #{msg}").yellow
       repo.errors << msg
       return
     end
 
-    some_version_found = false
+    found_distros = []
+    ignored_distros = []
+    missing_distros = []
+    pkg_names = Set.new
 
-    # scrape cached data for each distro snapshot
+    # index cached data for each distro snapshot
     repo.snapshots.each do |distro, snapshot|
       version = snapshot.version
       if version
-        puts (" --- scraping version for " << repo.name << " instance: " << repo.id << " distro: " << distro).blue
-
         if snapshot.cached_data && snapshot.cached_data['ignored']
-          puts (" --- ignoring version for " << repo.name).yellow
+          ignored_distros << distro
           snapshot.version = nil
         else
-          some_version_found = true
-          scrape_version(site, repo, distro, snapshot)
+          found_distros << distro
+          index_cached_version(site, repo, distro, snapshot)
+          pkg_names.merge(snapshot.packages.keys)
         end
       else
-        dputs (" --- no version for " << repo.name << " instance: " << repo.id << " distro: " << distro).yellow
+        missing_distros << distro
       end
     end
 
-    if not some_version_found
+    summary_parts = [
+      "found=[#{found_distros.join(', ')}]",
+      "ignored=#{ignored_distros.empty? ? 0 : "[#{ignored_distros.join(', ')}]"}",
+      "missing=#{missing_distros.empty? ? 0 : "[#{missing_distros.join(', ')}]"}",
+      "packages=#{pkg_names.size}"
+    ]
+    puts "#{prefix}Indexing cached repo #{repo.name} (#{repo.id}): #{summary_parts.join(', ')}".blue
+
+    if found_distros.empty?
       msg = "Could not find any valid version."
       @errors[repo.name] << IndexException.new(msg, repo.id)
       repo.errors << (repo.id+': '+msg)
@@ -699,9 +710,10 @@ class Indexer < Jekyll::Generator
       vals.each { |val| @errors[distro].push(IndexException.new(val["msg"], val["repo_id"])) }
     end
 
-    # Create repo objects
+    # Create repo objects from cached discovery data
     repos.each do |distro, repo_list|
-      puts ("creating repo objects for rosdistro: "+distro).green
+      next if repo_list.empty?
+      new_repos_in_distro = 0
       repo_list.each do |repo_item|
         # limit repos if requested
         unless (site.config['repo_name_whitelist'].length == 0 or site.config['repo_name_whitelist'].include?(repo_item['name'])) then next end
@@ -722,9 +734,10 @@ class Indexer < Jekyll::Generator
         if @all_repos.key?(repo.id)
           repo = @all_repos[repo.id]
         else
-          puts " -- Adding repo " << repo.name << " instance: " << repo.id << " from uri: " << repo.uri.to_s << " with version: " << repo_item['version']
+          dputs " -- Adding repo " << repo.name << " instance: " << repo.id << " from uri: " << repo.uri.to_s << " with version: " << repo_item['version']
           # store this repo in the unique index
           @all_repos[repo.id] = repo
+          new_repos_in_distro += 1
         end
 
         # get maintainer status
@@ -758,27 +771,28 @@ class Indexer < Jekyll::Generator
       rescue IndexException => e
         @errors[repo_item['name']] << e
       end
+      puts ("Loaded rosdistro #{distro} from discovery cache: #{repo_list.length} entries (#{new_repos_in_distro} new repo instances)").green
     end
 
     puts "Found " << @all_repos.length.to_s << " repositories corresponding to " << @repo_names.length.to_s << " repo identifiers."
 
-    # scrape all the repos
+    # index cached packages and docs for all repos
     unless @skip_scrape
-      n_scraped = 0
+      n_indexed = 0
       n_total = @all_repos.length
-      puts "Scraping #{n_total} known repos..."
+      puts "Indexing cached data for #{n_total} repositories...".green
       @all_repos.to_a.sort_by{|repo_id, repo| repo.name}.each do |repo_id, repo|
         unless (site.config['repo_name_whitelist'].length == 0 or site.config['repo_name_whitelist'].include?(repo.name)) then next end
         if site.config['repo_id_whitelist'].size == 0 or site.config['repo_id_whitelist'].include?(repo.id)
 
-          puts "[%05.2f%%] Scraping #{repo.id}..." % (n_scraped/n_total.to_f*100.0)
+          progress_prefix = "[%05.2f%%]" % (n_indexed / n_total.to_f * 100.0)
           begin
-            scrape_repo(site, repo)
+            index_cached_repo(site, repo, progress_prefix)
           rescue IndexException => e
             @errors[repo.name] << e
             repo.errors << e.msg
           end
-          n_scraped = n_scraped + 1
+          n_indexed = n_indexed + 1
         end
       end
     end
@@ -786,7 +800,7 @@ class Indexer < Jekyll::Generator
     if site.config['use_db_cache']
       # backup the current db if it exists
       if File.exist?(@db_cache_filename) then FileUtils.mv(@db_cache_filename, @db_cache_filename+'.bak') end
-      # save scraped data into the cache db
+      # save indexed data into the cache db
       db_cache_dirname = File.dirname(@db_cache_filename)
       Dir.mkdir(db_cache_dirname) unless File.directory?(db_cache_dirname)
       File.open(@db_cache_filename, 'w') {|f| f.write(Marshal.dump(@db)) }
