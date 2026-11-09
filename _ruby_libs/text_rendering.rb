@@ -89,6 +89,8 @@ def render_cached_doc(site, content, file_name, raw_uri, browse_uri)
   if max_lines > 0 && lines.size > max_lines
     file_md = lines.take(max_lines).join
     file_md += "\nFile truncated at #{max_lines} lines [see the full file](#{browse_uri + '/' + file_name})"
+  elsif file_md =~ /\ATruncated content at \d+ of \d+ lines\z/ || file_md =~ /\nTruncated content at \d+ of \d+ lines\z/
+    file_md += " ([see the full file](#{browse_uri + '/' + file_name}))"
   end
 
   file_html = render_md(site, file_md)
