@@ -426,18 +426,27 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         '--path',
-        default=DISCOVERY_RESULTS,
-        help='Path to save discovery results',
+        default=None,
+        help=(
+            'Path to save discovery results '
+            f'(defaults to discovery_results in config or {DISCOVERY_RESULTS})'
+        ),
     )
     parser.add_argument(
         '--errors',
-        default=DISCOVERY_ERRORS,
-        help='Path to save discovery errors',
+        default=None,
+        help=(
+            'Path to save discovery errors '
+            f'(defaults to discovery_errors in config or {DISCOVERY_ERRORS})'
+        ),
     )
     parser.add_argument(
         '--cache-dir',
-        default=DEFAULT_CACHE_DIR,
-        help='Directory containing rosdistro cache files (default: _cache)',
+        default=None,
+        help=(
+            'Directory containing rosdistro cache files '
+            f'(defaults to cache_dir in config or {DEFAULT_CACHE_DIR})'
+        ),
     )
     return parser.parse_args(argv)
 
@@ -454,7 +463,10 @@ def main(argv=None):
     config['old_distros'] = (config.get('old_ros2_distros') or []) + (
         config.get('old_ros_distros') or []
     )
-    discover_repos(config, args.path, args.errors, cache_dir=args.cache_dir)
+    output_path = args.path or config.get('discovery_results') or DISCOVERY_RESULTS
+    errors_path = args.errors or config.get('discovery_errors') or DISCOVERY_ERRORS
+    cache_dir = args.cache_dir or config.get('cache_dir') or DEFAULT_CACHE_DIR
+    discover_repos(config, output_path, errors_path, cache_dir=cache_dir)
 
 
 if __name__ == '__main__':

@@ -7,8 +7,17 @@ repo_name_always: ['variants', 'metapackages', 'geometry2']
 old_ros2_distros: []
 old_ros_distros: []
 
+cache_dir: _cache_devel
+rosdistro_cache_config: _artifacts/rosdistro_cache_config_devel.yaml
+discovery_results: _artifacts/discovery_devel.json
+discovery_errors: _artifacts/discovery_errors_devel.json
+
 # If true, this begins with an existing db
 use_db_cache: false
+db_cache_filename: _cache_devel/_devel_cache.db
+report_filename: _cache_devel/_devel_index_report.yaml
+report_diff_filename: _cache_devel/_devel_index_report_diff.yaml
+debbuild_release_path: _cache_devel/debbuild_releases
 # If true, this skips finding repos based on the repo sources
 skip_discover: false
 # If true, this skips scraping the repos

@@ -14,6 +14,11 @@ google_analytics_tag_id: 'G-EVD5Z6G6NH'
 # OLD from jekyll 2.x
 #highlighter: pygments
 
+cache_dir: _cache
+rosdistro_cache_config: _artifacts/rosdistro_cache_config.yaml
+discovery_results: _artifacts/discovery.json
+discovery_errors: _artifacts/discovery_errors.json
+
 # If true, this begins with an existing db
 use_db_cache: false
 db_cache_filename: _cache/_deploy_cache.db
@@ -47,6 +52,7 @@ include:
 exclude:
   - _scripts
   - _cache
+  - _cache_devel
   - _config
   - _devel
   - _plugins_data
