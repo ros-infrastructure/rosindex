@@ -696,15 +696,17 @@ class Indexer < Jekyll::Generator
     end
 
     # get the repositories from the rosdistro files, rosdoc rosinstall files, and other sources
+    discovery_results_path = site.config['discovery_results'] || DISCOVERY_RESULTS
+    discovery_errors_path = site.config['discovery_errors'] || DISCOVERY_ERRORS
     discovery_errors = {}
-    if File.exist?(DISCOVERY_RESULTS)
-      puts ("Loading discovered repos from a file").green
-      repos = File.open(DISCOVERY_RESULTS, 'r') { |f| JSON.load(f) }
-      if File.exist?(DISCOVERY_ERRORS)
-        discovery_errors = File.open(DISCOVERY_ERRORS, 'r') { |f| JSON.load(f) }
+    if File.exist?(discovery_results_path)
+      puts ("Loading discovered repos from #{discovery_results_path}").green
+      repos = File.open(discovery_results_path, 'r') { |f| JSON.load(f) }
+      if File.exist?(discovery_errors_path)
+        discovery_errors = File.open(discovery_errors_path, 'r') { |f| JSON.load(f) }
       end
     else
-      raise RuntimeError.new("Discovery results file #{DISCOVERY_RESULTS} not found. Run 'make discover' first.")
+      raise RuntimeError.new("Discovery results file #{discovery_results_path} not found. Run 'make discover' (or 'make test-discover') first.")
     end
     discovery_errors.each do |distro, vals|
       vals.each { |val| @errors[distro].push(IndexException.new(val["msg"], val["repo_id"])) }

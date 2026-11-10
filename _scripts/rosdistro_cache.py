@@ -116,13 +116,19 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         '--cache-config-out',
-        default=DEFAULT_CACHE_CONFIG_OUT,
-        help='Path to write generated rosdistro cache config YAML',
+        default=None,
+        help=(
+            'Path to write generated rosdistro cache config YAML '
+            f'(defaults to rosdistro_cache_config in config or {DEFAULT_CACHE_CONFIG_OUT})'
+        ),
     )
     parser.add_argument(
         '--cache-dir',
-        default=DEFAULT_CACHE_DIR,
-        help='Directory to store rosdistro cache files (default: _cache)',
+        default=None,
+        help=(
+            'Directory to store rosdistro cache files '
+            f'(defaults to cache_dir in config or {DEFAULT_CACHE_DIR})'
+        ),
     )
     parser.add_argument(
         '--index-url',
@@ -172,20 +178,26 @@ def main(argv=None):
 
     cache_config = build_cache_config(config)
     index_url = args.index_url or config.get('rosdistro_index_url') or get_index_url()
+    cache_dir = args.cache_dir or config.get('cache_dir') or DEFAULT_CACHE_DIR
+    cache_config_out = (
+        args.cache_config_out
+        or config.get('rosdistro_cache_config')
+        or DEFAULT_CACHE_CONFIG_OUT
+    )
 
     target_distros = distros
     if args.skip_if_present and not args.write_config_only:
-        missing = _missing_caches(args.cache_dir, distros)
+        missing = _missing_caches(cache_dir, distros)
         if not missing:
             print(
-                f'Extended cache files already present in {args.cache_dir} '
+                f'Extended cache files already present in {cache_dir} '
                 f'for all {len(distros)} configured distros.'
             )
             return 0
         print(f'Building missing extended caches for distros: {", ".join(missing)}')
         target_distros = missing
 
-    abs_config_path = write_cache_config(cache_config, args.cache_config_out)
+    abs_config_path = write_cache_config(cache_config, cache_config_out)
     print(
         f'Wrote rosdistro cache config to {abs_config_path} '
         f'(limit={cache_config.limit}, '
@@ -196,7 +208,7 @@ def main(argv=None):
     if args.write_config_only:
         return 0
 
-    abs_cache_dir = os.path.abspath(args.cache_dir)
+    abs_cache_dir = os.path.abspath(cache_dir)
     os.makedirs(abs_cache_dir, exist_ok=True)
 
     cli_args = ['--config', abs_config_path]
