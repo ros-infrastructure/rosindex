@@ -1,0 +1,376 @@
+{
+  "_comment": "Aliases from non-SPDX <license> strings found in ROS 2 Jazzy package.xml files to SPDX license expressions. Match on the tag text with surrounding whitespace stripped.",
+  "spdx_license_list_version": "3.29.0",
+  "distro": "jazzy",
+  "aliases": {
+    "Apache License 2.0": "Apache-2.0",
+    "Apache 2.0": "Apache-2.0",
+    "Apache License, Version 2.0": "Apache-2.0",
+    "Apache 2": "Apache-2.0",
+    "Apache2": "Apache-2.0",
+    "Apache-2": "Apache-2.0",
+    "Apache 2.0 License": "Apache-2.0",
+    "Apache License Version 2.0": "Apache-2.0",
+    "apache 2.0": "Apache-2.0",
+    "Apache Licence 2.0": "Apache-2.0",
+    "Apache license 2.0": "Apache-2.0",
+    "BSD": "BSD-3-Clause",
+    "BSD 3-clause": "BSD-3-Clause",
+    "BSD-3": "BSD-3-Clause",
+    "BSD 3-Clause": "BSD-3-Clause",
+    "BSD 3 Clause": "BSD-3-Clause",
+    "BSD Clause 3": "BSD-3-Clause",
+    "BSD 3-Clause License": "BSD-3-Clause",
+    "BSD License 2.0": "BSD-3-Clause",
+    "BSD-2": "BSD-2-Clause",
+    "BSD 2-clause": "BSD-2-Clause",
+    "MIT License": "MIT",
+    "zlib": "Zlib",
+    "zlib License": "Zlib",
+    "Zlib License": "Zlib",
+    "MPL-2.0 license": "MPL-2.0",
+    "Mozilla Public License 2.0": "MPL-2.0",
+    "Eclipse Public License 2.0": "EPL-2.0",
+    "Eclipse Distribution License 1.0": "BSD-3-Clause",
+    "CC0": "CC0-1.0",
+    "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License": "CC-BY-NC-ND-4.0",
+    "GPLv3": "GPL-3.0-only",
+    "GPL-3.0": "GPL-3.0-only",
+    "GPLv2": "GPL-2.0-only",
+    "GPL-2": "GPL-2.0-only",
+    "GNU General Public License v2.0": "GPL-2.0-only",
+    "GPL-2.0": "GPL-2.0-only",
+    "GPLv2+ license": "GPL-2.0-or-later",
+    "LGPLv3": "LGPL-3.0-only",
+    "LGPL-v3": "LGPL-3.0-only",
+    "GNU Lesser General Public License v3.0 (LGPL-3.0)": "LGPL-3.0-only",
+    "LGPL-3.0": "LGPL-3.0-only",
+    "LGPLv2.1": "LGPL-2.1-only",
+    "LGPL v2.1": "LGPL-2.1-only",
+    "GNU Lesser Public License 2.1": "LGPL-2.1-only",
+    "AGPLv3": "AGPL-3.0-only",
+    "GPL": "GPL-1.0-or-later",
+    "LGPL": "LGPL-2.0-or-later",
+    "BSD, LGPL": "BSD-3-Clause AND LGPL-3.0-only",
+    "Public Domain": "LicenseRef-Public-Domain",
+    "Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation": "LicenseRef-UR-Graphical-Documentation"
+  },
+  "details": {
+    "Apache License 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 788,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 223,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache License, Version 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 40,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache 2": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 38,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache2": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 9,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache-2": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 7,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache 2.0 License": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache License Version 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "apache 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache Licence 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "Apache license 2.0": {
+      "spdx": "Apache-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of the Apache License 2.0."
+    },
+    "BSD": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "medium",
+      "packages": 634,
+      "note": "Unversioned \"BSD\". In ROS this conventionally means the 3-clause license: 540 of the 567 packages with a license file nearby have BSD-3-Clause text (alone or next to another license), 9 have only BSD-2-Clause; 67 have no license file."
+    },
+    "BSD 3-clause": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD-3": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD 3-Clause": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD 3 Clause": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD Clause 3": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD 3-Clause License": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of BSD-3-Clause."
+    },
+    "BSD License 2.0": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "\"BSD License 2.0\" is an old name for the revised (3-clause) BSD license; the one package using it (teleop_twist_keyboard) ships BSD-3-Clause text."
+    },
+    "BSD-2": {
+      "spdx": "BSD-2-Clause",
+      "confidence": "high",
+      "packages": 2,
+      "note": "Spelling variant of BSD-2-Clause."
+    },
+    "BSD 2-clause": {
+      "spdx": "BSD-2-Clause",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of BSD-2-Clause."
+    },
+    "MIT License": {
+      "spdx": "MIT",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Spelling variant of MIT."
+    },
+    "zlib": {
+      "spdx": "Zlib",
+      "confidence": "high",
+      "packages": 4,
+      "note": "Case/spelling variant of Zlib."
+    },
+    "zlib License": {
+      "spdx": "Zlib",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Case/spelling variant of Zlib."
+    },
+    "Zlib License": {
+      "spdx": "Zlib",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Case/spelling variant of Zlib."
+    },
+    "MPL-2.0 license": {
+      "spdx": "MPL-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of MPL-2.0."
+    },
+    "Mozilla Public License 2.0": {
+      "spdx": "MPL-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Spelling variant of MPL-2.0."
+    },
+    "Eclipse Public License 2.0": {
+      "spdx": "EPL-2.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Full name of EPL-2.0."
+    },
+    "Eclipse Distribution License 1.0": {
+      "spdx": "BSD-3-Clause",
+      "confidence": "high",
+      "packages": 1,
+      "note": "SPDX has no EDL identifier; the Eclipse Distribution License 1.0 is the BSD-3-Clause text and SPDX directs it to BSD-3-Clause."
+    },
+    "CC0": {
+      "spdx": "CC0-1.0",
+      "confidence": "high",
+      "packages": 1,
+      "note": "CC0 has only one version."
+    },
+    "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License": {
+      "spdx": "CC-BY-NC-ND-4.0",
+      "confidence": "high",
+      "packages": 2,
+      "note": "Full name of CC-BY-NC-ND-4.0."
+    },
+    "GPLv3": {
+      "spdx": "GPL-3.0-only",
+      "confidence": "medium",
+      "packages": 38,
+      "note": "GPL version 3 with no \"or later\" stated. Taken literally this is -only; source headers in some packages (control_box_rst, hector_rviz_overlay) say \"or any later version\", so those packages should probably declare GPL-3.0-or-later upstream."
+    },
+    "GPL-3.0": {
+      "spdx": "GPL-3.0-only",
+      "confidence": "high",
+      "packages": 3,
+      "note": "Deprecated SPDX id; SPDX defines it as identical to GPL-3.0-only."
+    },
+    "GPLv2": {
+      "spdx": "GPL-2.0-only",
+      "confidence": "medium",
+      "packages": 3,
+      "note": "GPL version 2 with no \"or later\" stated; taken literally as -only. Headers in octovis and popf mostly say \"or later\"."
+    },
+    "GPL-2": {
+      "spdx": "GPL-2.0-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "GPL version 2 with no \"or later\" stated; taken literally as -only."
+    },
+    "GNU General Public License v2.0": {
+      "spdx": "GPL-2.0-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "GPL version 2 with no \"or later\" stated; taken literally as -only."
+    },
+    "GPL-2.0": {
+      "spdx": "GPL-2.0-only",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Deprecated SPDX id; SPDX defines it as identical to GPL-2.0-only."
+    },
+    "GPLv2+ license": {
+      "spdx": "GPL-2.0-or-later",
+      "confidence": "high",
+      "packages": 1,
+      "note": "\"v2+\" means version 2 or later."
+    },
+    "LGPLv3": {
+      "spdx": "LGPL-3.0-only",
+      "confidence": "medium",
+      "packages": 14,
+      "note": "LGPL version 3 with no \"or later\" stated; taken literally as -only."
+    },
+    "LGPL-v3": {
+      "spdx": "LGPL-3.0-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "LGPL version 3 with no \"or later\" stated; taken literally as -only."
+    },
+    "GNU Lesser General Public License v3.0 (LGPL-3.0)": {
+      "spdx": "LGPL-3.0-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "LGPL version 3 with no \"or later\" stated; taken literally as -only."
+    },
+    "LGPL-3.0": {
+      "spdx": "LGPL-3.0-only",
+      "confidence": "high",
+      "packages": 1,
+      "note": "Deprecated SPDX id; SPDX defines it as identical to LGPL-3.0-only."
+    },
+    "LGPLv2.1": {
+      "spdx": "LGPL-2.1-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "LGPL version 2.1 with no \"or later\" stated; taken literally as -only."
+    },
+    "LGPL v2.1": {
+      "spdx": "LGPL-2.1-only",
+      "confidence": "medium",
+      "packages": 2,
+      "note": "LGPL version 2.1 with no \"or later\" stated; taken literally as -only."
+    },
+    "GNU Lesser Public License 2.1": {
+      "spdx": "LGPL-2.1-only",
+      "confidence": "medium",
+      "packages": 2,
+      "note": "LGPL version 2.1 with no \"or later\" stated; taken literally as -only."
+    },
+    "AGPLv3": {
+      "spdx": "AGPL-3.0-only",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "AGPL version 3 with no \"or later\" stated; taken literally as -only."
+    },
+    "GPL": {
+      "spdx": "GPL-1.0-or-later",
+      "confidence": "low",
+      "packages": 3,
+      "note": "No version given. The GPL lets the recipient pick any published version when none is specified, so the literal SPDX mapping is GPL-1.0-or-later. The three packages actually ship GPL-3 (imu_transformer), GPL-2 (wiimote) and nothing (imu_pipeline); they should be fixed upstream."
+    },
+    "LGPL": {
+      "spdx": "LGPL-2.0-or-later",
+      "confidence": "low",
+      "packages": 5,
+      "note": "No version given; literal mapping is LGPL-2.0-or-later (the earliest LGPL). The five packages actually ship LGPL-3 (ros_canopen, libphidget22), LGPL-2.1 (slam_toolbox, qpoases upstream) and nothing (lms1xx); they should be fixed upstream."
+    },
+    "BSD, LGPL": {
+      "spdx": "BSD-3-Clause AND LGPL-3.0-only",
+      "confidence": "low",
+      "packages": 1,
+      "note": "Two licenses in one tag. Only used by the phidgets_drivers metapackage, whose repo ships BSD-3-Clause and LGPL-3 license files. Written as an SPDX expression."
+    },
+    "Public Domain": {
+      "spdx": "LicenseRef-Public-Domain",
+      "confidence": "medium",
+      "packages": 3,
+      "note": "SPDX has no identifier for public domain dedications; a LicenseRef- id is the SPDX-sanctioned way to name it."
+    },
+    "Universal Robots A/S’ Terms and Conditions for Use of Graphical Documentation": {
+      "spdx": "LicenseRef-UR-Graphical-Documentation",
+      "confidence": "medium",
+      "packages": 1,
+      "note": "Proprietary Universal Robots terms with no SPDX id; a LicenseRef- id names it."
+    }
+  },
+  "unmapped": {
+    "MyLicense": {
+      "packages": 1,
+      "note": "Template placeholder (smacc2 performance test package). Nothing to map; should be fixed upstream."
+    },
+    "TODO: License declaration": {
+      "packages": 1,
+      "note": "ros2 pkg create placeholder (wato_trajectory_msgs). Nothing to map; should be fixed upstream."
+    }
+  }
+}

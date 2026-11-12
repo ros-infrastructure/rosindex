@@ -140,6 +140,7 @@ layout: default
     {field:"core", label:"⊙ Core", defaultVisible:false},
     {field:"last_commit_time", label:"\u{1F4C5} Last commit", defaultVisible:true},
     {field:"version", label:"Version", defaultVisible:false},
+    {field:"license", label:"License", defaultVisible:false},
     {field:"authors", label:"Authors", defaultVisible:false},
     {field:"maintainers", label:"Maintainers", defaultVisible:false},
     {field:"org", label:"Org", defaultVisible:true},
@@ -373,6 +374,9 @@ layout: default
       { title:"Maintainers", field:"maintainers", width:120},
       { title:"Org", field:"org", width:100},
       { title:"Version", field:"version", width:80},
+      { title:"License", field:"license", width:100,
+        headerTooltip:"estimated SPDX license identifier, hover on the cell to see actual package license declaration.",
+        tooltip:(e, cell) => cell.getRow().getData().license_raw || cell.getValue()},
       { title:"score", field:"score", width:60, sorter:"number", visible:false},
     ];
 
