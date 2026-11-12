@@ -740,14 +740,19 @@ class Indexer < Jekyll::Generator
     end
   end
 
+  def raw_licenses(package_data)
+    # Returns the package's <license> strings as declared in package.xml.
+    # Package data from an older db cache only has the first license.
+    licenses = package_data['licenses'] || [package_data['license'].to_s.strip]
+    licenses.reject(&:empty?)
+  end
+
   def spdx_licenses(site, package_data)
     # Returns the package's licenses as SPDX strings, joined for display.
     # Non-SPDX strings found in package.xml files are mapped through
     # _data/license_aliases.json; unknown strings are shown as is.
     aliases = (site.data['license_aliases'] || {})['aliases'] || {}
-    # Package data from an older db cache only has the first license.
-    raw_licenses = package_data['licenses'] || [package_data['license'].to_s.strip]
-    raw_licenses.reject(&:empty?).map { |l| aliases.fetch(l, l) }.uniq.join(', ')
+    raw_licenses(package_data).map { |l| aliases.fetch(l, l) }.uniq.join(', ')
   end
 
   def strip_stopwords(text)
@@ -1174,6 +1179,7 @@ class Indexer < Jekyll::Generator
               'released' => if repo_snapshot.released then 'released' else '' end,
               'version' => p['version'],
               'license' => spdx_licenses(site, p),
+              'license_raw' => raw_licenses(p).join(', '),
               'description' => p['description'].strip,
               'maintainers' => p['maintainers'] * ", ",
               'authors' => p['authors'] * ", ",
