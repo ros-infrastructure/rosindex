@@ -32,13 +32,23 @@ layout: default
                 </span>
               </div>
             </div>
-            <div class="col-4" style="line-height:35px;">
+            <div class="col-3" style="line-height:35px;">
               <p class="showAsSearch" style="display:none;">
                 <span class="d-none d-md-inline">Showing </span>
                 <span id="table-filtered-count">0</span> of
                 <span id="table-unfiltered-count">0</span>
                 <span id="filtered-type" class="d-none d-md-inline"> packages</span>
               </p>
+            </div>
+            <div class="col-1 text-end">
+              <div class="dropdown showAsSearch" style="display:none;">
+                <button id="column-chooser-button" class="btn btn-light dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Choose columns">
+                  <span class="bi bi-layout-three-columns"></span>
+                  <span class="d-none d-lg-inline"> Columns</span>
+                </button>
+                <ul id="column-chooser" class="dropdown-menu dropdown-menu-end" aria-labelledby="column-chooser-button"></ul>
+              </div>
             </div>
             <div class="col-2 text-end" style="line-height:35px">
               <p>
@@ -121,6 +131,83 @@ layout: default
   const PACKAGE_SORT = [{column:"url", dir:"asc"}];
   const REPO_SORT = [{column: "repo", dir:"asc"}];
   const SCORE_SORT = [{column:"score", dir:"desc"}];
+  // Columns the user may show or hide. Package and Repo are always shown.
+  const TOGGLEABLE_COLUMNS = [
+    {field:"description", label:"Description", defaultVisible:true},
+    {field:"released", label:"★ Released", defaultVisible:false},
+    {field:"pkg_deps", label:"⬅ Dependency count", defaultVisible:false},
+    {field:"dependants", label:"➡ Used-by count", defaultVisible:false},
+    {field:"core", label:"⊙ Core", defaultVisible:false},
+    {field:"last_commit_time", label:"\u{1F4C5} Last commit", defaultVisible:true},
+    {field:"version", label:"Version", defaultVisible:false},
+    {field:"authors", label:"Authors", defaultVisible:false},
+    {field:"maintainers", label:"Maintainers", defaultVisible:false},
+    {field:"org", label:"Org", defaultVisible:true},
+  ];
+
+  function columnPrefsKey() {
+    // Package and repo tables keep separate column choices.
+    return getIsRepos() ? 'rosindex_columns_repos' : 'rosindex_columns_packages';
+  }
+
+  function getDefaultColumnPrefs() {
+    var prefs = {};
+    for (const col of TOGGLEABLE_COLUMNS) {
+      prefs[col.field] = col.defaultVisible;
+    }
+    return prefs;
+  }
+
+  function getColumnPrefs() {
+    // Returns {field: visible} for toggleable columns, saved choices over defaults.
+    var prefs = getDefaultColumnPrefs();
+    try {
+      var saved = JSON.parse($.cookie(columnPrefsKey()) || '{}');
+      for (const field in prefs) {
+        if (typeof saved[field] === 'boolean') {
+          prefs[field] = saved[field];
+        }
+      }
+    } catch (e) {
+      console.log(`Ignoring bad column preferences: ${e}`);
+    }
+    return prefs;
+  }
+
+  function saveColumnPrefs(prefs) {
+    $.cookie(columnPrefsKey(), JSON.stringify(prefs), {path: '/', expires: 365});
+  }
+
+  function applyColumnPrefs(prefs) {
+    // Show or hide columns in the current table to match prefs.
+    if (!gTable) {
+      return;
+    }
+    for (const field in prefs) {
+      if (prefs[field]) {
+        gTable.showColumn(field);
+      } else {
+        gTable.hideColumn(field);
+      }
+    }
+    gTable.redraw();
+  }
+
+  function buildColumnChooser() {
+    // Fill the Columns dropdown with a checkbox per toggleable column.
+    var prefs = getColumnPrefs();
+    var menu = $('#column-chooser');
+    menu.empty();
+    for (const col of TOGGLEABLE_COLUMNS) {
+      var checkbox = $('<input type="checkbox" class="form-check-input me-2">')
+        .attr('data-field', col.field)
+        .prop('checked', prefs[col.field]);
+      var label = $('<label class="dropdown-item">').append(checkbox).append(document.createTextNode(col.label));
+      menu.append($('<li>').append(label));
+    }
+    menu.append($('<li>').append($('<hr class="dropdown-divider">')));
+    menu.append($('<li>').append($('<a class="dropdown-item" href="#" id="column-chooser-reset">Reset to defaults</a>')));
+  }
 
   function setHome() {
     // Show the page as a home page, without the package table.
@@ -285,6 +372,7 @@ layout: default
       { title:"Authors", field:"authors", width:120},
       { title:"Maintainers", field:"maintainers", width:120},
       { title:"Org", field:"org", width:100},
+      { title:"Version", field:"version", width:80},
       { title:"score", field:"score", width:60, sorter:"number", visible:false},
     ];
 
@@ -294,6 +382,13 @@ layout: default
     } else {
       $("#filtered-type").text(' packages');
       tableColumns = tableColumns.concat([repoColumn, dateColumn]);
+    }
+
+    const columnPrefs = getColumnPrefs();
+    for (const column of tableColumns) {
+      if (column.field in columnPrefs) {
+        column.visible = columnPrefs[column.field];
+      }
     }
 
     tableOptions = {
@@ -409,6 +504,7 @@ layout: default
         gTable.replaceData(data).then(console.log('table data replaced'));
       }
       else {
+        buildColumnChooser();
         makeBuiltTable(distro, data, searchArray).then(table => {
           gTable = table;
         });
@@ -464,6 +560,21 @@ layout: default
       } else {
         console.log(`hashchange ${window.location.href} distro ${distro} no trigger`);
       }
+    });
+
+    $('#column-chooser').on('change', 'input[type=checkbox]', (e) => {
+      var prefs = getColumnPrefs();
+      prefs[$(e.currentTarget).attr('data-field')] = e.currentTarget.checked;
+      saveColumnPrefs(prefs);
+      applyColumnPrefs(prefs);
+    });
+
+    $('#column-chooser').on('click', '#column-chooser-reset', (e) => {
+      e.preventDefault();
+      var prefs = getDefaultColumnPrefs();
+      saveColumnPrefs(prefs);
+      buildColumnChooser();
+      applyColumnPrefs(prefs);
     });
 
     $('#search-query').on('focus', (e) => {
