@@ -12,7 +12,7 @@ jobs:
         ./docker/build.sh
     - name: 'Run Devel Build'
       run: |
-        ./docker/run.sh make test-build
+        ./docker/run.sh make build
     - name: Upload document artifacts
       uses: actions/upload-artifact@v4
       id: artifact-upload-step
