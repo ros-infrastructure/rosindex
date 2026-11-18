@@ -49,11 +49,11 @@ update-rosdistro: $(ROSDISTRO_ENV)
 
 rosdistro-cache: $(ROSDISTRO_ENV)
 	@echo "Get rosdistro cache files"
-	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(CONFIG_FILES) --cache-dir=$(cache_dir) --cache-config-out=$(ROSDISTRO_CACHE_CONFIG)
+	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(CONFIG_FILES) --cache-dir=$(cache_dir) --cache-config-out=$(ROSDISTRO_CACHE_CONFIG) --profile
 
 rosdistro-cache-devel: $(ROSDISTRO_ENV)
 	@echo "Get rosdistro cache files (devel config)"
-	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --cache-dir=$(devel_cache_dir) --cache-config-out=$(DEVEL_ROSDISTRO_CACHE_CONFIG)
+	$(ROSDISTRO_ENV)/bin/python $(ROSDISTRO_CACHE_SCRIPT) --config=$(DEVEL_CONFIG_FILES) --cache-dir=$(devel_cache_dir) --cache-config-out=$(DEVEL_ROSDISTRO_CACHE_CONFIG) --profile
 
 $(PIP_FILE):
 	@echo "Get pip descriptions file"
