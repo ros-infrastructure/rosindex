@@ -42,7 +42,7 @@ ROSDISTRO_ENV = _artifacts/rosdistro_env
 
 $(ROSDISTRO_ENV):
 	python3 -m venv $(ROSDISTRO_ENV)
-	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
+	$(ROSDISTRO_ENV)/bin/python -m pip install rosdistro[profile] @ git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
 
 update-rosdistro: $(ROSDISTRO_ENV)
 	$(ROSDISTRO_ENV)/bin/python -m pip install --upgrade --force-reinstall --no-deps rosdistro[profile] @ git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
