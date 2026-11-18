@@ -165,6 +165,12 @@ def parse_args(argv=None):
         default=False,
         help='Pass --ignore-local to rosdistro_build_cache',
     )
+    parser.add_argument(
+        '--profile',
+        action='store_true',
+        default=False,
+        help='Pass --profile to rosdistro_build_cache',
+    )
     return parser.parse_args(argv)
 
 
@@ -218,6 +224,8 @@ def main(argv=None):
         cli_args.append('--preclean')
     if args.ignore_local:
         cli_args.append('--ignore-local')
+    if args.profile:
+        cli_args.append('--profile')
     cli_args.append(index_url)
     cli_args.extend(target_distros)
 
