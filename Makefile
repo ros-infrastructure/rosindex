@@ -45,7 +45,7 @@ $(ROSDISTRO_ENV):
 	$(ROSDISTRO_ENV)/bin/python -m pip install git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
 
 update-rosdistro: $(ROSDISTRO_ENV)
-	$(ROSDISTRO_ENV)/bin/python -m pip install --upgrade --force-reinstall --no-deps git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
+	$(ROSDISTRO_ENV)/bin/python -m pip install --upgrade --force-reinstall --no-deps rosdistro[profile] @ git+https://github.com/ros-infrastructure/rosdistro.git@extended_cache_refactor
 
 rosdistro-cache: $(ROSDISTRO_ENV)
 	@echo "Get rosdistro cache files"
