@@ -38,7 +38,7 @@ RUN apt-get update && \
 RUN gem install bundle
 RUN pip3 install --upgrade setuptools --break-system-packages
 # For uploading
-RUN pip3 install gitpython requests pyyaml --break-system-packages
+RUN pip3 install gitpython requests pyyaml opentelemetry-api opentelemetry-sdk --break-system-packages
 
 RUN ln -s `which nodejs` /usr/local/bin/node
 
