@@ -19,8 +19,8 @@ end
 
 class RepoSnapshot < Liquid::Drop
   # This represents a snapshot of a version control repository
-  attr_accessor :released, :documented, :distro, :version, :data, :packages
-  def initialize(version, distro, released, documented)
+  attr_accessor :released, :documented, :distro, :version, :data, :packages, :cached_data
+  def initialize(version, distro, released, documented, cached_data = {})
     # the version control system version string
     # this is either a branch or tag of the remote repo
     @version = version
@@ -37,6 +37,9 @@ class RepoSnapshot < Liquid::Drop
     # metadata about this snapshot
     @data = {}
 
+    # cached resources extracted from rosdistro extended cache
+    @cached_data = cached_data
+
     # package name -> PackageSnapshot
     # these are all the packages in this repo snapshot
     @packages = {}
@@ -45,8 +48,8 @@ end
 
 class Repo < Liquid::Drop
   # This represents a remote repository
-  attr_accessor :name, :id, :uri, :accessible, :errors, :purpose, :snapshots, :tags, :type, :status, :local_path, :local_name, :release_manifests
-  def initialize(name, type, uri, purpose, checkout_path, id = nil)
+  attr_accessor :name, :id, :uri, :accessible, :errors, :purpose, :snapshots, :tags, :type, :status, :local_name, :release_manifests
+  def initialize(name, type, uri, purpose, id = nil)
     # non-unique identifier for this repo
     @name = name
 
@@ -71,11 +74,8 @@ class Repo < Liquid::Drop
     # a list of error messages
     @errors = []
 
-    # the local repo name to checkout to (this is important for older rosbuild packages)
+    # the local repo name
     @local_name = name
-
-    # the local path to this repo
-    @local_path = File.join(checkout_path, @name, @id, @local_name)
 
     # hash distro -> RepoSnapshot
     # each entry in this hash represents the preferred version for a given distro in this repo
@@ -236,28 +236,4 @@ class RosIndexDB
   end
 end
 
-def get_vcs(repo)
-
-  vcs = nil
-
-  case repo.type
-  when 'git'
-    dputs "Getting git repo: " + repo.uri.to_s
-    vcs = GIT.new(repo.local_path, repo.uri)
-  when 'hg'
-    dputs "Getting hg repo: " + repo.uri.to_s
-    vcs = HG.new(repo.local_path, repo.uri)
-  when 'svn'
-    dputs "Getting svn repo: " + repo.uri.to_s
-    vcs = GITSVN.new(repo.local_path, repo.uri)
-  else
-    raise IndexException.new("Unsupported VCS type: "+repo.type.to_s, repo.id)
-  end
-
-  if vcs.valid?
-    return vcs
-  else
-    return nil
-  end
-end
 

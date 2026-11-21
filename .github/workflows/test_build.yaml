@@ -10,9 +10,29 @@ jobs:
     - name: 'Build Image'
       run: |
         ./docker/build.sh
-    - name: 'Run Devel Build'
+    - name: 'Restore rosdistro extended cache'
+      id: restore-rosdistro-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: _cache/*-extended-cache.yaml.gz
+        key: rosdistro-extended-cache-${{ hashFiles('_config.yml', 'index.yml', '_scripts/rosdistro_cache.py') }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: |
+          rosdistro-extended-cache-${{ hashFiles('_config.yml', 'index.yml', '_scripts/rosdistro_cache.py') }}-
+          rosdistro-extended-cache-
+    - name: 'Update rosdistro extended cache'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        ./docker/run.sh make test-build
+        ./docker/run.sh make rosdistro-cache
+    - name: 'Save rosdistro extended cache'
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        path: _cache/*-extended-cache.yaml.gz
+        key: rosdistro-extended-cache-${{ hashFiles('_config.yml', 'index.yml', '_scripts/rosdistro_cache.py') }}-${{ github.run_id }}-${{ github.run_attempt }}
+    - name: 'Run Full Build'
+      run: |
+        ./docker/run.sh make build
     - name: Upload document artifacts
       uses: actions/upload-artifact@v4
       id: artifact-upload-step

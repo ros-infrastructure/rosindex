@@ -17,7 +17,15 @@ else
   INTERACTIVE=''
 fi
 
+DOCKER_ENV_ARGS=()
+for var in GITHUB_TOKEN GITHUB_USER GITHUB_PASSWORD ROSDISTRO_RETRY_MAX; do
+  if [ -n "${!var}" ]; then
+    DOCKER_ENV_ARGS+=(-e "$var")
+  fi
+done
+
 docker run \
   -w /home/`whoami`/rosindex \
   -v $SCRIPT_DIR/..:/home/`whoami`/rosindex:rw \
+  "${DOCKER_ENV_ARGS[@]}" \
   --net=host $INTERACTIVE rosindex/rosindex $COMMAND
